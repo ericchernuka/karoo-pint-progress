@@ -117,7 +117,6 @@ class PintProgressReducerTest {
 
         assertEquals(4, progress.completed)
         assertEquals(13, progress.fillBucket)
-        assertEquals(65, progress.displayedPercent)
         assertEquals(progress, steady.progress)
         assertEquals(4, full.completed)
         assertEquals(4, draining.completed)

@@ -1,22 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="96dp"
-    android:height="128dp"
+    android:height="112dp"
     android:viewportWidth="96"
-    android:viewportHeight="128">
+    android:viewportHeight="112">
     <path
-        android:fillColor="#27313B"
-        android:pathData="M22,16 L74,16 L67,108 L29,108 Z"
-        android:fillAlpha="0.36" />
+        android:fillColor="#0D1117"
+        android:pathData="M70,28 L80,28 C89,28 94,34 94,44 L94,73 C94,83 89,89 80,89 L69,89 L69,78 L79,78 C83,78 85,76 85,72 L85,45 C85,41 83,39 79,39 L70,39 Z"
+        android:strokeColor="#F5F4F0"
+        android:strokeWidth="4"
+        android:strokeLineJoin="round" />
     <path
-        android:fillColor="#E6A329"
-        android:pathData="M22.70,25.20 L73.30,25.20 L67,108 L29,108 Z" />
+        android:fillColor="#0D1117"
+        android:pathData="M27,13 L59,13 C64,13 67,16 67,22 L64,90 C64,96 62,99 57,99 L29,99 C24,99 22,96 22,90 L19,22 C19,16 22,13 27,13 Z" />
     <path
-        android:fillColor="#F6F8FA"
-        android:pathData="M23,20.20 L73,20.20 L72,27.20 L24,27.20 Z" />
+        android:fillColor="#F9AB09"
+        android:pathData="M20,21.60 L66,21.60 L64,90 C64,96 62,99 57,99 L29,99 C24,99 22,96 22,90 L20,21.60 Z" />
+    <path
+        android:fillColor="#F5F4F0"
+        android:pathData="M20,23.60 L66,23.60 L66,16.60 C59,14.60 53,17.60 45,16.60 C36,12.60 27,12.60 20,16.60 Z" />
+    <path
+        android:fillColor="#F5F4F0"
+        android:pathData="M32,38.00 C34,38.00 34,40.00 34,40.00 L34,85.00 C34,87.00 30,87.00 30,85.00 L30,40.00 C30,40.00 30,38.00 32,38.00 Z"
+        android:fillAlpha="0.9" />
+    <path
+        android:fillColor="#F5F4F0"
+        android:pathData="M43,33.00 C45,33.00 45,35.00 45,35.00 L45,90.00 C45,92.00 41,92.00 41,90.00 L41,35.00 C41,35.00 41,33.00 43,33.00 Z"
+        android:fillAlpha="0.9" />
+    <path
+        android:fillColor="#F5F4F0"
+        android:pathData="M54,44.00 C56,44.00 56,46.00 56,46.00 L56,81.00 C56,83.00 52,83.00 52,81.00 L52,46.00 C52,46.00 52,44.00 54,44.00 Z"
+        android:fillAlpha="0.9" />
     <path
         android:fillColor="#00000000"
-        android:pathData="M18,12 L78,12 L70,112 L26,112 Z"
-        android:strokeColor="#E8EDF3"
-        android:strokeWidth="3" />
+        android:pathData="M27,8 L59,8 C67,8 71,13 71,21 L68,91 C68,99 64,104 57,104 L29,104 C22,104 18,99 18,91 L15,21 C15,13 19,8 27,8 Z"
+        android:strokeColor="#F5F4F0"
+        android:strokeWidth="4"
+        android:strokeLineJoin="round" />
 </vector>
