@@ -33,7 +33,13 @@ class PintProgressDataType(
             heightPx = config.viewSize.second,
         )
         if (config.preview) {
-            emitter.updateView(renderer.render(PintPresentation.displayFor(PintViewReducer.previewFrame()), layout))
+            emitter.updateView(
+                renderer.render(
+                    display = PintPresentation.displayFor(PintViewReducer.previewFrame()),
+                    layout = layout,
+                    alignment = config.alignment,
+                ),
+            )
             return
         }
 
@@ -48,7 +54,13 @@ class PintProgressDataType(
                     if (waitMillis > 0) delay(waitMillis)
                 }
 
-                emitter.updateView(renderer.render(PintPresentation.displayFor(frame), layout))
+                emitter.updateView(
+                    renderer.render(
+                        display = PintPresentation.displayFor(frame),
+                        layout = layout,
+                        alignment = config.alignment,
+                    ),
+                )
                 lastViewUpdateMillis = SystemClock.elapsedRealtime()
             }
 

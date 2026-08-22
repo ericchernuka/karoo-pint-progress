@@ -6,6 +6,7 @@
 
     <!-- Full-size layout for wide, quarter-height fields. -->
     <LinearLayout
+        android:id="@+id/pint_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"

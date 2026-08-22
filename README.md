@@ -14,6 +14,8 @@ Karoo supplies the cumulative calorie value through its `TYPE_CALORIES_ID` strea
 
 The graphical field adapts to the allocated Karoo tile: full count plus mug for roomy fields, a reduced count plus mug for narrow or short fields, and a live mug-only treatment where a readable counter cannot fit. The data-picker preview uses its own compact mug so it is never cropped by the picker card.
 
+Pint Progress also respects the field alignment selected in Karoo, including the data-picker preview.
+
 ## Runtime behavior
 
 - The field subscribes to Karoo's calorie stream only while it is visible.

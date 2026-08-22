@@ -1,17 +1,24 @@
 package io.ericchernuka.pintprogress
 
+import android.view.Gravity
 import android.view.View
 import android.widget.RemoteViews
 import io.ericchernuka.pintprogress.core.PintAsset
 import io.ericchernuka.pintprogress.core.PintDisplay
 import io.ericchernuka.pintprogress.core.PintFieldLayout
+import io.hammerhead.karooext.models.ViewConfig
 
 /** Thin Android adapter. Presentation decisions are made in [io.ericchernuka.pintprogress.core.PintPresentation]. */
 internal class PintRemoteViews(private val packageName: String) {
-    fun render(display: PintDisplay, layout: PintFieldLayout): RemoteViews = RemoteViews(
+    fun render(
+        display: PintDisplay,
+        layout: PintFieldLayout,
+        alignment: ViewConfig.Alignment,
+    ): RemoteViews = RemoteViews(
         packageName,
         layout.remoteViewsLayout(),
     ).apply {
+        setInt(R.id.pint_content, "setGravity", alignment.gravity())
         setImageViewResource(R.id.pint_image, display.asset.drawableRes(layout))
 
         if (layout.showsCount) {
@@ -29,6 +36,12 @@ internal class PintRemoteViews(private val packageName: String) {
         PintFieldLayout.COMPACT -> R.layout.pint_progress_compact_view
         PintFieldLayout.ICON_ONLY -> R.layout.pint_progress_icon_view
     }
+
+    private fun ViewConfig.Alignment.gravity(): Int = when (this) {
+        ViewConfig.Alignment.LEFT -> Gravity.LEFT
+        ViewConfig.Alignment.CENTER -> Gravity.CENTER_HORIZONTAL
+        ViewConfig.Alignment.RIGHT -> Gravity.RIGHT
+    } or Gravity.CENTER_VERTICAL
 
     private fun PintAsset.drawableRes(layout: PintFieldLayout): Int = when (layout) {
         PintFieldLayout.PICKER -> R.drawable.pint_50_compact

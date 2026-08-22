@@ -5,11 +5,18 @@
     android:padding="2dp">
 
     <!-- Karoo's data picker is shorter than an in-ride quarter-height field. -->
-    <ImageView
-        android:id="@+id/pint_image"
-        android:layout_width="48dp"
-        android:layout_height="65dp"
-        android:layout_gravity="center"
-        android:contentDescription="@null"
-        android:scaleType="fitCenter" />
+    <LinearLayout
+        android:id="@+id/pint_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/pint_image"
+            android:layout_width="48dp"
+            android:layout_height="65dp"
+            android:contentDescription="@null"
+            android:scaleType="fitCenter" />
+    </LinearLayout>
 </FrameLayout>
