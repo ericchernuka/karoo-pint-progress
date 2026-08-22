@@ -6,6 +6,10 @@ Pint Progress is a battery-conscious graphical Karoo data field that turns the n
 
 Pint Progress is branding, not a volume claim: its default beer target is **150 kcal**, approximately a 12 fl oz / 355 ml 5% ABV beer. The field fills in 5% steps, gradually builds foam from 80%, celebrates each observed completion with bubbles rising above the rim, briefly drains, then starts the next glass. The `×N` counter appears after the first completed beer.
 
+![Pint Progress graphical data field at 80% with two completed pints](docs/images/pint-progress-preview.png)
+
+*Resource-accurate preview of the graphical field at 80% to next and `×2` completed. Karoo host chrome varies by device software and is not shown.*
+
 The field uses Karoo's cumulative `TYPE_CALORIES_ID` stream. It does not estimate calories itself, so its count follows the native Karoo calorie model and active ride state.
 
 ## Battery behavior

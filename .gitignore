@@ -11,3 +11,6 @@
 .cxx
 /docs/*
 !/docs/TEST_BOUNDARY.md
+!/docs/images/
+!/docs/images/pint-progress-preview.svg
+!/docs/images/pint-progress-preview.png

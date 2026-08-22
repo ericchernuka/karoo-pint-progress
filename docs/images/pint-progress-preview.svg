@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Resource-accurate preview of pint_80.xml in pint_progress_view.xml. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="640" viewBox="0 0 560 320" role="img" aria-labelledby="title description">
+  <title id="title">Pint Progress graphical data field</title>
+  <desc id="description">An 80 percent full beer glass with a two-pint counter and the text 80 percent to next.</desc>
+  <rect width="560" height="320" fill="#0D1117"/>
+  <g transform="translate(208 28) scale(1.5)">
+    <path d="M22 16 L74 16 L67 108 L29 108 Z" fill="#27313B" fill-opacity="0.36"/>
+    <path d="M23.4 34.4 L72.6 34.4 L67 108 L29 108 Z" fill="#E6A329"/>
+    <path d="M23 32.4 L73 32.4 L72 36.4 L24 36.4 Z" fill="#F6F8FA"/>
+    <path d="M18 12 L78 12 L70 112 L26 112 Z" fill="none" stroke="#E8EDF3" stroke-width="3"/>
+  </g>
+  <text x="524" y="38" text-anchor="end" fill="#F6F8FA" font-family="Roboto, Arial, sans-serif" font-size="26" font-weight="700">×2</text>
+  <text x="280" y="294" text-anchor="middle" fill="#F6F8FA" font-family="Roboto, Arial, sans-serif" font-size="22">80% to next</text>
+</svg>
