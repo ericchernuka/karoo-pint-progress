@@ -2,5 +2,6 @@
     <string name="app_name">Pint Progress</string>
     <string name="extension_name">Pint Progress</string>
     <string name="pint_progress">Pint Progress</string>
-    <string name="pint_progress_description">A beer glass that fills from ride calories</string>
+    <string name="pint_progress_description">A beer mug that fills from ride calories</string>
+    <string name="pint_count_suffix">+</string>
 </resources>

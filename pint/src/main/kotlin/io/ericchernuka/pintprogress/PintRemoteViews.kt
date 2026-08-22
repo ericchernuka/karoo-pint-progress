@@ -11,8 +11,10 @@ internal class PintRemoteViews(private val packageName: String) {
         setImageViewResource(R.id.pint_image, display.asset.drawableRes())
 
         val countText = display.count
+        val countVisibility = if (countText.isEmpty()) View.GONE else View.VISIBLE
         setTextViewText(R.id.pint_count, countText)
-        setViewVisibility(R.id.pint_count, if (countText.isEmpty()) View.GONE else View.VISIBLE)
+        setViewVisibility(R.id.pint_count, countVisibility)
+        setViewVisibility(R.id.pint_count_suffix, countVisibility)
     }
 
     private fun PintAsset.drawableRes(): Int = when (this) {

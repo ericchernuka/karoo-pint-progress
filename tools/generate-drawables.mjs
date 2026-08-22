@@ -4,6 +4,16 @@ import path from "node:path";
 const destination = path.resolve("pint/src/main/res/drawable");
 fs.mkdirSync(destination, { recursive: true });
 
+const colors = {
+  foreground: "@color/pint_foreground",
+  surface: "@color/pint_surface",
+  amber: "@color/pint_amber",
+  beerHighlight: "@color/pint_beer_highlight",
+  bubble: "@color/pint_bubble",
+  unavailableForeground: "@color/pint_unavailable_foreground",
+  unavailableSurface: "@color/pint_unavailable_surface",
+};
+
 const xml = (paths) => `<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="83dp"
@@ -18,22 +28,22 @@ ${paths.map((entry) => `        <path\n            android:fillColor="${entry.fi
 
 const mugOutline = {
   fill: "#00000000",
-  stroke: "#F5F4F0",
+  stroke: colors.foreground,
   strokeWidth: "4",
   lineJoin: "round",
   path: "M27,8 L59,8 C67,8 71,13 71,21 L68,91 C68,99 64,104 57,104 L29,104 C22,104 18,99 18,91 L15,21 C15,13 19,8 27,8 Z",
 };
 
 const mugHandle = {
-  fill: "#0D1117",
-  stroke: "#F5F4F0",
+  fill: colors.surface,
+  stroke: colors.foreground,
   strokeWidth: "4",
   lineJoin: "round",
   path: "M70,28 L80,28 C89,28 94,34 94,44 L94,73 C94,83 89,89 80,89 L69,89 L69,78 L79,78 C83,78 85,76 85,72 L85,45 C85,41 83,39 79,39 L70,39 Z",
 };
 
 const innerMug = {
-  color: "#0D1117",
+  color: colors.surface,
   path: "M27,13 L59,13 C64,13 67,16 67,22 L64,90 C64,96 62,99 57,99 L29,99 C24,99 22,96 22,90 L19,22 C19,16 22,13 27,13 Z",
 };
 
@@ -63,14 +73,14 @@ const mugMarks = (percent) => {
     roundedPill(30, start + 5, 87),
     roundedPill(41, start, 92),
     roundedPill(52, start + 11, 83),
-  ].filter(Boolean).map((path) => ({ color: "#F5F4F0", alpha: "0.9", path }));
+  ].filter(Boolean).map((path) => ({ color: colors.beerHighlight, alpha: "0.9", path }));
 };
 
 const bubbles = [
-  { color: "#F5F4F0", alpha: "0.9", path: "M28,7 A2.5,2.5 0,1 0,28.01,7" },
-  { color: "#F5F4F0", alpha: "0.85", path: "M44,3 A2,2 0,1 0,44.01,3" },
-  { color: "#F5F4F0", alpha: "0.75", path: "M59,8 A3,3 0,1 0,59.01,8" },
-  { color: "#F5F4F0", alpha: "0.8", path: "M74,4 A1.5,1.5 0,1 0,74.01,4" },
+  { color: colors.bubble, alpha: "0.9", path: "M28,7 A2.5,2.5 0,1 0,28.01,7" },
+  { color: colors.bubble, alpha: "0.85", path: "M44,3 A2,2 0,1 0,44.01,3" },
+  { color: colors.bubble, alpha: "0.75", path: "M59,8 A3,3 0,1 0,59.01,8" },
+  { color: colors.bubble, alpha: "0.8", path: "M74,4 A1.5,1.5 0,1 0,74.01,4" },
 ];
 
 const write = (name, paths) => fs.writeFileSync(path.join(destination, `${name}.xml`), xml(paths));
@@ -79,10 +89,10 @@ for (let bucket = 0; bucket < 20; bucket += 1) {
   const percent = bucket * 5;
   const paths = [mugHandle, innerMug];
   const fill = fillPath(percent);
-  if (fill) paths.push({ color: "#F9AB09", path: fill });
+  if (fill) paths.push({ color: colors.amber, path: fill });
   if (percent >= 80) {
     const foamHeight = 5 + ((percent - 80) / 5) * 1.5;
-    paths.push({ color: "#F5F4F0", path: foamPath(fillTop(percent), foamHeight) });
+    paths.push({ color: colors.beerHighlight, path: foamPath(fillTop(percent), foamHeight) });
   }
   paths.push(...mugMarks(percent), mugOutline);
   write(`pint_${String(percent).padStart(2, "0")}`, paths);
@@ -91,8 +101,8 @@ for (let bucket = 0; bucket < 20; bucket += 1) {
 write("pint_full_bubbles", [
   mugHandle,
   innerMug,
-  { color: "#F9AB09", path: fillPath(100) },
-  { color: "#F5F4F0", path: foamPath(fillTop(100), 9) },
+  { color: colors.amber, path: fillPath(100) },
+  { color: colors.beerHighlight, path: foamPath(fillTop(100), 9) },
   ...mugMarks(100),
   ...bubbles,
   mugOutline,
@@ -101,26 +111,26 @@ write("pint_full_bubbles", [
 write("pint_draining", [
   mugHandle,
   innerMug,
-  { color: "#F9AB09", path: fillPath(55) },
-  { color: "#F5F4F0", path: foamPath(fillTop(55), 5) },
+  { color: colors.amber, path: fillPath(55) },
+  { color: colors.beerHighlight, path: foamPath(fillTop(55), 5) },
   ...mugMarks(55),
   ...bubbles.slice(2),
   mugOutline,
 ]);
 
 write("pint_unavailable", [
-  { ...mugHandle, stroke: "#7B8794" },
-  { ...innerMug, color: "#18212B" },
-  { color: "#7B8794", path: "M38,42 L42,42 L42,68 L38,68 Z M38,78 L42,78 L42,84 L38,84 Z" },
-  { color: "#7B8794", path: "M50,42 L54,42 L54,68 L50,68 Z M50,78 L54,78 L54,84 L50,84 Z" },
-  { ...mugOutline, stroke: "#7B8794" },
+  { ...mugHandle, stroke: colors.unavailableForeground },
+  { ...innerMug, color: colors.unavailableSurface },
+  { color: colors.unavailableForeground, path: "M38,42 L42,42 L42,68 L38,68 Z M38,78 L42,78 L42,84 L38,84 Z" },
+  { color: colors.unavailableForeground, path: "M50,42 L54,42 L54,68 L50,68 Z M50,78 L54,78 L54,84 L50,84 Z" },
+  { ...mugOutline, stroke: colors.unavailableForeground },
 ]);
 
 write("ic_pint", [
   mugHandle,
   innerMug,
-  { color: "#F9AB09", path: fillPath(80) },
-  { color: "#F5F4F0", path: foamPath(fillTop(80), 5) },
+  { color: colors.amber, path: fillPath(80) },
+  { color: colors.beerHighlight, path: foamPath(fillTop(80), 5) },
   ...mugMarks(80),
   mugOutline,
 ]);

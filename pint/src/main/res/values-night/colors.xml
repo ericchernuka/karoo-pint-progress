@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="pint_foreground">#F5F4F0</color>
+    <color name="pint_surface">#0D1117</color>
+    <color name="pint_amber">#F9AB09</color>
+    <color name="pint_beer_highlight">#F5F4F0</color>
+    <color name="pint_bubble">#F5F4F0</color>
+    <color name="pint_unavailable_foreground">#7B8794</color>
+    <color name="pint_unavailable_surface">#18212B</color>
+</resources>

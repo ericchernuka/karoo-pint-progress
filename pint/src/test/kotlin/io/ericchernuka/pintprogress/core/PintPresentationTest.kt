@@ -10,7 +10,7 @@ class PintPresentationTest {
             val display = PintPresentation.displayFor(PintFrame.Steady(PintProgress(2, bucket)))
 
             assertEquals(PintAsset.entries[bucket], display.asset)
-            assertEquals("2+", display.count)
+            assertEquals("2", display.count)
         }
     }
 
@@ -21,11 +21,11 @@ class PintPresentationTest {
             PintPresentation.displayFor(PintFrame.Unavailable),
         )
         assertEquals(
-            PintDisplay(PintAsset.FULL_BUBBLES, "3+"),
+            PintDisplay(PintAsset.FULL_BUBBLES, "3"),
             PintPresentation.displayFor(PintFrame.FullBubbles(3)),
         )
         assertEquals(
-            PintDisplay(PintAsset.DRAINING, "3+"),
+            PintDisplay(PintAsset.DRAINING, "3"),
             PintPresentation.displayFor(PintFrame.Draining(3)),
         )
     }
@@ -39,9 +39,9 @@ class PintPresentationTest {
     }
 
     @Test
-    fun `first completion uses the compact trailing-plus counter`() {
+    fun `first completion exposes the completed count`() {
         assertEquals(
-            "1+",
+            "1",
             PintPresentation.displayFor(PintFrame.Steady(PintProgress(1, 0))).count,
         )
     }

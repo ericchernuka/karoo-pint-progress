@@ -16,17 +16,34 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginEnd="4dp"
             android:fontFamily="sans-serif-condensed"
             android:gravity="center_vertical"
             android:includeFontPadding="false"
             android:letterSpacing="-0.04"
             android:singleLine="true"
-            android:textColor="#F5F4F0"
+            android:textColor="@color/pint_foreground"
             android:textScaleX="0.68"
             android:textSize="110sp"
             android:textStyle="bold"
             android:translationY="2dp" />
+
+        <TextView
+            android:id="@+id/pint_count_suffix"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="2dp"
+            android:fontFamily="sans-serif-condensed"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            android:text="@string/pint_count_suffix"
+            android:textColor="@color/pint_foreground"
+            android:textScaleX="0.68"
+            android:textSize="52sp"
+            android:textStyle="bold"
+            android:translationY="-1dp"
+            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/pint_image"

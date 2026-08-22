@@ -40,17 +40,17 @@ object PintPresentation {
         )
         is PintFrame.Steady -> PintDisplay(
             asset = PintAsset.entries[frame.progress.fillBucket],
-            count = frame.progress.completed.counterText(),
+            count = frame.progress.completed.completedText(),
         )
         is PintFrame.FullBubbles -> PintDisplay(
             asset = PintAsset.FULL_BUBBLES,
-            count = frame.completed.counterText(),
+            count = frame.completed.completedText(),
         )
         is PintFrame.Draining -> PintDisplay(
             asset = PintAsset.DRAINING,
-            count = frame.completed.counterText(),
+            count = frame.completed.completedText(),
         )
     }
 
-    private fun Int.counterText(): String = if (this == 0) "" else "$this+"
+    private fun Int.completedText(): String = if (this == 0) "" else toString()
 }
