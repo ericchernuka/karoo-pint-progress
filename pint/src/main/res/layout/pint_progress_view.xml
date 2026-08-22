@@ -16,19 +16,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginEnd="5dp"
+            android:layout_marginEnd="4dp"
             android:fontFamily="sans-serif-condensed"
             android:gravity="center_vertical"
             android:includeFontPadding="false"
+            android:letterSpacing="-0.04"
             android:singleLine="true"
             android:textColor="#F5F4F0"
-            android:textSize="78sp"
-            android:textStyle="bold" />
+            android:textScaleX="0.68"
+            android:textSize="110sp"
+            android:textStyle="bold"
+            android:translationY="2dp" />
 
         <ImageView
             android:id="@+id/pint_image"
-            android:layout_width="76dp"
-            android:layout_height="96dp"
+            android:layout_width="66dp"
+            android:layout_height="89dp"
             android:adjustViewBounds="true"
             android:contentDescription="@null"
             android:scaleType="fitCenter" />

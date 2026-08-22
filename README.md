@@ -8,7 +8,7 @@ One full mug corresponds to **150 kcal** by default, approximately a 12 fl oz / 
 
 ![Pint Progress graphical data field with twelve completed pints and an 80% filled beer mug](docs/images/pint-progress-preview.png)
 
-*Resource-accurate preview at 80% to the next beer and `12+` completed. The counter uses Android's Roboto Condensed system family through the `sans-serif-condensed` alias. Karoo host chrome varies by device software and is not shown.*
+*Resource-accurate preview at 80% to the next beer and `12+` completed. The counter uses Android's Roboto Condensed Bold system face through `sans-serif-condensed`, with its visible height matched to the mug. Karoo host chrome varies by device software and is not shown.*
 
 Karoo supplies the cumulative calorie value through its `TYPE_CALORIES_ID` stream. Pint Progress does not calculate calories. Its fill level and completed-mug count follow Karoo's native calorie model and active ride state.
 

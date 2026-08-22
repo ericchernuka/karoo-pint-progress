@@ -6,11 +6,13 @@ fs.mkdirSync(destination, { recursive: true });
 
 const xml = (paths) => `<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="96dp"
+    android:width="83dp"
     android:height="112dp"
-    android:viewportWidth="96"
+    android:viewportWidth="83"
     android:viewportHeight="112">
-${paths.map((entry) => `    <path\n        android:fillColor="${entry.fill ?? entry.color}"\n        android:pathData="${entry.path}"${entry.alpha ? `\n        android:fillAlpha="${entry.alpha}"` : ""}${entry.stroke ? `\n        android:strokeColor="${entry.stroke}"\n        android:strokeWidth="${entry.strokeWidth}"` : ""}${entry.lineCap ? `\n        android:strokeLineCap="${entry.lineCap}"` : ""}${entry.lineJoin ? `\n        android:strokeLineJoin="${entry.lineJoin}"` : ""} />`).join("\n")}
+    <group android:translateX="-13">
+${paths.map((entry) => `        <path\n            android:fillColor="${entry.fill ?? entry.color}"\n            android:pathData="${entry.path}"${entry.alpha ? `\n            android:fillAlpha="${entry.alpha}"` : ""}${entry.stroke ? `\n            android:strokeColor="${entry.stroke}"\n            android:strokeWidth="${entry.strokeWidth}"` : ""}${entry.lineCap ? `\n            android:strokeLineCap="${entry.lineCap}"` : ""}${entry.lineJoin ? `\n            android:strokeLineJoin="${entry.lineJoin}"` : ""} />`).join("\n")}
+    </group>
 </vector>
 `;
 
