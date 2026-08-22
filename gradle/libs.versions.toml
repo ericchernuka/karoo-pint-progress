@@ -1,0 +1,23 @@
+# Modified by Eric Chernuka for Pint Progress. See NOTICE for details.
+
+[versions]
+agp = "8.6.1"
+coroutines = "1.8.0"
+dokka = "1.9.20"
+kotlin = "2.0.0"
+
+[libraries]
+androidx-annotation = { group = "androidx.annotation", name = "annotation", version = "1.6.0" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version = "1.2.1" }
+jetbrains-dokka-android = { module = "org.jetbrains.dokka:android-documentation-plugin", version.ref = "dokka" }
+junit = { group = "junit", name = "junit", version = "4.13.2" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.6.3" }
+timber = { module = "com.jakewharton.timber:timber", version = "5.0.1" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+jetbrains-dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

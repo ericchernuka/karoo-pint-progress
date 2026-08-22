@@ -1,0 +1,31 @@
+Pint Progress for Karoo
+Copyright 2026 Eric Chernuka
+
+This repository is licensed under the Apache License, Version 2.0. Original Pint Progress
+application code, Pint-specific graphics, documentation, tests, and project configuration are
+attributed to Eric Chernuka unless a source file states otherwise.
+
+This product includes the Karoo extension SDK from SRAM LLC, sourced from
+https://github.com/hammerheadnav/karoo-ext at commit f79f103 (SDK 1.1.9). The vendored SDK and
+its retained notices are available under the Apache License, Version 2.0. The following assets
+are retained unmodified from that upstream project and are not Pint Progress artwork:
+
+- assets/logo-icon.svg
+- assets/hammerhead-style.css
+
+The following upstream files have been modified for this repository:
+
+- .gitignore: adapts ignored generated files and retains the Pint test-boundary document.
+- build.gradle.kts: removes unused sample-project plugins from the standalone application build.
+- gradle/libs.versions.toml: removes unused sample dependencies and records Pint dependencies.
+- settings.gradle.kts: selects the Pint application module and removes upstream package feeds.
+- README.md: replaces generic SDK documentation with Pint Progress application documentation.
+- lib/build.gradle.kts: removes the upstream Maven publication configuration and its GitHub
+  Packages credential path.
+- lib/src/main/kotlin/io/hammerhead/karooext/extension/KarooExtension.kt: adds caller gating,
+  bounded session registration, safe view-config parsing, and teardown cancellation.
+- lib/src/main/kotlin/io/hammerhead/karooext/internal/Consumer.kt: rejects malformed serialized
+  event bundles without logging their contents.
+- lib/src/main/kotlin/io/hammerhead/karooext/internal/Emitter.kt: makes cancellation safe when a
+  host stops a session while it is starting.
+- gradle/wrapper/gradle-wrapper.properties: pins the official Gradle distribution checksum.

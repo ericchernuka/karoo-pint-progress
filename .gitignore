@@ -1,0 +1,13 @@
+# Modified by Eric Chernuka for Pint Progress. See NOTICE for details.
+*.iml
+.gradle
+.kotlin
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+/docs/*
+!/docs/TEST_BOUNDARY.md

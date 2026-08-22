@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ExtensionInfo
+    displayName="@string/extension_name"
+    icon="@drawable/ic_pint"
+    id="pintprogress"
+    scansDevices="false">
+    <DataType
+        description="@string/pint_progress_description"
+        displayName="@string/pint_progress"
+        graphical="true"
+        icon="@drawable/ic_pint"
+        typeId="pint-progress" />
+</ExtensionInfo>
