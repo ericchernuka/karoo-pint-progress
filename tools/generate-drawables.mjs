@@ -14,10 +14,17 @@ const colors = {
   unavailableSurface: "@color/pint_unavailable_surface",
 };
 
-const xml = (paths) => `<?xml version="1.0" encoding="utf-8"?>
+const vectorSizes = {
+  regular: { width: "66dp", height: "89dp" },
+  compact: { width: "48dp", height: "65dp" },
+  icon: { width: "32dp", height: "43dp" },
+  extensionIcon: { width: "83dp", height: "112dp" },
+};
+
+const xml = (paths, size) => `<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="83dp"
-    android:height="112dp"
+    android:width="${size.width}"
+    android:height="${size.height}"
     android:viewportWidth="83"
     android:viewportHeight="112">
     <group android:translateX="-13">
@@ -83,7 +90,13 @@ const bubbles = [
   { color: colors.bubble, alpha: "0.8", path: "M74,4 A1.5,1.5 0,1 0,74.01,4" },
 ];
 
-const write = (name, paths) => fs.writeFileSync(path.join(destination, `${name}.xml`), xml(paths));
+const write = (name, paths, size) => fs.writeFileSync(path.join(destination, `${name}.xml`), xml(paths, size));
+
+const writeMugVariants = (name, paths) => {
+  write(name, paths, vectorSizes.regular);
+  write(`${name}_compact`, paths, vectorSizes.compact);
+  write(`${name}_icon`, paths, vectorSizes.icon);
+};
 
 for (let bucket = 0; bucket < 20; bucket += 1) {
   const percent = bucket * 5;
@@ -95,10 +108,10 @@ for (let bucket = 0; bucket < 20; bucket += 1) {
     paths.push({ color: colors.beerHighlight, path: foamPath(fillTop(percent), foamHeight) });
   }
   paths.push(...mugMarks(percent), mugOutline);
-  write(`pint_${String(percent).padStart(2, "0")}`, paths);
+  writeMugVariants(`pint_${String(percent).padStart(2, "0")}`, paths);
 }
 
-write("pint_full_bubbles", [
+writeMugVariants("pint_full_bubbles", [
   mugHandle,
   innerMug,
   { color: colors.amber, path: fillPath(100) },
@@ -108,7 +121,7 @@ write("pint_full_bubbles", [
   mugOutline,
 ]);
 
-write("pint_draining", [
+writeMugVariants("pint_draining", [
   mugHandle,
   innerMug,
   { color: colors.amber, path: fillPath(55) },
@@ -118,7 +131,7 @@ write("pint_draining", [
   mugOutline,
 ]);
 
-write("pint_unavailable", [
+writeMugVariants("pint_unavailable", [
   { ...mugHandle, stroke: colors.unavailableForeground },
   { ...innerMug, color: colors.unavailableSurface },
   { color: colors.unavailableForeground, path: "M38,42 L42,42 L42,68 L38,68 Z M38,78 L42,78 L42,84 L38,84 Z" },
@@ -133,4 +146,4 @@ write("ic_pint", [
   { color: colors.beerHighlight, path: foamPath(fillTop(80), 5) },
   ...mugMarks(80),
   mugOutline,
-]);
+], vectorSizes.extensionIcon);

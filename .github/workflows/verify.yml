@@ -22,3 +22,11 @@ jobs:
       - uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
       - run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
       - run: ./gradlew :lib:testDebugUnitTest :pint:lintDebug :pint:assembleDebug :pint:assembleRelease :pint:jacocoBehaviorTestCoverageVerification --no-daemon
+      - name: Upload debug APK
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: pint-progress-debug-${{ github.sha }}
+          path: pint/build/outputs/apk/debug/pint-debug.apk
+          if-no-files-found: error
+          retention-days: 14

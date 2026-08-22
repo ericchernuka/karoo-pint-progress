@@ -12,6 +12,8 @@ One full mug corresponds to **150 kcal** by default, approximately a 12 fl oz / 
 
 Karoo supplies the cumulative calorie value through its `TYPE_CALORIES_ID` stream. Pint Progress does not calculate calories. Its fill level and completed-mug count follow Karoo's native calorie model and active ride state.
 
+The graphical field adapts to the allocated Karoo tile: full count plus mug for roomy fields, a reduced count plus mug for narrow or short fields, and a live mug-only treatment where a readable counter cannot fit. The data-picker preview uses its own compact mug so it is never cropped by the picker card.
+
 ## Runtime behavior
 
 - The field subscribes to Karoo's calorie stream only while it is visible.

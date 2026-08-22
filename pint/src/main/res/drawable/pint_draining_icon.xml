@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="43dp"
+    android:viewportWidth="83"
+    android:viewportHeight="112">
+    <group android:translateX="-13">
+        <path
+            android:fillColor="@color/pint_surface"
+            android:pathData="M70,28 L80,28 C89,28 94,34 94,44 L94,73 C94,83 89,89 80,89 L69,89 L69,78 L79,78 C83,78 85,76 85,72 L85,45 C85,41 83,39 79,39 L70,39 Z"
+            android:strokeColor="@color/pint_foreground"
+            android:strokeWidth="4"
+            android:strokeLineJoin="round" />
+        <path
+            android:fillColor="@color/pint_surface"
+            android:pathData="M27,13 L59,13 C64,13 67,16 67,22 L64,90 C64,96 62,99 57,99 L29,99 C24,99 22,96 22,90 L19,22 C19,16 22,13 27,13 Z" />
+        <path
+            android:fillColor="@color/pint_amber"
+            android:pathData="M20,51.70 L66,51.70 L64,90 C64,96 62,99 57,99 L29,99 C24,99 22,96 22,90 L20,51.70 Z" />
+        <path
+            android:fillColor="@color/pint_beer_highlight"
+            android:pathData="M20,53.70 L66,53.70 L66,49.70 C59,47.70 53,50.70 45,49.70 C36,45.70 27,45.70 20,49.70 Z" />
+        <path
+            android:fillColor="@color/pint_beer_highlight"
+            android:pathData="M32,64.70 C34,64.70 34,66.70 34,66.70 L34,85.00 C34,87.00 30,87.00 30,85.00 L30,66.70 C30,66.70 30,64.70 32,64.70 Z"
+            android:fillAlpha="0.9" />
+        <path
+            android:fillColor="@color/pint_beer_highlight"
+            android:pathData="M43,59.70 C45,59.70 45,61.70 45,61.70 L45,90.00 C45,92.00 41,92.00 41,90.00 L41,61.70 C41,61.70 41,59.70 43,59.70 Z"
+            android:fillAlpha="0.9" />
+        <path
+            android:fillColor="@color/pint_beer_highlight"
+            android:pathData="M54,70.70 C56,70.70 56,72.70 56,72.70 L56,81.00 C56,83.00 52,83.00 52,81.00 L52,72.70 C52,72.70 52,70.70 54,70.70 Z"
+            android:fillAlpha="0.9" />
+        <path
+            android:fillColor="@color/pint_bubble"
+            android:pathData="M59,8 A3,3 0,1 0,59.01,8"
+            android:fillAlpha="0.75" />
+        <path
+            android:fillColor="@color/pint_bubble"
+            android:pathData="M74,4 A1.5,1.5 0,1 0,74.01,4"
+            android:fillAlpha="0.8" />
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M27,8 L59,8 C67,8 71,13 71,21 L68,91 C68,99 64,104 57,104 L29,104 C22,104 18,99 18,91 L15,21 C15,13 19,8 27,8 Z"
+            android:strokeColor="@color/pint_foreground"
+            android:strokeWidth="4"
+            android:strokeLineJoin="round" />
+    </group>
+</vector>
