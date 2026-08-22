@@ -1,6 +1,8 @@
 package io.ericchernuka.pintprogress.core
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PintFieldLayoutTest {
@@ -25,5 +27,25 @@ class PintFieldLayoutTest {
     fun `tiles too small for a readable counter retain only the live mug`() {
         assertEquals(PintFieldLayout.ICON_ONLY, PintFieldLayout.forSize(preview = false, widthPx = 180, heightPx = 200))
         assertEquals(PintFieldLayout.ICON_ONLY, PintFieldLayout.forSize(preview = false, widthPx = 480, heightPx = 120))
+    }
+
+    @Test
+    fun `layout metadata identifies the treatments with a counter`() {
+        assertFalse(PintFieldLayout.PICKER.showsCount)
+        assertTrue(PintFieldLayout.REGULAR.showsCount)
+        assertTrue(PintFieldLayout.COMPACT.showsCount)
+        assertFalse(PintFieldLayout.ICON_ONLY.showsCount)
+
+        assertEquals(
+            listOf(
+                PintFieldLayout.PICKER,
+                PintFieldLayout.REGULAR,
+                PintFieldLayout.COMPACT,
+                PintFieldLayout.ICON_ONLY,
+            ),
+            PintFieldLayout.entries,
+        )
+        assertEquals(PintFieldLayout.PICKER, PintFieldLayout.valueOf("PICKER"))
+        assertEquals(PintFieldLayout.values().toList(), PintFieldLayout.entries)
     }
 }
