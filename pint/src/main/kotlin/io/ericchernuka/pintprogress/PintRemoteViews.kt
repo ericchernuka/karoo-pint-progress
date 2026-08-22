@@ -9,7 +9,6 @@ import io.ericchernuka.pintprogress.core.PintDisplay
 internal class PintRemoteViews(private val packageName: String) {
     fun render(display: PintDisplay): RemoteViews = RemoteViews(packageName, R.layout.pint_progress_view).apply {
         setImageViewResource(R.id.pint_image, display.asset.drawableRes())
-        setTextViewText(R.id.pint_detail, display.detail)
 
         val countText = display.count
         setTextViewText(R.id.pint_count, countText)

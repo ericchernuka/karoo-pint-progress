@@ -2,15 +2,15 @@
 
 > Modified by Eric Chernuka for Pint Progress. See [NOTICE](NOTICE) for attribution.
 
-Pint Progress is a graphical data field for Hammerhead Karoo cycling computers. It turns Karoo's native **Calories from Power** ride total into a beer glass that fills as the total rises.
+Pint Progress is a graphical data field for Hammerhead Karoo cycling computers. It turns Karoo's native **Calories from Power** ride total into a beer mug that fills as the total rises.
 
-One full glass corresponds to **150 kcal** by default, approximately a 12 fl oz / 355 ml 5% ABV beer. The "pint" name is branding, not a volume measurement. The glass fills in 5% steps, adds foam from 80%, shows bubbles when it observes a completion, drains, and starts the next glass. A `×N` counter appears after the first completed beer.
+One full mug corresponds to **150 kcal** by default, approximately a 12 fl oz / 355 ml 5% ABV beer. The "pint" name is branding, not a volume measurement. The mug fills in 5% steps, adds foam from 80%, shows bubbles when it observes a completion, drains, and starts the next mug. Until the first completed beer, the field shows only the filling mug. Afterwards it shows a compact `N+` count beside the mug.
 
-![Pint Progress graphical data field at 80% with two completed pints](docs/images/pint-progress-preview.png)
+![Pint Progress graphical data field with twelve completed pints and an 80% filled beer mug](docs/images/pint-progress-preview.png)
 
-*Resource-accurate preview of the graphical field at 80% to next and `×2` completed. Karoo host chrome varies by device software and is not shown.*
+*Resource-accurate preview at 80% to the next beer and `12+` completed. The counter uses Android's Roboto Condensed system family through the `sans-serif-condensed` alias. Karoo host chrome varies by device software and is not shown.*
 
-Karoo supplies the cumulative calorie value through its `TYPE_CALORIES_ID` stream. Pint Progress does not calculate calories. Its fill level and completed-glass count follow Karoo's native calorie model and active ride state.
+Karoo supplies the cumulative calorie value through its `TYPE_CALORIES_ID` stream. Pint Progress does not calculate calories. Its fill level and completed-mug count follow Karoo's native calorie model and active ride state.
 
 ## Runtime behavior
 

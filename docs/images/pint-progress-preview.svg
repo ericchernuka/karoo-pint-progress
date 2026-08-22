@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Resource-accurate preview of pint_80.xml in pint_progress_view.xml. -->
+<!-- Resource-accurate preview of the compact counter-and-mug field at 80%. -->
 <svg xmlns="http://www.w3.org/2000/svg" width="1120" height="640" viewBox="0 0 560 320" role="img" aria-labelledby="title description">
-  <title id="title">Pint Progress graphical data field</title>
-  <desc id="description">An 80 percent full beer glass with a two-pint counter and the text 80 percent to next.</desc>
-  <rect width="560" height="320" fill="#0D1117"/>
-  <g transform="translate(208 28) scale(1.5)">
-    <path d="M22 16 L74 16 L67 108 L29 108 Z" fill="#27313B" fill-opacity="0.36"/>
-    <path d="M23.4 34.4 L72.6 34.4 L67 108 L29 108 Z" fill="#E6A329"/>
-    <path d="M23 32.4 L73 32.4 L72 36.4 L24 36.4 Z" fill="#F6F8FA"/>
-    <path d="M18 12 L78 12 L70 112 L26 112 Z" fill="none" stroke="#E8EDF3" stroke-width="3"/>
+  <title id="title">Pint Progress compact mug data field</title>
+  <desc id="description">A condensed white twelve-plus count beside an 80 percent full outlined beer mug.</desc>
+  <rect width="560" height="320" fill="#020202"/>
+  <g transform="translate(280 66) scale(1.58)">
+    <path d="M70 28 L80 28 C89 28 94 34 94 44 L94 73 C94 83 89 89 80 89 L69 89 L69 78 L79 78 C83 78 85 76 85 72 L85 45 C85 41 83 39 79 39 L70 39 Z" fill="#0D1117" stroke="#F5F4F0" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M27 13 L59 13 C64 13 67 16 67 22 L64 90 C64 96 62 99 57 99 L29 99 C24 99 22 96 22 90 L19 22 C19 16 22 13 27 13 Z" fill="#0D1117"/>
+    <path d="M20 30.2 L66 30.2 L64 90 C64 96 62 99 57 99 L29 99 C24 99 22 96 22 90 L20 30.2 Z" fill="#F9AB09"/>
+    <path d="M20 32.2 L66 32.2 L66 28.2 C59 26.2 53 29.2 45 28.2 C36 24.2 27 24.2 20 28.2 Z" fill="#F5F4F0"/>
+    <path d="M32 43.2 C34 43.2 34 45.2 34 45.2 L34 85 C34 87 30 87 30 85 L30 45.2 C30 45.2 30 43.2 32 43.2 Z M43 38.2 C45 38.2 45 40.2 45 40.2 L45 90 C45 92 41 92 41 90 L41 40.2 C41 40.2 41 38.2 43 38.2 Z M54 49.2 C56 49.2 56 51.2 56 51.2 L56 81 C56 83 52 83 52 81 L52 51.2 C52 51.2 52 49.2 54 49.2 Z" fill="#F5F4F0" fill-opacity="0.9"/>
+    <path d="M27 8 L59 8 C67 8 71 13 71 21 L68 91 C68 99 64 104 57 104 L29 104 C22 104 18 99 18 91 L15 21 C15 13 19 8 27 8 Z" fill="none" stroke="#F5F4F0" stroke-width="4" stroke-linejoin="round"/>
   </g>
-  <text x="524" y="38" text-anchor="end" fill="#F6F8FA" font-family="Roboto, Arial, sans-serif" font-size="26" font-weight="700">×2</text>
-  <text x="280" y="294" text-anchor="middle" fill="#F6F8FA" font-family="Roboto, Arial, sans-serif" font-size="22">80% to next</text>
+  <text x="590" y="212" text-anchor="end" fill="#F5F4F0" font-family="Roboto Condensed, Arial Narrow, sans-serif" font-size="135" font-weight="700" transform="scale(0.5 1)">12+</text>
 </svg>

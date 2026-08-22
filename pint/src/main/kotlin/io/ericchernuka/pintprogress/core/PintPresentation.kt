@@ -29,7 +29,6 @@ enum class PintAsset {
 
 data class PintDisplay(
     val asset: PintAsset,
-    val detail: String,
     val count: String,
 )
 
@@ -37,25 +36,21 @@ object PintPresentation {
     fun displayFor(frame: PintFrame): PintDisplay = when (frame) {
         PintFrame.Unavailable -> PintDisplay(
             asset = PintAsset.UNAVAILABLE,
-            detail = "Ride calories needed",
             count = "",
         )
         is PintFrame.Steady -> PintDisplay(
             asset = PintAsset.entries[frame.progress.fillBucket],
-            detail = "${frame.progress.displayedPercent}% to next",
             count = frame.progress.completed.counterText(),
         )
         is PintFrame.FullBubbles -> PintDisplay(
             asset = PintAsset.FULL_BUBBLES,
-            detail = "Cheers!",
             count = frame.completed.counterText(),
         )
         is PintFrame.Draining -> PintDisplay(
             asset = PintAsset.DRAINING,
-            detail = "Next round",
             count = frame.completed.counterText(),
         )
     }
 
-    private fun Int.counterText(): String = if (this == 0) "" else "×$this"
+    private fun Int.counterText(): String = if (this == 0) "" else "$this+"
 }

@@ -8,7 +8,7 @@ const val DEFAULT_BEER_CALORIES: Double = 150.0
 
 /**
  * The visible state deliberately has 20 fill levels. It avoids an IPC update for every calorie
- * while still reading as a smoothly filling glass at a glance.
+ * while still reading as a smoothly filling mug at a glance.
  */
 data class PintProgress(
     val completed: Int,
@@ -18,9 +18,6 @@ data class PintProgress(
         require(completed >= 0)
         require(fillBucket in 0..19)
     }
-
-    val displayedPercent: Int
-        get() = fillBucket * 5
 }
 
 sealed interface PintFrame {
