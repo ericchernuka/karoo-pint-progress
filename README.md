@@ -2,33 +2,33 @@
 
 > Modified by Eric Chernuka for Pint Progress. See [NOTICE](NOTICE) for attribution.
 
-Pint Progress is a battery-conscious graphical Karoo data field that turns the native **Calories from Power** ride total into a playful beer-progress indicator.
+Pint Progress is a graphical data field for Hammerhead Karoo cycling computers. It turns Karoo's native **Calories from Power** ride total into a beer glass that fills as the total rises.
 
-Pint Progress is branding, not a volume claim: its default beer target is **150 kcal**, approximately a 12 fl oz / 355 ml 5% ABV beer. The field fills in 5% steps, gradually builds foam from 80%, celebrates each observed completion with bubbles rising above the rim, briefly drains, then starts the next glass. The `×N` counter appears after the first completed beer.
+One full glass corresponds to **150 kcal** by default, approximately a 12 fl oz / 355 ml 5% ABV beer. The "pint" name is branding, not a volume measurement. The glass fills in 5% steps, adds foam from 80%, shows bubbles when it observes a completion, drains, and starts the next glass. A `×N` counter appears after the first completed beer.
 
 ![Pint Progress graphical data field at 80% with two completed pints](docs/images/pint-progress-preview.png)
 
 *Resource-accurate preview of the graphical field at 80% to next and `×2` completed. Karoo host chrome varies by device software and is not shown.*
 
-The field uses Karoo's cumulative `TYPE_CALORIES_ID` stream. It does not estimate calories itself, so its count follows the native Karoo calorie model and active ride state.
+Karoo supplies the cumulative calorie value through its `TYPE_CALORIES_ID` stream. Pint Progress does not calculate calories. Its fill level and completed-glass count follow Karoo's native calorie model and active ride state.
 
-## Battery behavior
+## Runtime behavior
 
-- One native calorie subscription exists only while the field is visible.
-- Normal rendering changes only at 5% fill boundaries or completed-beer boundaries.
-- Completion animation has three static frames separated by one second, matching Karoo's one-view-update-per-second limit.
-- Every actual view update is spaced at least one second apart, so a quick source-state change is deferred instead of dropped by Karoo.
-- There is no timer, sensor scan, background job, bitmap allocation, or developer FIT field.
+- The field subscribes to Karoo's calorie stream only while it is visible.
+- Normal rendering changes at 5% fill boundaries or completed-beer boundaries.
+- The completion animation has three static frames separated by one second, matching Karoo's limit of one view update per second.
+- Pint Progress spaces every view update at least one second apart. It defers a quick source-state change rather than allowing Karoo to drop it.
+- The app has no timer, sensor scan, background job, bitmap allocation, or developer FIT field.
 
 ## Build and test
 
-The repository vendors the open-source Karoo extension SDK source in `lib/`, so a local build does not need GitHub Packages credentials.
+The repository includes the open-source Karoo extension SDK source in `lib/`, so local builds do not need GitHub Packages credentials.
 
 ```bash
 ./gradlew :lib:testDebugUnitTest :pint:lintDebug :pint:assembleDebug :pint:assembleRelease :pint:jacocoBehaviorTestCoverageVerification
 ```
 
-This produces a local debug APK and an intentionally unsigned release APK. It also verifies 100% instruction and branch coverage for every deterministic behavior class: calorie conversion, threshold animation, view-reducer coalescing, preview state, drawable frame selection, labels, counters, and caller authorization. The thin Android/Karoo boundary is compile-verified against the vendored official SDK; see [the test boundary policy](docs/TEST_BOUNDARY.md).
+This command produces a local debug APK and an intentionally unsigned release APK. It also verifies 100% instruction and branch coverage for every deterministic behavior class: calorie conversion, threshold animation, view-reducer coalescing, preview state, drawable frame selection, labels, counters, and caller authorization. The build checks the thin Android/Karoo boundary against the included official SDK. See [the test boundary policy](docs/TEST_BOUNDARY.md).
 
 ## Development install on a Karoo
 
@@ -39,7 +39,7 @@ This produces a local debug APK and an intentionally unsigned release APK. It al
 
 The debug APK is for local development only. Do not attach it to a public release. The release build is deliberately unsigned: any distributable release must be rebuilt from an audited commit, signed with a project-owned release key, and published with its commit and SHA-256 recorded.
 
-Do a short on-device smoke test before relying on it in a ride: verify initial rendering, the 80% foam state, a completion animation, a page change, and that the Karoo system can load the caller-gated extension.
+Before using it during a ride, run a short on-device smoke test. Verify initial rendering, the 80% foam state, a completion animation, a page change, and that the Karoo system can load the caller-gated extension.
 
 ## Security model
 
@@ -50,7 +50,7 @@ Do a short on-device smoke test before relying on it in a ride: verify initial r
 
 ## Customize the drink target
 
-For now, change `DEFAULT_BEER_CALORIES` in `pint/src/main/kotlin/io/ericchernuka/pintprogress/core/PintProgressReducer.kt`, rebuild, and reinstall. Keeping the target compile-time constant makes a ride deterministic and keeps the runtime path minimal. A profile setting screen is a deliberately deferred iteration.
+To change the target, edit `DEFAULT_BEER_CALORIES` in `pint/src/main/kotlin/io/ericchernuka/pintprogress/core/PintProgressReducer.kt`, then rebuild and reinstall the app. The target is a compile-time constant, which makes the result deterministic during a ride and keeps the runtime path small. The app does not currently have a settings screen for this value.
 
 ## License and attribution
 
