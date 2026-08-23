@@ -1,6 +1,7 @@
 package io.ericchernuka.pintprogress
 
 import io.hammerhead.karooext.models.StreamState
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.toList
@@ -74,7 +75,10 @@ class KarooFlowsTest {
         assertEquals(1, callbacks.unregisterCount)
     }
 
-    private fun launchCollection(flow: kotlinx.coroutines.flow.Flow<StreamState>, states: MutableList<StreamState>): Job =
+    private fun CoroutineScope.launchCollection(
+        flow: kotlinx.coroutines.flow.Flow<StreamState>,
+        states: MutableList<StreamState>,
+    ): Job =
         launch {
             flow.toList(states)
         }
