@@ -4,22 +4,45 @@ import android.view.Gravity
 import android.view.View
 import android.widget.RemoteViews
 import io.ericchernuka.pintprogress.core.PintAsset
+import io.ericchernuka.pintprogress.core.PintFieldChrome
 import io.ericchernuka.pintprogress.core.PintDisplay
 import io.ericchernuka.pintprogress.core.PintFieldLayout
+import io.ericchernuka.pintprogress.core.PintFieldTypography
 import io.hammerhead.karooext.models.ViewConfig
+import kotlin.math.roundToInt
 
 /** Thin Android adapter. Presentation decisions are made in [io.ericchernuka.pintprogress.core.PintPresentation]. */
-internal class PintRemoteViews(private val packageName: String) {
+internal class PintRemoteViews(
+    private val packageName: String,
+    private val displayDensity: Float,
+) {
     fun render(
         display: PintDisplay,
         layout: PintFieldLayout,
         alignment: ViewConfig.Alignment,
+        textSizeSp: Int,
+        boundariesEnabled: Boolean,
     ): RemoteViews = RemoteViews(
         packageName,
         layout.remoteViewsLayout(),
     ).apply {
+        val edgeInsetPx = (PintFieldChrome.edgeInsetDp(boundariesEnabled) * displayDensity).roundToInt()
+        setViewPadding(R.id.pint_root, edgeInsetPx, edgeInsetPx, edgeInsetPx, edgeInsetPx)
         setInt(R.id.pint_content, "setGravity", alignment.gravity())
         setImageViewResource(R.id.pint_image, display.asset.drawableRes(layout))
+
+        PintFieldTypography.forLayout(layout, textSizeSp)?.let { typography ->
+            setTextViewTextSize(
+                R.id.pint_count,
+                android.util.TypedValue.COMPLEX_UNIT_SP,
+                typography.countTextSizeSp,
+            )
+            setTextViewTextSize(
+                R.id.pint_count_suffix,
+                android.util.TypedValue.COMPLEX_UNIT_SP,
+                typography.suffixTextSizeSp,
+            )
+        }
 
         if (layout.showsCount) {
             val countText = display.count

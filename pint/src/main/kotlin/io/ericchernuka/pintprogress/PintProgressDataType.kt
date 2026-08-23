@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.SystemClock
 import io.ericchernuka.pintprogress.core.PintFrame
 import io.ericchernuka.pintprogress.core.PintFieldLayout
+import io.ericchernuka.pintprogress.core.PintFieldSize
 import io.ericchernuka.pintprogress.core.PintPresentation
 import io.ericchernuka.pintprogress.core.PintViewReducer
 import io.hammerhead.karooext.KarooSystemService
@@ -26,11 +27,17 @@ class PintProgressDataType(
     override fun startView(context: Context, config: ViewConfig, emitter: ViewEmitter) {
         emitter.onNext(UpdateGraphicConfig(showHeader = false))
 
-        val renderer = PintRemoteViews(context.packageName)
+        val displayMetrics = context.resources.displayMetrics
+        val renderer = PintRemoteViews(context.packageName, displayMetrics.density)
+        val fieldSize = PintFieldSize.resolve(
+            viewSize = config.viewSize,
+            gridSize = config.gridSize,
+            screenSize = displayMetrics.widthPixels to displayMetrics.heightPixels,
+        )
         val layout = PintFieldLayout.forSize(
             preview = config.preview,
-            widthPx = config.viewSize.first,
-            heightPx = config.viewSize.second,
+            widthPx = fieldSize.widthPx,
+            heightPx = fieldSize.heightPx,
         )
         if (config.preview) {
             emitter.updateView(
@@ -38,6 +45,8 @@ class PintProgressDataType(
                     display = PintPresentation.displayFor(PintViewReducer.previewFrame()),
                     layout = layout,
                     alignment = config.alignment,
+                    textSizeSp = config.textSize,
+                    boundariesEnabled = config.boundariesEnabled,
                 ),
             )
             return
@@ -59,6 +68,8 @@ class PintProgressDataType(
                         display = PintPresentation.displayFor(frame),
                         layout = layout,
                         alignment = config.alignment,
+                        textSizeSp = config.textSize,
+                        boundariesEnabled = config.boundariesEnabled,
                     ),
                 )
                 lastViewUpdateMillis = SystemClock.elapsedRealtime()
