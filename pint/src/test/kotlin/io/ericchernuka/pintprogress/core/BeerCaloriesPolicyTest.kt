@@ -1,0 +1,31 @@
+package io.ericchernuka.pintprogress.core
+
+import org.junit.Assert.assertEquals
+import org.junit.Test
+
+class BeerCaloriesPolicyTest {
+    @Test
+    fun `normalization clamps and rounds to five calorie steps`() {
+        assertEquals(BeerCaloriesPolicy.MIN, BeerCaloriesPolicy.normalize(Int.MIN_VALUE))
+        assertEquals(BeerCaloriesPolicy.MIN, BeerCaloriesPolicy.normalize(80))
+        assertEquals(BeerCaloriesPolicy.MIN, BeerCaloriesPolicy.normalize(82))
+        assertEquals(85, BeerCaloriesPolicy.normalize(83))
+        assertEquals(85, BeerCaloriesPolicy.normalize(87))
+        assertEquals(90, BeerCaloriesPolicy.normalize(88))
+        assertEquals(BeerCaloriesPolicy.MAX, BeerCaloriesPolicy.normalize(Int.MAX_VALUE))
+    }
+
+    @Test
+    fun `slider progress covers the complete supported range`() {
+        assertEquals(BeerCaloriesPolicy.MIN, BeerCaloriesPolicy.fromSliderProgress(-1))
+        assertEquals(BeerCaloriesPolicy.DEFAULT, BeerCaloriesPolicy.fromSliderProgress(14))
+        assertEquals(
+            BeerCaloriesPolicy.MAX,
+            BeerCaloriesPolicy.fromSliderProgress(BeerCaloriesPolicy.STEP_COUNT + 1),
+        )
+
+        assertEquals(0, BeerCaloriesPolicy.toSliderProgress(Int.MIN_VALUE))
+        assertEquals(14, BeerCaloriesPolicy.toSliderProgress(BeerCaloriesPolicy.DEFAULT))
+        assertEquals(BeerCaloriesPolicy.STEP_COUNT, BeerCaloriesPolicy.toSliderProgress(Int.MAX_VALUE))
+    }
+}

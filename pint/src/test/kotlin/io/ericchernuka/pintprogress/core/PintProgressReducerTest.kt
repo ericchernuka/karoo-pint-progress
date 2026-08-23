@@ -15,9 +15,10 @@ class PintProgressReducerTest {
 
     @Test
     fun `progress maps exact five percent boundaries across completed pints`() {
+        val target = BeerCaloriesPolicy.DEFAULT.toDouble()
         for (completed in 0..3) {
             for (bucket in 0..19) {
-                val calories = completed * DEFAULT_BEER_CALORIES + bucket * (DEFAULT_BEER_CALORIES / 20.0)
+                val calories = completed * target + bucket * (target / 20.0)
 
                 assertEquals(PintProgress(completed, bucket), PintProgressReducer.progressFor(calories))
             }
@@ -29,8 +30,22 @@ class PintProgressReducerTest {
     @Test
     fun `progress rolls exact target calories into the completed counter`() {
         assertEquals(PintProgress(0, 0), PintProgressReducer.progressFor(0.0))
-        assertEquals(PintProgress(1, 0), PintProgressReducer.progressFor(DEFAULT_BEER_CALORIES))
-        assertEquals(PintProgress(2, 10), PintProgressReducer.progressFor(DEFAULT_BEER_CALORIES * 2.5))
+        assertEquals(
+            PintProgress(1, 0),
+            PintProgressReducer.progressFor(BeerCaloriesPolicy.DEFAULT.toDouble()),
+        )
+        assertEquals(
+            PintProgress(2, 10),
+            PintProgressReducer.progressFor(BeerCaloriesPolicy.DEFAULT * 2.5),
+        )
+    }
+
+    @Test
+    fun `progress uses the selected beer calorie target`() {
+        assertEquals(PintProgress(1, 0), PintProgressReducer.progressFor(80.0, 80))
+        assertEquals(PintProgress(0, 10), PintProgressReducer.progressFor(200.0, 400))
+        assertEquals(PintProgress(1, 0), PintProgressReducer.progressFor(80.0, 1))
+        assertEquals(PintProgress(1, 0), PintProgressReducer.progressFor(400.0, 999))
     }
 
     @Test

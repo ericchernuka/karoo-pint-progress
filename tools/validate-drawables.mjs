@@ -53,29 +53,39 @@ const bounds = (pathData) => {
 const foamDrawables = fs.readdirSync("pint/src/main/res/drawable")
   .filter((name) => name.endsWith(".xml"))
   .filter((name) => drawable(name.slice(0, -4)).includes("@color/pint_foam"));
+const fullFoamDrawables = new Set([
+  "pint_full_bubbles",
+  "pint_full_bubbles_compact",
+  "pint_full_bubbles_icon",
+]);
 
 for (const fileName of foamDrawables) {
   const name = fileName.slice(0, -4);
   const xml = drawable(name);
   const foam = bounds(pathForColor(xml, "pint_foam"));
   const amber = bounds(pathForColor(xml, "pint_amber"));
-  assert.ok(foam.minX >= 21 && foam.maxX <= 64 && foam.minY >= 13 && foam.maxY <= 99,
-    `${name}: foam must remain inside the inner glass`);
+  if (fullFoamDrawables.has(name)) {
+    assert.ok(foam.minX >= 21 && foam.maxX <= 64 && foam.minY >= 3 && foam.maxY <= 23,
+      `${name}: celebration foam must stay within the mug envelope and vector viewport`);
+  } else {
+    assert.ok(foam.minX >= 21 && foam.maxX <= 64 && foam.minY >= 13 && foam.maxY <= 99,
+      `${name}: foam must remain inside the inner glass`);
+  }
   assert.ok(amber.minX >= 21 && amber.maxX <= 64 && amber.minY >= 21 && amber.maxY <= 99,
     `${name}: amber must remain inside the straight section of the inner glass`);
   assert.ok(foam.maxY >= amber.minY,
     `${name}: foam must overlap the amber body so the fill has no visual gap`);
 }
 
-// At 100%, amber reaches the straight section and foam fills the entire rounded cap. Check all
-// layout variants because Karoo can select any of them based on field dimensions.
+// At 100%, amber reaches the straight section and a small foam crown rises above the rim. Check
+// all layout variants because Karoo can select any of them based on field dimensions.
 for (const name of ["pint_full_bubbles", "pint_full_bubbles_compact", "pint_full_bubbles_icon"]) {
   const xml = drawable(name);
   const foam = bounds(pathForColor(xml, "pint_foam"));
   const amber = bounds(pathForColor(xml, "pint_amber"));
   assert.equal(amber.minY, 21, `${name}: full amber must reach the cap boundary`);
-  assert.deepEqual(foam, { minX: 21, maxX: 64, minY: 13, maxY: 23 },
-    `${name}: full foam must fill the rounded cap and meet the amber body`);
+  assert.deepEqual(foam, { minX: 21, maxX: 64, minY: 4, maxY: 23 },
+    `${name}: full foam must crown the rim and meet the amber body`);
 }
 
 const light = colors();

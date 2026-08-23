@@ -3,9 +3,6 @@ package io.ericchernuka.pintprogress.core
 import java.math.BigDecimal
 import java.math.RoundingMode
 
-/** The default target is a typical 12 fl oz / 355 ml, 5% ABV beer. */
-const val DEFAULT_BEER_CALORIES: Double = 150.0
-
 /**
  * The visible state deliberately has 20 fill levels. It avoids an IPC update for every calorie
  * while still reading as a smoothly filling mug at a glance.
@@ -41,14 +38,20 @@ data class RenderPlan(val frames: List<TimedFrame>)
 object PintProgressReducer {
     private const val BUCKETS_PER_PINT = 20
     private val bucketsPerPint = BigDecimal.valueOf(BUCKETS_PER_PINT.toLong())
-    private val beerCalories = BigDecimal.valueOf(DEFAULT_BEER_CALORIES)
     private val maximumBucketCount = BigDecimal.valueOf(Int.MAX_VALUE.toLong())
         .multiply(bucketsPerPint)
 
     const val ANIMATION_STEP_MILLIS = 1_000L
 
-    fun progressFor(calories: Double?): PintProgress? {
+    fun progressFor(
+        calories: Double?,
+        caloriesPerBeer: Int = BeerCaloriesPolicy.DEFAULT,
+    ): PintProgress? {
         if (calories == null || !calories.isFinite() || calories < 0.0) return null
+
+        val beerCalories = BigDecimal.valueOf(
+            BeerCaloriesPolicy.normalize(caloriesPerBeer).toLong(),
+        )
 
         // Work in whole 5% buckets before splitting them into full and partial pints. This keeps
         // decimal boundaries such as 180 kcal (one pint plus 20%) from underflowing after a

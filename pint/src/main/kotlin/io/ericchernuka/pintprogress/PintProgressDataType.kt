@@ -18,6 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.launch
 
@@ -80,6 +81,7 @@ class PintProgressDataType(
 
         val job = CoroutineScope(Dispatchers.Default).launch {
             val reducer = PintViewReducer()
+            val beerCalories = BeerCaloriesStore(context).values
             var lastViewUpdateMillis: Long? = null
 
             suspend fun render(frame: PintFrame) {
@@ -103,9 +105,10 @@ class PintProgressDataType(
             }
 
             karooSystem.streamDataFlow(DataType.Type.CALORIES)
+                .combine(beerCalories) { state, caloriesPerBeer -> state to caloriesPerBeer }
                 .conflate()
-                .collect { state ->
-                    reducer.accept(state)?.frames?.forEach { timedFrame ->
+                .collect { (state, caloriesPerBeer) ->
+                    reducer.accept(state, caloriesPerBeer)?.frames?.forEach { timedFrame ->
                         if (timedFrame.delayMillis > 0) delay(timedFrame.delayMillis)
                         render(timedFrame.frame)
                     }

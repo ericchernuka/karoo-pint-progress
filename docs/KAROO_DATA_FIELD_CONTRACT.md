@@ -33,6 +33,24 @@ SDK 1.1.9 and Android's `RemoteViews` and app-update requirements.
 8. `showHeader = true` asks Karoo to render the standard data-type icon and compact `Pints` label.
    Pint Progress does not duplicate that chrome inside its `RemoteViews` or ask Karoo to render its
    numeric value through `formatDataTypeId`.
+9. The full-with-bubbles frame may extend its foam crown slightly above the mug rim. The crown stays
+   within the vector viewport and mug width, while every normal fill state remains inside the glass.
+
+## Calories-per-beer setting
+
+Karoo extension SDK 1.1.9 exposes only the six `ViewConfig` inputs above. It does not provide a
+public schema for an extension to add a custom slider to Karoo's data-field editor or a field-instance
+identifier for per-tile preferences. Pint Progress therefore provides one global setting in its
+launcher activity:
+
+- 150 kcal by default;
+- 80–400 kcal in 5 kcal steps;
+- app-private Android preferences, with no permission or external storage;
+- a live Flow into each visible field;
+- a new steady transition baseline when changed, preventing a false full/drain animation.
+
+The setting changes calorie-to-progress conversion only. It does not alter any `ViewConfig`
+semantics, Karoo's cumulative calorie source, or the one-Hz update limit.
 
 ## Installation and update rules
 
@@ -60,6 +78,7 @@ Local tests cannot reproduce Karoo's host process or page editor. Before moving 
 - no completed mug, `1+`, `99+`, and `100+`;
 - light and dark system themes;
 - unavailable calories, normal fill, 80% foam, bubbles, and drain;
+- default, minimum, maximum, and mid-ride calories-per-beer changes;
 - install over the previous signed build without uninstalling.
 
 ## Primary references
@@ -70,5 +89,7 @@ Local tests cannot reproduce Karoo's host process or page editor. Before moving 
 - https://hammerheadnav.github.io/karoo-ext/karoo-ext/io.hammerhead.karooext.models/-karoo-app-manifest/index.html
 - https://developer.android.com/reference/android/widget/RemoteViews
 - https://developer.android.com/reference/android/widget/ImageView
+- https://developer.android.com/reference/android/widget/SeekBar
+- https://developer.android.com/reference/android/content/SharedPreferences
 - https://developer.android.com/studio/publish/versioning
 - https://developer.android.com/studio/publish/app-signing

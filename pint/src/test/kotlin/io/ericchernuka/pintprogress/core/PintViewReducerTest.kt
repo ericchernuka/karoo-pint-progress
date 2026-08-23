@@ -42,9 +42,9 @@ class PintViewReducerTest {
                     ),
                 ),
             ),
-            reducer.accept(calories(DEFAULT_BEER_CALORIES)),
+            reducer.accept(calories(BeerCaloriesPolicy.DEFAULT.toDouble())),
         )
-        assertNull(reducer.accept(calories(DEFAULT_BEER_CALORIES + 1.0)))
+        assertNull(reducer.accept(calories(BeerCaloriesPolicy.DEFAULT + 1.0)))
         assertEquals(steadyPlan(1, 19), reducer.accept(calories(299.0)))
     }
 
@@ -56,7 +56,40 @@ class PintViewReducerTest {
         assertEquals(steadyPlan(0, 0), reducer.accept(calories(0.0)))
         assertEquals(steadyPlan(2, 0), reducer.accept(calories(300.0)))
         assertEquals(unavailablePlan(), reducer.accept(StreamState.Idle))
-        assertEquals(steadyPlan(1, 0), reducer.accept(calories(DEFAULT_BEER_CALORIES)))
+        assertEquals(
+            steadyPlan(1, 0),
+            reducer.accept(calories(BeerCaloriesPolicy.DEFAULT.toDouble())),
+        )
+    }
+
+    @Test
+    fun `changing the target resets transition history without a false celebration`() {
+        val reducer = PintViewReducer()
+
+        assertEquals(steadyPlan(0, 19), reducer.accept(calories(149.0)))
+        assertEquals(steadyPlan(1, 17), reducer.accept(calories(149.0), caloriesPerBeer = 80))
+        assertEquals(
+            RenderPlan(
+                listOf(
+                    TimedFrame(0, PintFrame.FullBubbles(2)),
+                    TimedFrame(PintProgressReducer.ANIMATION_STEP_MILLIS, PintFrame.Draining(2)),
+                    TimedFrame(
+                        PintProgressReducer.ANIMATION_STEP_MILLIS,
+                        PintFrame.Steady(PintProgress(2, 0)),
+                    ),
+                ),
+            ),
+            reducer.accept(calories(160.0), caloriesPerBeer = 80),
+        )
+    }
+
+    @Test
+    fun `changing the target suppresses an unchanged visible bucket but updates its baseline`() {
+        val reducer = PintViewReducer()
+
+        assertEquals(steadyPlan(0, 0), reducer.accept(calories(1.0)))
+        assertNull(reducer.accept(calories(1.0), caloriesPerBeer = 400))
+        assertEquals(steadyPlan(0, 1), reducer.accept(calories(20.0), caloriesPerBeer = 400))
     }
 
     @Test

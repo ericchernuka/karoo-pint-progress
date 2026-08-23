@@ -4,7 +4,7 @@
 
 Pint Progress is a graphical data field for Hammerhead Karoo cycling computers. It turns Karoo's native **Calories from Power** ride total into a beer mug that fills as the total rises.
 
-One full mug corresponds to **150 kcal** by default, approximately a 12 fl oz / 355 ml 5% ABV beer. The "pint" name is branding, not a volume measurement. The mug fills in 5% steps, adds foam from 80%, shows bubbles when it observes a completion, drains, and starts the next mug. Until the first completed beer, the field shows only the filling mug. Afterwards it shows a compact `N+` count beside the mug.
+One full mug corresponds to **150 kcal** by default, approximately a 12 fl oz / 355 ml 5% ABV beer. The "pint" name is branding, not a volume measurement. The mug fills in 5% steps, adds foam from 80%, crowns the rim with foam when full, shows bubbles when it observes a completion, drains, and starts the next mug. Until the first completed beer, the field shows only the filling mug. Afterwards it shows a compact `N+` count beside the mug.
 
 ![Pint Progress graphical data field with twelve completed pints and an 80% filled beer mug](docs/images/pint-progress-preview.png)
 
@@ -22,6 +22,7 @@ Pint Progress gives every Karoo `ViewConfig` input explicit behavior. It convert
 - Normal rendering changes at 5% fill boundaries or completed-beer boundaries.
 - The completion animation has three static frames separated by one second, matching Karoo's limit of one view update per second.
 - The field preview loops through 50%, 80%, and full-with-bubbles frames at the same one-second cadence.
+- Changing the calories-per-beer setting establishes a new steady baseline immediately and never replays a completion animation for calories already recorded.
 - Pint Progress spaces every view update at least one second apart. It defers a quick source-state change rather than allowing Karoo to drop it.
 - The app has no timer, sensor scan, background job, bitmap allocation, or developer FIT field.
 
@@ -53,9 +54,11 @@ Before using it during a ride, run a short on-device smoke test. Verify initial 
 - Android requires the extension service to be exported for Karoo discovery. Every Binder transaction is caller-gated to the Karoo system package (`io.hammerhead.appstore`), malformed view configuration is rejected before parsing, duplicate sessions cancel their predecessor, and active sessions are bounded.
 - CI has read-only repository permissions, immutable action pins, no repository secrets, and Gradle SHA-256 dependency verification recorded in `gradle/verification-metadata.xml`.
 
-## Customize the drink target
+## Set calories per beer
 
-To change the target, edit `DEFAULT_BEER_CALORIES` in `pint/src/main/kotlin/io/ericchernuka/pintprogress/core/PintProgressReducer.kt`, then rebuild and reinstall the app. The target is a compile-time constant, which makes the result deterministic during a ride and keeps the runtime path small. The app does not currently have a settings screen for this value.
+Open **Pint Progress** from Karoo's app launcher, then choose the ride-calorie target represented by one full mug. The default is **150 kcal**. The slider supports **80–400 kcal** in 5 kcal steps, with buttons for fine adjustment and resetting to 150 kcal.
+
+The preference is global to Pint Progress because the public Karoo extension SDK does not expose custom per-field controls in `ViewConfig`. It is stored only in the app's private preferences. A visible field applies changes immediately; its next genuine threshold crossing still receives the normal bubbles-and-drain animation.
 
 ## License and attribution
 

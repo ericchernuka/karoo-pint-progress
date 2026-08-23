@@ -107,6 +107,14 @@ const foamPath = (top, height) => {
   return `M21,${(top + 2).toFixed(2)} L64,${(top + 2).toFixed(2)} L64,${(crest + 3).toFixed(2)} C58,${(crest + 1).toFixed(2)} 52,${(crest + 4).toFixed(2)} 44,${(crest + 3).toFixed(2)} C35,${(crest - 1).toFixed(2)} 27,${(crest - 1).toFixed(2)} 21,${(crest + 3).toFixed(2)} Z`;
 };
 
+// The completed-pint celebration gets a restrained foam crown above the rim. It stays within the
+// mug's horizontal envelope and is drawn before the outline so the glass lip remains unmistakable.
+const fullFoamPath = () =>
+  "M21,23 L64,23 L64,21 C64,16 62,13 58,13 " +
+  "C58,9 56,6 53,6 C50,6 48,8 45,7 " +
+  "C43,5 41,4 38,4 C35,4 33,6 31,7 " +
+  "C28,8 26,7 24,10 C22,12 21,16 21,21 Z";
+
 const roundedPill = (x, top, bottom) => {
   if (bottom - top < 6) return null;
   const right = x + 4;
@@ -164,7 +172,7 @@ writeMugVariants("pint_full_bubbles", [
   mugSurface,
   innerMug,
   { color: colors.amber, path: fillPath(100) },
-  { color: colors.foam, path: foamPath(contentTop(100), 9) },
+  { color: colors.foam, path: fullFoamPath() },
   ...mugMarks(100),
   ...bubbles,
   mugOutline,

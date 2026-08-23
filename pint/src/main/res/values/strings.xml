@@ -4,4 +4,19 @@
     <string name="pint_progress">Pints</string>
     <string name="pint_progress_description">A beer mug that fills from ride calories</string>
     <string name="pint_count_suffix">+</string>
+    <string name="settings_title">Pint Progress</string>
+    <string name="settings_mug_preview">A full beer mug</string>
+    <string name="calories_per_beer">Calories per beer</string>
+    <string name="calories_default_value">150 kcal</string>
+    <string name="calories_value">%1$d kcal</string>
+    <string name="calories_value_accessibility">One full beer equals %1$d kilocalories</string>
+    <string name="calories_slider_accessibility">Calories per beer, %1$d kilocalories</string>
+    <string name="calories_minimum">80 kcal</string>
+    <string name="calories_maximum">400 kcal</string>
+    <string name="decrease_calories">−5</string>
+    <string name="increase_calories">+5</string>
+    <string name="decrease_calories_accessibility">Decrease by 5 kilocalories</string>
+    <string name="increase_calories_accessibility">Increase by 5 kilocalories</string>
+    <string name="reset_calories">Reset 150</string>
+    <string name="calories_explanation">One full mug represents this many ride calories. Changes apply immediately without replaying the completion animation.</string>
 </resources>
