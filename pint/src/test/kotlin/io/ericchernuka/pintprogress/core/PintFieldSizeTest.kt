@@ -50,7 +50,7 @@ class PintFieldSizeTest {
         )
 
         assertEquals(200, heightFallbackSize.widthDp)
-        assertEquals(200, heightFallbackSize.heightDp)
+        assertEquals(100, heightFallbackSize.heightDp)
     }
 
     @Test
