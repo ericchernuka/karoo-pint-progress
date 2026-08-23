@@ -26,7 +26,7 @@ class PintProgressDataType(
     extension: String,
 ) : DataTypeImpl(extension, TYPE_ID) {
     override fun startView(context: Context, config: ViewConfig, emitter: ViewEmitter) {
-        emitter.onNext(UpdateGraphicConfig(showHeader = false))
+        emitter.onNext(UpdateGraphicConfig(showHeader = true))
 
         val displayMetrics = context.resources.displayMetrics
         val renderer = PintRemoteViews(
@@ -57,16 +57,24 @@ class PintProgressDataType(
             )
         }
         if (config.preview) {
-            emitter.updateView(
-                renderer.render(
-                    display = PintPresentation.displayFor(PintViewReducer.previewFrame()),
-                    layout = layout,
-                    alignment = config.alignment,
-                    textSizeSp = config.textSize,
-                    boundariesEnabled = config.boundariesEnabled,
-                    fieldWidthDp = fieldSize.widthDp,
-                ),
-            )
+            val job = CoroutineScope(Dispatchers.Default).launch {
+                while (true) {
+                    PintViewReducer.previewFrames().forEach { frame ->
+                        emitter.updateView(
+                            renderer.render(
+                                display = PintPresentation.displayFor(frame),
+                                layout = layout,
+                                alignment = config.alignment,
+                                textSizeSp = config.textSize,
+                                boundariesEnabled = config.boundariesEnabled,
+                                fieldWidthDp = fieldSize.widthDp,
+                            ),
+                        )
+                        delay(VIEW_UPDATE_INTERVAL_MILLIS)
+                    }
+                }
+            }
+            emitter.setCancellable(job::cancel)
             return
         }
 

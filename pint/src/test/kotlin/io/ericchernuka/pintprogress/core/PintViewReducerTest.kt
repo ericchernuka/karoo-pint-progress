@@ -65,7 +65,14 @@ class PintViewReducerTest {
         assertEquals(unavailablePlan(), PintViewReducer().accept(StreamState.Idle))
         assertEquals(unavailablePlan(), PintViewReducer().accept(StreamState.NotAvailable))
         assertEquals(unavailablePlan(), PintViewReducer().accept(StreamState.Searching))
-        assertEquals(PintFrame.Steady(PintProgress(0, 12)), PintViewReducer.previewFrame())
+        assertEquals(
+            listOf(
+                PintFrame.Steady(PintProgress(0, 10)),
+                PintFrame.Steady(PintProgress(0, 16)),
+                PintFrame.FullBubbles(0),
+            ),
+            PintViewReducer.previewFrames(),
+        )
     }
 
     private fun unavailablePlan() = RenderPlan(listOf(TimedFrame(0, PintFrame.Unavailable)))

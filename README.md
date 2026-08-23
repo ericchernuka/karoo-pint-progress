@@ -8,19 +8,20 @@ One full mug corresponds to **150 kcal** by default, approximately a 12 fl oz / 
 
 ![Pint Progress graphical data field with twelve completed pints and an 80% filled beer mug](docs/images/pint-progress-preview.png)
 
-*Resource-accurate preview at 80% to the next beer and `12+` completed. The counter uses Android's Roboto Condensed Bold system face through `sans-serif-condensed`, with its visible height matched to the mug. Colors follow Android's light or dark configuration. Karoo host chrome varies by device software and is not shown.*
+*Resource-accurate value graphic at 80% to the next beer and `12+` completed. The representative header is owned by Karoo and can vary by device software. The counter uses Android's Roboto Condensed Bold system face through `sans-serif-condensed`, with its visible height matched to the mug. Colors follow Android's light or dark configuration.*
 
 Karoo supplies the cumulative calorie value through its `TYPE_CALORIES_ID` stream. Pint Progress does not calculate calories. Its fill level and completed-mug count follow Karoo's native calorie model and active ride state.
 
 The graphical field adapts to the allocated Karoo tile: full count plus mug for roomy fields, a reduced count plus mug for narrow or short fields, and a live mug-only treatment where a readable counter cannot fit. Before the first completed mug, the live field and data-picker preview preserve the mug's aspect ratio while filling the height Karoo actually allocates.
 
-Pint Progress gives every Karoo `ViewConfig` input explicit behavior. It converts physical `viewSize` pixels into the dp units used by Android layouts, with grid span as a fallback for older hosts that report `0×0`. It chooses the largest treatment whose mug, counter, and configured boundary inset fit. Karoo's numeric text size is a ceiling; the live width budget, font scale, and count length reduce it before the complete group can clip, including when `99` becomes `100`. The selected left/centre/right alignment is applied to the complete rendered group. See the [Karoo data-field contract](docs/KAROO_DATA_FIELD_CONTRACT.md) for the source-backed behavior matrix and required device checks.
+Pint Progress gives every Karoo `ViewConfig` input explicit behavior. It converts physical `viewSize` pixels into the dp units used by Android layouts, with grid span as a fallback for older hosts that report `0×0`. It chooses the largest treatment whose mug, counter, and configured boundary inset fit. Karoo's numeric text size is a ceiling; the live width budget, font scale, and count length reduce it before the complete group can clip, including when `99` becomes `100`. The selected left/centre/right alignment is applied to the complete rendered group. Karoo owns the standard mug-icon and compact `Pints` header, while the extension's `RemoteViews` contain only the value graphic. See the [Karoo data-field contract](docs/KAROO_DATA_FIELD_CONTRACT.md) for the source-backed behavior matrix and required device checks.
 
 ## Runtime behavior
 
 - The field subscribes to Karoo's calorie stream only while it is visible.
 - Normal rendering changes at 5% fill boundaries or completed-beer boundaries.
 - The completion animation has three static frames separated by one second, matching Karoo's limit of one view update per second.
+- The field preview loops through 50%, 80%, and full-with-bubbles frames at the same one-second cadence.
 - Pint Progress spaces every view update at least one second apart. It defers a quick source-state change rather than allowing Karoo to drop it.
 - The app has no timer, sensor scan, background job, bitmap allocation, or developer FIT field.
 
@@ -38,7 +39,7 @@ This command produces a local debug APK and an intentionally unsigned release AP
 
 1. Enable developer mode and USB debugging on the Karoo.
 2. Install the debug APK with `adb install -r pint/build/outputs/apk/debug/pint-debug.apk`.
-3. Add **Pint Progress** to a ride page from the Karoo data-field picker.
+3. Add **Pints** under **Pint Progress** to a ride page from the Karoo data-field picker.
 4. Start a ride with power-based calories available.
 
 The debug APK is for local development only. Do not attach it to a public release. GitHub Actions gives each changed CI build an increasing `versionCode`, but its default debug key is ephemeral, so a CI debug APK may require uninstalling a debug APK from a different run. An actual update must use the same project-owned signing key as the installed app. The release build is deliberately unsigned: any distributable release must be rebuilt from an audited commit, signed with that private key, and published with its version, commit, and SHA-256 recorded.

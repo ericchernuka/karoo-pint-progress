@@ -7,7 +7,31 @@ import io.ericchernuka.pintprogress.core.PintFieldLayout
 
 /** Compile-time drawable mappings generated alongside the drawable vectors. */
 internal fun PintAsset.drawableRes(layout: PintFieldLayout): Int = when (layout) {
-    PintFieldLayout.PICKER -> R.drawable.pint_50_compact
+    PintFieldLayout.PICKER -> when (this) {
+        PintAsset.PINT_00 -> R.drawable.pint_00_compact
+        PintAsset.PINT_05 -> R.drawable.pint_05_compact
+        PintAsset.PINT_10 -> R.drawable.pint_10_compact
+        PintAsset.PINT_15 -> R.drawable.pint_15_compact
+        PintAsset.PINT_20 -> R.drawable.pint_20_compact
+        PintAsset.PINT_25 -> R.drawable.pint_25_compact
+        PintAsset.PINT_30 -> R.drawable.pint_30_compact
+        PintAsset.PINT_35 -> R.drawable.pint_35_compact
+        PintAsset.PINT_40 -> R.drawable.pint_40_compact
+        PintAsset.PINT_45 -> R.drawable.pint_45_compact
+        PintAsset.PINT_50 -> R.drawable.pint_50_compact
+        PintAsset.PINT_55 -> R.drawable.pint_55_compact
+        PintAsset.PINT_60 -> R.drawable.pint_60_compact
+        PintAsset.PINT_65 -> R.drawable.pint_65_compact
+        PintAsset.PINT_70 -> R.drawable.pint_70_compact
+        PintAsset.PINT_75 -> R.drawable.pint_75_compact
+        PintAsset.PINT_80 -> R.drawable.pint_80_compact
+        PintAsset.PINT_85 -> R.drawable.pint_85_compact
+        PintAsset.PINT_90 -> R.drawable.pint_90_compact
+        PintAsset.PINT_95 -> R.drawable.pint_95_compact
+        PintAsset.FULL_BUBBLES -> R.drawable.pint_full_bubbles_compact
+        PintAsset.DRAINING -> R.drawable.pint_draining_compact
+        PintAsset.UNAVAILABLE -> R.drawable.pint_unavailable_compact
+    }
     PintFieldLayout.REGULAR -> when (this) {
         PintAsset.PINT_00 -> R.drawable.pint_00
         PintAsset.PINT_05 -> R.drawable.pint_05

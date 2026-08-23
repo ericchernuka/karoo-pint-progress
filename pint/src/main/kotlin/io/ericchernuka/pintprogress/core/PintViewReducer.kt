@@ -21,9 +21,11 @@ class PintViewReducer {
     }
 
     companion object {
-        const val PREVIEW_BUCKET = 12
-
-        fun previewFrame(): PintFrame.Steady = PintFrame.Steady(PintProgress(0, PREVIEW_BUCKET))
+        fun previewFrames(): List<PintFrame> = listOf(
+            PintFrame.Steady(PintProgress(completed = 0, fillBucket = 10)),
+            PintFrame.Steady(PintProgress(completed = 0, fillBucket = 16)),
+            PintFrame.FullBubbles(completed = 0),
+        )
 
         private fun progressFrom(state: StreamState): PintProgress? = when (state) {
             is StreamState.Streaming -> PintProgressReducer.progressFor(state.dataPoint.singleValue)

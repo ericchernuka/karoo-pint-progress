@@ -22,16 +22,17 @@ SDK 1.1.9 and Android's `RemoteViews` and app-update requirements.
    and leaves its width content-sized so Karoo's alignment setting can move it.
 3. Before the first completed mug, and while data is unavailable, the live field uses the adaptive
    mug-only treatment. It must not keep an invisible counter's fixed-size count layout.
-4. Preview uses a representative half-full mug and the same adaptive sizing rule. Preview is a host
-   lifecycle state, not a fixed icon size.
+4. Preview cycles through the production 50%, 80%, and full-with-bubbles frames at one Hz, using
+   the same adaptive sizing rule. The loop is cancelled when Karoo detaches the preview.
 5. Once a completed count exists, the largest count-and-mug treatment that fits both dimensions is
    used. Counter size follows Karoo up to the mug-height and complete-group width budgets.
 6. Every `RemoteViews` update is constructed from a fresh instance and resets every property it
    relies on. Only Android-supported `RemoteViews` layouts and widgets are used.
 7. Actual view updates are spaced at least one second apart, and cancellation stops collection and
    pending animation frames when Karoo detaches the field.
-8. `showHeader = false` gives the graphical composition the complete tile. Pint Progress does not
-   also ask Karoo to render its numeric value through `formatDataTypeId`.
+8. `showHeader = true` asks Karoo to render the standard data-type icon and compact `Pints` label.
+   Pint Progress does not duplicate that chrome inside its `RemoteViews` or ask Karoo to render its
+   numeric value through `formatDataTypeId`.
 
 ## Installation and update rules
 
