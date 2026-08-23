@@ -33,11 +33,12 @@ class PintProgressDataType(
             viewSize = config.viewSize,
             gridSize = config.gridSize,
             screenSize = displayMetrics.widthPixels to displayMetrics.heightPixels,
+            density = displayMetrics.density,
         )
         val layout = PintFieldLayout.forSize(
             preview = config.preview,
-            widthPx = fieldSize.widthPx,
-            heightPx = fieldSize.heightPx,
+            widthDp = fieldSize.widthDp,
+            heightDp = fieldSize.heightDp,
         )
         if (config.preview) {
             emitter.updateView(

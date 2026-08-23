@@ -11,7 +11,10 @@
 The following files are intentionally outside JaCoCo's JVM scope because each is a thin Android or Karoo IPC adapter, not a location for product decisions:
 
 - `PintProgressExtension.kt` creates and binds the official `KarooSystemService` from an Android `Service`.
-- `KarooFlows.kt` registers and unregisters the official Binder consumer.
+- `KarooFlows.kt` adapts the official Binder consumer to a finite callback Flow,
+  including terminal callbacks and idempotent unregistering. Its lifecycle adapter
+  is JVM-tested; Binder delivery and the concrete `KarooSystemService` remain
+  device-tested.
 - `PintProgressDataType.kt` applies standard Flow backpressure (`conflate`), globally spaces
   actual `ViewEmitter` calls one second apart with `SystemClock.elapsedRealtime()` and coroutine
   `delay`, executes the fully covered timed plan, and bridges it to a real `ViewEmitter`.

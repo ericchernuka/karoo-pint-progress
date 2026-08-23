@@ -3,7 +3,7 @@ package io.ericchernuka.pintprogress.core
 import kotlin.math.roundToInt
 
 /** Karoo's numeric size, constrained so the condensed count never outgrows its paired mug. */
-data class PintFieldTypography(
+class PintFieldTypography(
     val countTextSizeSp: Float,
     val suffixTextSizeSp: Float,
 ) {

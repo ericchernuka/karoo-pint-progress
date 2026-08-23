@@ -21,6 +21,8 @@ jobs:
           java-version: "17"
       - uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
       - run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
+      - name: Verify generated drawables
+        run: node tools/generate-drawables.mjs && git diff --exit-code -- pint/src/main/res/drawable pint/src/main/kotlin/io/ericchernuka/pintprogress/PintAssetDrawables.kt
       - run: ./gradlew :lib:testDebugUnitTest :pint:lintDebug :pint:assembleDebug :pint:assembleRelease :pint:jacocoBehaviorTestCoverageVerification --no-daemon
       - name: Upload debug APK
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

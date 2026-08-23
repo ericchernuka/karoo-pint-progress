@@ -6,10 +6,46 @@ import io.hammerhead.karooext.models.StreamState
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import java.util.concurrent.atomic.AtomicBoolean
 
-internal fun KarooSystemService.streamDataFlow(dataTypeId: String): Flow<StreamState> = callbackFlow {
-    val listenerId = addConsumer(OnStreamState.StartStreaming(dataTypeId)) { event: OnStreamState ->
-        trySend(event.state)
+internal fun KarooSystemService.streamDataFlow(dataTypeId: String): Flow<StreamState> =
+    streamDataFlow(
+        register = { onError, onComplete, onState ->
+            addConsumer<OnStreamState>(
+                params = OnStreamState.StartStreaming(dataTypeId),
+                onError = onError,
+                onComplete = onComplete,
+                onEvent = { event -> onState(event.state) },
+            )
+        },
+        unregister = ::removeConsumer,
+    )
+
+internal fun streamDataFlow(
+    register: (
+        onError: (String) -> Unit,
+        onComplete: () -> Unit,
+        onState: (StreamState) -> Unit,
+    ) -> String,
+    unregister: (String) -> Unit,
+): Flow<StreamState> = callbackFlow {
+    val terminated = AtomicBoolean(false)
+
+    fun terminate() {
+        if (terminated.compareAndSet(false, true)) {
+            trySend(StreamState.NotAvailable)
+            close()
+        }
     }
-    awaitClose { removeConsumer(listenerId) }
+
+    val listenerId = register(
+        onError = { _ -> terminate() },
+        onComplete = { terminate() },
+        onState = { state ->
+            if (!terminated.get()) {
+                trySend(state)
+            }
+        },
+    )
+    awaitClose { unregister(listenerId) }
 }

@@ -14,7 +14,7 @@ Karoo supplies the cumulative calorie value through its `TYPE_CALORIES_ID` strea
 
 The graphical field adapts to the allocated Karoo tile: full count plus mug for roomy fields, a reduced count plus mug for narrow or short fields, and a live mug-only treatment where a readable counter cannot fit. The data-picker preview uses its own compact mug so it is never cropped by the picker card.
 
-Pint Progress consumes every Karoo `ViewConfig` input. It uses physical view size for its responsive treatment, grid span as a safe fallback for older hosts that report `0×0`, Karoo's numeric text-size guidance as a ceiling that keeps the counter aligned to its mug, selected left/centre/right alignment, and a larger inset when Karoo-owned pill boundaries are enabled. Preview mode uses the dedicated picker treatment.
+Pint Progress consumes every Karoo `ViewConfig` input. It converts the physical `viewSize` to density-independent layout units for its responsive treatment, uses grid span as a safe fallback for older hosts that report `0×0`, treats Karoo's numeric text-size guidance as a ceiling that keeps the counter aligned to its mug, applies the selected left/centre/right alignment, and uses a larger inset when Karoo-owned pill boundaries are enabled. Preview mode uses the dedicated picker treatment.
 
 ## Runtime behavior
 
