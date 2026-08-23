@@ -22,6 +22,7 @@ const colors = {
   foreground: "@color/pint_foreground",
   surface: "@color/pint_surface",
   amber: "@color/pint_amber",
+  foam: "@color/pint_foam",
   beerHighlight: "@color/pint_beer_highlight",
   bubble: "@color/pint_bubble",
   unavailableForeground: "@color/pint_unavailable_foreground",
@@ -152,7 +153,7 @@ for (let bucket = 0; bucket < 20; bucket += 1) {
   if (fill) paths.push({ color: colors.amber, path: fill });
   if (percent >= 80) {
     const foamHeight = 5 + ((percent - 80) / 5) * 1.5;
-    paths.push({ color: colors.beerHighlight, path: foamPath(contentTop(percent), foamHeight) });
+    paths.push({ color: colors.foam, path: foamPath(contentTop(percent), foamHeight) });
   }
   paths.push(...mugMarks(percent), mugOutline);
   writeMugVariants(`pint_${String(percent).padStart(2, "0")}`, paths);
@@ -163,7 +164,7 @@ writeMugVariants("pint_full_bubbles", [
   mugSurface,
   innerMug,
   { color: colors.amber, path: fillPath(100) },
-  { color: colors.beerHighlight, path: foamPath(contentTop(100), 9) },
+  { color: colors.foam, path: foamPath(contentTop(100), 9) },
   ...mugMarks(100),
   ...bubbles,
   mugOutline,
@@ -174,7 +175,7 @@ writeMugVariants("pint_draining", [
   mugSurface,
   innerMug,
   { color: colors.amber, path: fillPath(55) },
-  { color: colors.beerHighlight, path: foamPath(contentTop(55), 5) },
+  { color: colors.foam, path: foamPath(contentTop(55), 5) },
   ...mugMarks(55),
   ...bubbles.slice(2),
   mugOutline,
@@ -195,7 +196,7 @@ write("ic_pint", [
   mugSurface,
   innerMug,
   { color: colors.amber, path: fillPath(80) },
-  { color: colors.beerHighlight, path: foamPath(contentTop(80), 5) },
+  { color: colors.foam, path: foamPath(contentTop(80), 5) },
   ...mugMarks(80),
   mugOutline,
 ], vectorSizes.extensionIcon);
