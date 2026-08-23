@@ -47,17 +47,26 @@ ${paths.map((entry) => `        <path\n            android:fillColor="${entry.fi
 </vector>
 `;
 
+// The glass uses a straight-sided silhouette. The same path is also filled over the handle so
+// Android's vector antialiasing cannot reveal the hidden handle joins at large Karoo view sizes.
+const mugBodyPath = "M27,8 L58,8 C65,8 69,13 69,20 L69,92 C69,100 65,104 58,104 L28,104 C20,104 16,100 16,92 L16,20 C16,13 20,8 27,8 Z";
+
+const mugSurface = {
+  color: colors.surface,
+  path: mugBodyPath,
+};
+
 const mugOutline = {
   fill: "#00000000",
   stroke: colors.foreground,
   strokeWidth: "4",
   lineJoin: "round",
-  path: "M27,8 L59,8 C67,8 71,13 71,21 L68,91 C68,99 64,104 57,104 L29,104 C22,104 18,99 18,91 L15,21 C15,13 19,8 27,8 Z",
+  path: mugBodyPath,
 };
 
 const mugHandleFill = {
   fill: colors.surface,
-  path: "M70,28 L80,28 C89,28 94,34 94,44 L94,73 C94,83 89,89 80,89 L69,89 L69,78 L79,78 C83,78 85,76 85,72 L85,45 C85,41 83,39 79,39 L70,39 Z",
+  path: "M67,28 L80,28 C89,28 94,34 94,44 L94,73 C94,83 89,89 80,89 L67,89 L67,78 L79,78 C83,78 85,76 85,72 L85,45 C85,41 83,39 79,39 L67,39 Z",
 };
 
 const mugHandleOutline = {
@@ -66,16 +75,16 @@ const mugHandleOutline = {
   strokeWidth: "4",
   lineCap: "round",
   lineJoin: "round",
-  // Open subpaths omit the two hidden handle/body joins. A closed stroked path leaves short
-  // vertical seams inside the glass when Karoo scales the vector to a large viewport.
-  path: "M70,28 L80,28 C89,28 94,34 94,44 L94,73 C94,83 89,89 80,89 L69,89 M69,78 L79,78 C83,78 85,76 85,72 L85,45 C85,41 83,39 79,39 L70,39",
+  // Open subpaths omit the two handle/body joins. Their endpoints extend behind mugSurface,
+  // making the visible connection independent of VectorDrawable scaling and antialiasing.
+  path: "M67,28 L80,28 C89,28 94,34 94,44 L94,73 C94,83 89,89 80,89 L67,89 M67,78 L79,78 C83,78 85,76 85,72 L85,45 C85,41 83,39 79,39 L67,39",
 };
 
 const mugHandle = [mugHandleFill, mugHandleOutline];
 
 const innerMug = {
   color: colors.surface,
-  path: "M27,13 L59,13 C64,13 67,16 67,22 L64,90 C64,96 62,99 57,99 L29,99 C24,99 22,96 22,90 L19,22 C19,16 22,13 27,13 Z",
+  path: "M27,13 L58,13 C62,13 64,16 64,21 L64,91 C64,96 61,99 57,99 L29,99 C24,99 21,96 21,91 L21,21 C21,16 23,13 27,13 Z",
 };
 
 const fillTop = (percent) => 99 - (percent / 100) * 86;
@@ -83,12 +92,12 @@ const fillTop = (percent) => 99 - (percent / 100) * 86;
 const fillPath = (percent) => {
   if (percent === 0) return null;
   const top = fillTop(percent);
-  return `M20,${top.toFixed(2)} L66,${top.toFixed(2)} L64,90 C64,96 62,99 57,99 L29,99 C24,99 22,96 22,90 L20,${top.toFixed(2)} Z`;
+  return `M21,${top.toFixed(2)} L64,${top.toFixed(2)} L64,91 C64,96 61,99 57,99 L29,99 C24,99 21,96 21,91 L21,${top.toFixed(2)} Z`;
 };
 
 const foamPath = (top, height) => {
   const crest = top - height;
-  return `M20,${(top + 2).toFixed(2)} L66,${(top + 2).toFixed(2)} L66,${(crest + 3).toFixed(2)} C59,${(crest + 1).toFixed(2)} 53,${(crest + 4).toFixed(2)} 45,${(crest + 3).toFixed(2)} C36,${(crest - 1).toFixed(2)} 27,${(crest - 1).toFixed(2)} 20,${(crest + 3).toFixed(2)} Z`;
+  return `M21,${(top + 2).toFixed(2)} L64,${(top + 2).toFixed(2)} L64,${(crest + 3).toFixed(2)} C58,${(crest + 1).toFixed(2)} 52,${(crest + 4).toFixed(2)} 44,${(crest + 3).toFixed(2)} C35,${(crest - 1).toFixed(2)} 27,${(crest - 1).toFixed(2)} 21,${(crest + 3).toFixed(2)} Z`;
 };
 
 const roundedPill = (x, top, bottom) => {
@@ -132,7 +141,7 @@ fs.writeFileSync(kotlinDestination, generatedKotlin);
 
 for (let bucket = 0; bucket < 20; bucket += 1) {
   const percent = bucket * 5;
-  const paths = [...mugHandle, innerMug];
+  const paths = [...mugHandle, mugSurface, innerMug];
   const fill = fillPath(percent);
   if (fill) paths.push({ color: colors.amber, path: fill });
   if (percent >= 80) {
@@ -145,6 +154,7 @@ for (let bucket = 0; bucket < 20; bucket += 1) {
 
 writeMugVariants("pint_full_bubbles", [
   ...mugHandle,
+  mugSurface,
   innerMug,
   { color: colors.amber, path: fillPath(100) },
   { color: colors.beerHighlight, path: foamPath(fillTop(100), 9) },
@@ -155,6 +165,7 @@ writeMugVariants("pint_full_bubbles", [
 
 writeMugVariants("pint_draining", [
   ...mugHandle,
+  mugSurface,
   innerMug,
   { color: colors.amber, path: fillPath(55) },
   { color: colors.beerHighlight, path: foamPath(fillTop(55), 5) },
@@ -166,6 +177,7 @@ writeMugVariants("pint_draining", [
 writeMugVariants("pint_unavailable", [
   { ...mugHandleFill, fill: colors.unavailableSurface },
   { ...mugHandleOutline, stroke: colors.unavailableForeground },
+  { ...mugSurface, color: colors.unavailableSurface },
   { ...innerMug, color: colors.unavailableSurface },
   { color: colors.unavailableForeground, path: "M38,42 L42,42 L42,68 L38,68 Z M38,78 L42,78 L42,84 L38,84 Z" },
   { color: colors.unavailableForeground, path: "M50,42 L54,42 L54,68 L50,68 Z M50,78 L54,78 L54,84 L50,84 Z" },
@@ -174,6 +186,7 @@ writeMugVariants("pint_unavailable", [
 
 write("ic_pint", [
   ...mugHandle,
+  mugSurface,
   innerMug,
   { color: colors.amber, path: fillPath(80) },
   { color: colors.beerHighlight, path: foamPath(fillTop(80), 5) },
