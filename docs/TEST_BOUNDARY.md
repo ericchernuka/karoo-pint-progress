@@ -1,5 +1,21 @@
 # Test boundary policy
 
+## Commands
+
+```bash
+# Focused JVM suite
+./gradlew :pint:testDebugUnitTest
+
+# Full repository gate
+./gradlew :lib:testDebugUnitTest :pint:lintDebug :pint:assembleDebug :pint:assembleRelease :pint:jacocoBehaviorTestCoverageVerification
+
+# Generated visual contracts
+node tools/generate-drawables.mjs
+node tools/validate-drawables.mjs
+```
+
+## Coverage boundary
+
 `./gradlew :pint:jacocoBehaviorTestCoverageVerification` enforces **100% instruction and branch coverage** for every deterministic product-behavior class in `io.ericchernuka.pintprogress.core`:
 
 - calorie validation, configurable-target normalization, slider mapping, 5% bucketing, and completed-beer counting;

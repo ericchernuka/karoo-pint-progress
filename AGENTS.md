@@ -1,52 +1,56 @@
-# Agent workflow
+# Agent guide
+
+Pint Progress is a Kotlin/Android graphical data field for Hammerhead Karoo. Prefer pure state and
+derived presentation in `pint/.../core`; keep Android and Karoo classes as thin adapters.
 
 ## Project map
 
-- [`pint/`](pint/) contains the Pint Progress product code, tests, and Android resources.
-- [`lib/`](lib/) is the vendored Karoo extension SDK; its provenance and modifications are in
-  [`NOTICE`](NOTICE).
-- [`tools/generate-drawables.mjs`](tools/generate-drawables.mjs) owns the mug drawable assets.
-- [`docs/TEST_BOUNDARY.md`](docs/TEST_BOUNDARY.md) defines the local verification boundary and
-  behavior that still needs an on-device Karoo smoke test.
+- `pint/`: application, resources, and tests
+- `lib/`: vendored Karoo extension SDK, avoid edits
+- `tools/`: generated drawable source and validation
+- `docs/`: implementation and operations guidance
 
-## Verification
+## Common tasks
 
-Use the repository's full verification command from [`README.md`](README.md):
+| Task | Command or entry point |
+| --- | --- |
+| Full verification | `./gradlew :lib:testDebugUnitTest :pint:lintDebug :pint:assembleDebug :pint:assembleRelease :pint:jacocoBehaviorTestCoverageVerification` |
+| Unit tests | `./gradlew :pint:testDebugUnitTest` |
+| Regenerate mug assets | `node tools/generate-drawables.mjs` |
+| Validate mug geometry and contrast | `node tools/validate-drawables.mjs` |
+| Install debug APK | `adb install -r pint/build/outputs/apk/debug/pint-debug.apk` |
+| Uninstall | `adb uninstall io.ericchernuka.pintprogress` |
+| Check patch hygiene | `git diff --check` |
 
-```bash
-./gradlew :lib:testDebugUnitTest :pint:lintDebug :pint:assembleDebug :pint:assembleRelease :pint:jacocoBehaviorTestCoverageVerification
-```
+## Documentation
 
-Before handoff, also run `git diff --check`. The canonical CI sequence is in
-[`.github/workflows/verify.yml`](.github/workflows/verify.yml).
+Start at [`docs/README.md`](docs/README.md).
 
-## Generated assets
+| Topic | Document |
+| --- | --- |
+| Design and code ownership | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
+| Karoo sizing and host contract | [`docs/KAROO_DATA_FIELD_CONTRACT.md`](docs/KAROO_DATA_FIELD_CONTRACT.md) |
+| Testing scope and device matrix | [`docs/TEST_BOUNDARY.md`](docs/TEST_BOUNDARY.md) |
+| Mug asset generation | [`docs/DRAWABLES.md`](docs/DRAWABLES.md) |
+| Security invariants | [`docs/SECURITY.md`](docs/SECURITY.md) |
+| Builds and releases | [`docs/RELEASE.md`](docs/RELEASE.md) |
+| Installation and runtime failures | [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) |
 
-Never hand-edit mug drawable variants. Change [`tools/generate-drawables.mjs`](tools/generate-drawables.mjs)
-and rerun it to regenerate them. Keep light and night colors in resource qualifiers
-([`pint/src/main/res/values/colors.xml`](pint/src/main/res/values/colors.xml) and
-[`pint/src/main/res/values-night/colors.xml`](pint/src/main/res/values-night/colors.xml)).
+## Non-negotiable invariants
 
-## Security invariants
+- Preserve all six `ViewConfig` semantics and the one-Hz update limit.
+- Cancel stream, preview, and animation work when Karoo detaches the field.
+- Never hand-edit generated mug drawables. Edit `tools/generate-drawables.mjs`, then regenerate.
+- Keep light and dark colors in their resource qualifiers.
+- Do not add permissions, network or external storage access, analytics, WebViews, native code,
+  dynamic loading, signing material, or caller-gate bypasses without explicit approval.
+- Avoid `lib/` changes. If unavoidable, preserve headers, update `NOTICE`, and add focused tests.
+- Keep deterministic decisions in `core` and maintain 100% instruction and branch coverage there.
 
-Without explicit maintainer approval, do not add Android permissions, network or storage access,
-analytics, a WebView, native code, dynamic loading, public signing material, or a bypass of the
-Karoo caller gate. Preserve CI's read-only, no-secrets boundary described in [`README.md`](README.md).
+## Done checklist
 
-## Vendored SDK
-
-Avoid changes under [`lib/`](lib/). If a change is unavoidable, preserve upstream headers, record
-the modification in [`NOTICE`](NOTICE), and add focused tests around it.
-
-## Karoo field behavior
-
-Preserve the one-Hz view-update limit and cancellation behavior. Give all six `ViewConfig` inputs
-explicit semantics: `gridSize`, `viewSize`, `textSize`, `alignment`, `boundariesEnabled`, and
-`preview`. Do not treat merely reading a setting as proof that its behavior is correct. Retain the
-on-device Karoo smoke-test requirement in [`README.md`](README.md) and
-[`docs/TEST_BOUNDARY.md`](docs/TEST_BOUNDARY.md).
-
-## Release
-
-Debug APKs are for development only. Never commit keys or present intentionally unsigned output as
-distributable; follow the release constraints in [`README.md`](README.md).
+1. Run generated-asset validation when visuals change.
+2. Run the full verification command and `git diff --check`.
+3. Run the applicable Karoo device matrix before release.
+4. Confirm no secrets, signing files, permissions, or unreviewed dependencies entered the diff.
+5. Treat debug APKs as development artifacts only. Follow `docs/RELEASE.md` for distribution.

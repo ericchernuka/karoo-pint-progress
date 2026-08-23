@@ -1,0 +1,45 @@
+# Drawable workflow
+
+## Source of truth
+
+`tools/generate-drawables.mjs` owns all mug vector variants and
+`PintAssetDrawables.kt`. Never edit generated drawable XML or the Kotlin mapping directly.
+
+Generated states include 0% through 95% in 5% steps, full bubbles, draining, and unavailable. Each
+state has regular, compact, and icon variants. `ic_pint.xml` is the extension icon.
+
+## Change workflow
+
+```bash
+node tools/generate-drawables.mjs
+node tools/validate-drawables.mjs
+git diff --check
+```
+
+Commit the generator and every generated output together. CI regenerates assets and fails if the
+working tree differs.
+
+## Visual contracts
+
+- Preserve the `83 x 112` viewport and straight-sided mug silhouette.
+- Keep handle joins behind the opaque mug body to prevent antialiasing seams.
+- Keep normal amber and foam inside the inner glass.
+- Only `pint_full_bubbles` may crown the rim. It must remain inside the viewport and mug width.
+- Preserve aspect ratio in every layout. Sizing belongs to layout policy, not vector distortion.
+- Use semantic resources from `values/colors.xml` and `values-night/colors.xml`.
+- Validate contrast and geometry for regular, compact, and icon variants.
+
+## Visual QA
+
+Inspect at native size and enlarged scale in both themes. Check:
+
+- no viewport clipping;
+- no handle/body intersection;
+- foam visibly meets amber at 80% through full;
+- full foam rises slightly above the rim without hiding the outline;
+- thin strokes survive the 32 x 43 icon treatment;
+- unavailable state remains distinct from empty.
+
+The README image is a separate, resource-accurate product illustration under `docs/images/`. Update
+both SVG and PNG when its represented output changes. Do not label it an emulator screenshot unless
+it was captured from an emulator.
