@@ -55,13 +55,23 @@ const mugOutline = {
   path: "M27,8 L59,8 C67,8 71,13 71,21 L68,91 C68,99 64,104 57,104 L29,104 C22,104 18,99 18,91 L15,21 C15,13 19,8 27,8 Z",
 };
 
-const mugHandle = {
+const mugHandleFill = {
   fill: colors.surface,
-  stroke: colors.foreground,
-  strokeWidth: "4",
-  lineJoin: "round",
   path: "M70,28 L80,28 C89,28 94,34 94,44 L94,73 C94,83 89,89 80,89 L69,89 L69,78 L79,78 C83,78 85,76 85,72 L85,45 C85,41 83,39 79,39 L70,39 Z",
 };
+
+const mugHandleOutline = {
+  fill: "#00000000",
+  stroke: colors.foreground,
+  strokeWidth: "4",
+  lineCap: "round",
+  lineJoin: "round",
+  // Open subpaths omit the two hidden handle/body joins. A closed stroked path leaves short
+  // vertical seams inside the glass when Karoo scales the vector to a large viewport.
+  path: "M70,28 L80,28 C89,28 94,34 94,44 L94,73 C94,83 89,89 80,89 L69,89 M69,78 L79,78 C83,78 85,76 85,72 L85,45 C85,41 83,39 79,39 L70,39",
+};
+
+const mugHandle = [mugHandleFill, mugHandleOutline];
 
 const innerMug = {
   color: colors.surface,
@@ -122,7 +132,7 @@ fs.writeFileSync(kotlinDestination, generatedKotlin);
 
 for (let bucket = 0; bucket < 20; bucket += 1) {
   const percent = bucket * 5;
-  const paths = [mugHandle, innerMug];
+  const paths = [...mugHandle, innerMug];
   const fill = fillPath(percent);
   if (fill) paths.push({ color: colors.amber, path: fill });
   if (percent >= 80) {
@@ -134,7 +144,7 @@ for (let bucket = 0; bucket < 20; bucket += 1) {
 }
 
 writeMugVariants("pint_full_bubbles", [
-  mugHandle,
+  ...mugHandle,
   innerMug,
   { color: colors.amber, path: fillPath(100) },
   { color: colors.beerHighlight, path: foamPath(fillTop(100), 9) },
@@ -144,7 +154,7 @@ writeMugVariants("pint_full_bubbles", [
 ]);
 
 writeMugVariants("pint_draining", [
-  mugHandle,
+  ...mugHandle,
   innerMug,
   { color: colors.amber, path: fillPath(55) },
   { color: colors.beerHighlight, path: foamPath(fillTop(55), 5) },
@@ -154,7 +164,8 @@ writeMugVariants("pint_draining", [
 ]);
 
 writeMugVariants("pint_unavailable", [
-  { ...mugHandle, stroke: colors.unavailableForeground },
+  { ...mugHandleFill, fill: colors.unavailableSurface },
+  { ...mugHandleOutline, stroke: colors.unavailableForeground },
   { ...innerMug, color: colors.unavailableSurface },
   { color: colors.unavailableForeground, path: "M38,42 L42,42 L42,68 L38,68 Z M38,78 L42,78 L42,84 L38,84 Z" },
   { color: colors.unavailableForeground, path: "M50,42 L54,42 L54,68 L50,68 Z M50,78 L54,78 L54,84 L50,84 Z" },
@@ -162,7 +173,7 @@ writeMugVariants("pint_unavailable", [
 ]);
 
 write("ic_pint", [
-  mugHandle,
+  ...mugHandle,
   innerMug,
   { color: colors.amber, path: fillPath(80) },
   { color: colors.beerHighlight, path: foamPath(fillTop(80), 5) },

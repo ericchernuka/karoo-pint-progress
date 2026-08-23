@@ -5,7 +5,8 @@
   <desc id="description">A condensed white twelve-plus count beside an 80 percent full outlined beer mug.</desc>
   <rect width="560" height="320" fill="#020202"/>
   <g transform="translate(280 66) scale(1.58)">
-    <path d="M70 28 L80 28 C89 28 94 34 94 44 L94 73 C94 83 89 89 80 89 L69 89 L69 78 L79 78 C83 78 85 76 85 72 L85 45 C85 41 83 39 79 39 L70 39 Z" fill="#0D1117" stroke="#F5F4F0" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M70 28 L80 28 C89 28 94 34 94 44 L94 73 C94 83 89 89 80 89 L69 89 L69 78 L79 78 C83 78 85 76 85 72 L85 45 C85 41 83 39 79 39 L70 39 Z" fill="#0D1117"/>
+    <path d="M70 28 L80 28 C89 28 94 34 94 44 L94 73 C94 83 89 89 80 89 L69 89 M69 78 L79 78 C83 78 85 76 85 72 L85 45 C85 41 83 39 79 39 L70 39" fill="none" stroke="#F5F4F0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M27 13 L59 13 C64 13 67 16 67 22 L64 90 C64 96 62 99 57 99 L29 99 C24 99 22 96 22 90 L19 22 C19 16 22 13 27 13 Z" fill="#0D1117"/>
     <path d="M20 30.2 L66 30.2 L64 90 C64 96 62 99 57 99 L29 99 C24 99 22 96 22 90 L20 30.2 Z" fill="#F9AB09"/>
     <path d="M20 32.2 L66 32.2 L66 28.2 C59 26.2 53 29.2 45 28.2 C36 24.2 27 24.2 20 28.2 Z" fill="#F5F4F0"/>

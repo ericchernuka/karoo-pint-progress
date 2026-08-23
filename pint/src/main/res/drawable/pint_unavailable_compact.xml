@@ -6,10 +6,14 @@
     android:viewportHeight="112">
     <group android:translateX="-13">
         <path
-            android:fillColor="@color/pint_surface"
-            android:pathData="M70,28 L80,28 C89,28 94,34 94,44 L94,73 C94,83 89,89 80,89 L69,89 L69,78 L79,78 C83,78 85,76 85,72 L85,45 C85,41 83,39 79,39 L70,39 Z"
+            android:fillColor="@color/pint_unavailable_surface"
+            android:pathData="M70,28 L80,28 C89,28 94,34 94,44 L94,73 C94,83 89,89 80,89 L69,89 L69,78 L79,78 C83,78 85,76 85,72 L85,45 C85,41 83,39 79,39 L70,39 Z" />
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M70,28 L80,28 C89,28 94,34 94,44 L94,73 C94,83 89,89 80,89 L69,89 M69,78 L79,78 C83,78 85,76 85,72 L85,45 C85,41 83,39 79,39 L70,39"
             android:strokeColor="@color/pint_unavailable_foreground"
             android:strokeWidth="4"
+            android:strokeLineCap="round"
             android:strokeLineJoin="round" />
         <path
             android:fillColor="@color/pint_unavailable_surface"
