@@ -1,6 +1,7 @@
 package io.ericchernuka.pintprogress
 
 import io.hammerhead.karooext.models.StreamState
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -18,10 +19,11 @@ class KarooFlowsTest {
         val states = mutableListOf<StreamState>()
         val flow = streamDataFlow(callbacks::register) { callbacks.unregister(it) }
         val collection = launchCollection(flow, states)
-        yield()
+        callbacks.registered.await()
 
         callbacks.state(StreamState.Idle)
         callbacks.state(StreamState.Searching)
+        // Allow callbackFlow deliveries to reach the collector before cancellation.
         yield()
         collection.cancelAndJoin()
 
@@ -35,7 +37,7 @@ class KarooFlowsTest {
         val states = mutableListOf<StreamState>()
         val flow = streamDataFlow(callbacks::register) { callbacks.unregister(it) }
         val collection = launchCollection(flow, states)
-        yield()
+        callbacks.registered.await()
 
         callbacks.complete()
         callbacks.complete()
@@ -51,7 +53,7 @@ class KarooFlowsTest {
         val states = mutableListOf<StreamState>()
         val flow = streamDataFlow(callbacks::register) { callbacks.unregister(it) }
         val collection = launchCollection(flow, states)
-        yield()
+        callbacks.registered.await()
 
         callbacks.error("host error text")
         callbacks.error("duplicate host error text")
@@ -68,7 +70,7 @@ class KarooFlowsTest {
         val collection = launch {
             flow.toList()
         }
-        yield()
+        callbacks.registered.await()
 
         collection.cancelAndJoin()
 
@@ -84,6 +86,7 @@ class KarooFlowsTest {
         }
 
     private class CallbackCapture {
+        val registered = CompletableDeferred<Unit>()
         private var onError: ((String) -> Unit)? = null
         private var onComplete: (() -> Unit)? = null
         private var onState: ((StreamState) -> Unit)? = null
@@ -99,7 +102,10 @@ class KarooFlowsTest {
             this.onError = onError
             this.onComplete = onComplete
             this.onState = onState
-            return "listener-id".also { listenerId = it }
+            val id = "listener-id"
+            listenerId = id
+            registered.complete(Unit)
+            return id
         }
 
         fun unregister(listenerId: String) {
