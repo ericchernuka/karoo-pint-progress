@@ -29,6 +29,8 @@ class PintSettingsActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pint_settings)
 
+        findViewById<android.view.View>(R.id.back_button).setOnClickListener { finish() }
+
         store = BeerCaloriesStore(applicationContext)
         slider = findViewById(R.id.calories_slider)
         valueLabel = findViewById(R.id.calories_value)

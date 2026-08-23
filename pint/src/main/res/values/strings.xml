@@ -6,6 +6,7 @@
     <string name="pint_count_suffix">+</string>
     <string name="settings_title">Pint Progress</string>
     <string name="settings_mug_preview">A full beer mug</string>
+    <string name="navigate_back">Back</string>
     <string name="calories_per_beer">Calories per beer</string>
     <string name="calories_default_value">150 kcal</string>
     <string name="calories_value">%1$d kcal</string>
