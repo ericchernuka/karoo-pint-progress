@@ -77,6 +77,22 @@ class PintFieldLayoutTest {
         assertEquals(PintFieldLayout.values().toList(), PintFieldLayout.entries)
     }
 
+    @Test
+    fun `live content without a completed count uses adaptive mug only layout`() {
+        assertEquals(PintFieldLayout.ICON_ONLY, PintFieldLayout.REGULAR.forDisplay(false))
+        assertEquals(PintFieldLayout.ICON_ONLY, PintFieldLayout.COMPACT.forDisplay(false))
+        assertEquals(PintFieldLayout.ICON_ONLY, PintFieldLayout.ICON_ONLY.forDisplay(false))
+    }
+
+    @Test
+    fun `completed counts preserve the viewport treatment and preview remains representative`() {
+        assertEquals(PintFieldLayout.REGULAR, PintFieldLayout.REGULAR.forDisplay(true))
+        assertEquals(PintFieldLayout.COMPACT, PintFieldLayout.COMPACT.forDisplay(true))
+        assertEquals(PintFieldLayout.ICON_ONLY, PintFieldLayout.ICON_ONLY.forDisplay(true))
+        assertEquals(PintFieldLayout.PICKER, PintFieldLayout.PICKER.forDisplay(false))
+        assertEquals(PintFieldLayout.PICKER, PintFieldLayout.PICKER.forDisplay(true))
+    }
+
     private fun layout(
         preview: Boolean = false,
         widthDp: Int,

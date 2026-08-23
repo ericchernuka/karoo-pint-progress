@@ -15,6 +15,18 @@ enum class PintFieldLayout(val showsCount: Boolean) {
     ICON_ONLY(false),
     ;
 
+    /**
+     * Applies the current presentation state after the viewport treatment has been selected.
+     *
+     * Preview owns its representative artwork. Live content without a completed count uses the
+     * adaptive mug-only treatment instead of retaining an empty fixed-size counter layout.
+     */
+    fun forDisplay(hasCompletedCount: Boolean): PintFieldLayout = when {
+        this == PICKER -> PICKER
+        !hasCompletedCount -> ICON_ONLY
+        else -> this
+    }
+
     companion object {
         private const val REGULAR_MIN_WIDTH_DP = 180
         private const val REGULAR_MIN_HEIGHT_DP = 89

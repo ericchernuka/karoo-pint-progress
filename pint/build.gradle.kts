@@ -8,6 +8,12 @@ plugins {
     jacoco
 }
 
+val pintVersionCode = providers.gradleProperty("pintVersionCode")
+    .map { it.toInt() }
+    .orElse(2)
+val pintVersionName = providers.gradleProperty("pintVersionName")
+    .orElse("1.1.0")
+
 jacoco {
     toolVersion = "0.8.15"
 }
@@ -20,8 +26,8 @@ android {
         applicationId = "io.ericchernuka.pintprogress"
         minSdk = 23
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = pintVersionCode.get()
+        versionName = pintVersionName.get()
     }
 
     buildFeatures {

@@ -23,12 +23,26 @@ jobs:
       - run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
       - name: Verify generated drawables
         run: node tools/generate-drawables.mjs && git diff --exit-code -- pint/src/main/res/drawable pint/src/main/kotlin/io/ericchernuka/pintprogress/PintAssetDrawables.kt
-      - run: ./gradlew :lib:testDebugUnitTest :pint:lintDebug :pint:assembleDebug :pint:assembleRelease :pint:jacocoBehaviorTestCoverageVerification --no-daemon
+      - name: Verify and build
+        run: >-
+          ./gradlew
+          -PpintVersionCode="${GITHUB_RUN_NUMBER}"
+          -PpintVersionName="1.1.0-dev.${GITHUB_RUN_NUMBER}"
+          :lib:testDebugUnitTest
+          :pint:lintDebug
+          :pint:assembleDebug
+          :pint:assembleRelease
+          :pint:jacocoBehaviorTestCoverageVerification
+          --no-daemon
+      - name: Verify APK version metadata
+        run: |
+          test "$(apkanalyzer manifest version-code pint/build/outputs/apk/debug/pint-debug.apk)" = "${GITHUB_RUN_NUMBER}"
+          test "$(apkanalyzer manifest version-name pint/build/outputs/apk/debug/pint-debug.apk)" = "1.1.0-dev.${GITHUB_RUN_NUMBER}"
       - name: Upload debug APK
         if: github.event_name == 'push'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: pint-progress-debug-${{ github.sha }}
+          name: pint-progress-debug-vc${{ github.run_number }}-${{ github.sha }}
           path: pint/build/outputs/apk/debug/pint-debug.apk
           if-no-files-found: error
           retention-days: 14

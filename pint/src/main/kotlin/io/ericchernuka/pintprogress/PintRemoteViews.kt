@@ -24,40 +24,44 @@ internal class PintRemoteViews(
         textSizeSp: Int,
         boundariesEnabled: Boolean,
         fieldWidthDp: Int,
-    ): RemoteViews = RemoteViews(
-        packageName,
-        layout.remoteViewsLayout(),
-    ).apply {
-        val edgeInsetPx = (PintFieldChrome.edgeInsetDp(boundariesEnabled) * displayDensity).roundToInt()
-        setViewPadding(R.id.pint_root, edgeInsetPx, edgeInsetPx, edgeInsetPx, edgeInsetPx)
-        setInt(R.id.pint_content, "setGravity", alignment.gravity())
-        setImageViewResource(R.id.pint_image, display.asset.drawableRes(layout))
+    ): RemoteViews {
+        val effectiveLayout = layout.forDisplay(display.count.isNotEmpty())
 
-        PintFieldTypography.forLayout(
-            layout = layout,
-            karooTextSizeSp = textSizeSp,
-            countLength = display.count.length,
-            fontScale = fontScale,
-            contentWidthDp = fieldWidthDp - (PintFieldChrome.edgeInsetDp(boundariesEnabled) * 2),
-        )?.let { typography ->
-            setTextViewTextSize(
-                R.id.pint_count,
-                android.util.TypedValue.COMPLEX_UNIT_SP,
-                typography.countTextSizeSp,
-            )
-            setTextViewTextSize(
-                R.id.pint_count_suffix,
-                android.util.TypedValue.COMPLEX_UNIT_SP,
-                typography.suffixTextSizeSp,
-            )
-        }
+        return RemoteViews(
+            packageName,
+            effectiveLayout.remoteViewsLayout(),
+        ).apply {
+            val edgeInsetPx = (PintFieldChrome.edgeInsetDp(boundariesEnabled) * displayDensity).roundToInt()
+            setViewPadding(R.id.pint_root, edgeInsetPx, edgeInsetPx, edgeInsetPx, edgeInsetPx)
+            setInt(R.id.pint_content, "setGravity", alignment.gravity())
+            setImageViewResource(R.id.pint_image, display.asset.drawableRes(effectiveLayout))
 
-        if (layout.showsCount) {
-            val countText = display.count
-            val countVisibility = if (countText.isEmpty()) View.GONE else View.VISIBLE
-            setTextViewText(R.id.pint_count, countText)
-            setViewVisibility(R.id.pint_count, countVisibility)
-            setViewVisibility(R.id.pint_count_suffix, countVisibility)
+            PintFieldTypography.forLayout(
+                layout = effectiveLayout,
+                karooTextSizeSp = textSizeSp,
+                countLength = display.count.length,
+                fontScale = fontScale,
+                contentWidthDp = fieldWidthDp - (PintFieldChrome.edgeInsetDp(boundariesEnabled) * 2),
+            )?.let { typography ->
+                setTextViewTextSize(
+                    R.id.pint_count,
+                    android.util.TypedValue.COMPLEX_UNIT_SP,
+                    typography.countTextSizeSp,
+                )
+                setTextViewTextSize(
+                    R.id.pint_count_suffix,
+                    android.util.TypedValue.COMPLEX_UNIT_SP,
+                    typography.suffixTextSizeSp,
+                )
+            }
+
+            if (effectiveLayout.showsCount) {
+                val countText = display.count
+                val countVisibility = if (countText.isEmpty()) View.GONE else View.VISIBLE
+                setTextViewText(R.id.pint_count, countText)
+                setViewVisibility(R.id.pint_count, countVisibility)
+                setViewVisibility(R.id.pint_count_suffix, countVisibility)
+            }
         }
     }
 

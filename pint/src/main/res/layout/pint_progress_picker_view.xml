@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:padding="2dp">
 
-    <!-- Karoo's data picker is shorter than an in-ride quarter-height field. -->
+    <!-- Preview is page editing. The host-provided viewport can be large or small. -->
     <LinearLayout
         android:id="@+id/pint_content"
         android:layout_width="match_parent"
@@ -15,8 +15,9 @@
 
         <ImageView
             android:id="@+id/pint_image"
-            android:layout_width="48dp"
-            android:layout_height="65dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
             android:contentDescription="@null"
             android:scaleType="fitCenter" />
     </LinearLayout>

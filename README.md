@@ -12,9 +12,9 @@ One full mug corresponds to **150 kcal** by default, approximately a 12 fl oz / 
 
 Karoo supplies the cumulative calorie value through its `TYPE_CALORIES_ID` stream. Pint Progress does not calculate calories. Its fill level and completed-mug count follow Karoo's native calorie model and active ride state.
 
-The graphical field adapts to the allocated Karoo tile: full count plus mug for roomy fields, a reduced count plus mug for narrow or short fields, and a live mug-only treatment where a readable counter cannot fit. The data-picker preview uses its own compact mug so it is never cropped by the picker card.
+The graphical field adapts to the allocated Karoo tile: full count plus mug for roomy fields, a reduced count plus mug for narrow or short fields, and a live mug-only treatment where a readable counter cannot fit. Before the first completed mug, the live field and data-picker preview preserve the mug's aspect ratio while filling the height Karoo actually allocates.
 
-Pint Progress gives every Karoo `ViewConfig` input explicit behavior. It converts physical `viewSize` pixels into the dp units used by Android layouts, with grid span as a fallback for older hosts that report `0×0`. It chooses the largest treatment whose mug, counter, and configured boundary inset fit. Karoo's numeric text size is a ceiling; the live width budget, font scale, and count length reduce it before the complete group can clip, including when `99` becomes `100`. The selected left/centre/right alignment is applied to the complete count-and-mug group, and preview mode uses the dedicated picker treatment.
+Pint Progress gives every Karoo `ViewConfig` input explicit behavior. It converts physical `viewSize` pixels into the dp units used by Android layouts, with grid span as a fallback for older hosts that report `0×0`. It chooses the largest treatment whose mug, counter, and configured boundary inset fit. Karoo's numeric text size is a ceiling; the live width budget, font scale, and count length reduce it before the complete group can clip, including when `99` becomes `100`. The selected left/centre/right alignment is applied to the complete rendered group. See the [Karoo data-field contract](docs/KAROO_DATA_FIELD_CONTRACT.md) for the source-backed behavior matrix and required device checks.
 
 ## Runtime behavior
 
@@ -41,7 +41,7 @@ This command produces a local debug APK and an intentionally unsigned release AP
 3. Add **Pint Progress** to a ride page from the Karoo data-field picker.
 4. Start a ride with power-based calories available.
 
-The debug APK is for local development only. Do not attach it to a public release. The release build is deliberately unsigned: any distributable release must be rebuilt from an audited commit, signed with a project-owned release key, and published with its commit and SHA-256 recorded.
+The debug APK is for local development only. Do not attach it to a public release. GitHub Actions gives each changed CI build an increasing `versionCode`, but its default debug key is ephemeral, so a CI debug APK may require uninstalling a debug APK from a different run. An actual update must use the same project-owned signing key as the installed app. The release build is deliberately unsigned: any distributable release must be rebuilt from an audited commit, signed with that private key, and published with its version, commit, and SHA-256 recorded.
 
 Before using it during a ride, run a short on-device smoke test. Verify initial rendering, the 80% foam state, a completion animation, a page change, and that the Karoo system can load the caller-gated extension.
 

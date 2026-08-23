@@ -10,6 +10,7 @@
 .externalNativeBuild
 .cxx
 /docs/*
+!/docs/KAROO_DATA_FIELD_CONTRACT.md
 !/docs/TEST_BOUNDARY.md
 !/docs/images/
 !/docs/images/pint-progress-preview.svg
