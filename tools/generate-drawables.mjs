@@ -88,15 +88,21 @@ const innerMug = {
 };
 
 const fillTop = (percent) => 99 - (percent / 100) * 86;
+// Keep liquid inside the straight section of the inner glass. Foam occupies the rounded cap for
+// near-full states, so neither layer needs a clip path that could render differently on Karoo.
+const contentTop = (percent) => Math.max(fillTop(percent), 21);
 
 const fillPath = (percent) => {
   if (percent === 0) return null;
-  const top = fillTop(percent);
+  const top = contentTop(percent);
   return `M21,${top.toFixed(2)} L64,${top.toFixed(2)} L64,91 C64,96 61,99 57,99 L29,99 C24,99 21,96 21,91 L21,${top.toFixed(2)} Z`;
 };
 
 const foamPath = (top, height) => {
   const crest = top - height;
+  if (crest < 18) {
+    return `M21,${(top + 2).toFixed(2)} L64,${(top + 2).toFixed(2)} L64,21 C64,16 62,13 58,13 C53,13 49,16 44,15 C38,13 32,14 27,13 C23,13 21,16 21,21 Z`;
+  }
   return `M21,${(top + 2).toFixed(2)} L64,${(top + 2).toFixed(2)} L64,${(crest + 3).toFixed(2)} C58,${(crest + 1).toFixed(2)} 52,${(crest + 4).toFixed(2)} 44,${(crest + 3).toFixed(2)} C35,${(crest - 1).toFixed(2)} 27,${(crest - 1).toFixed(2)} 21,${(crest + 3).toFixed(2)} Z`;
 };
 
@@ -146,7 +152,7 @@ for (let bucket = 0; bucket < 20; bucket += 1) {
   if (fill) paths.push({ color: colors.amber, path: fill });
   if (percent >= 80) {
     const foamHeight = 5 + ((percent - 80) / 5) * 1.5;
-    paths.push({ color: colors.beerHighlight, path: foamPath(fillTop(percent), foamHeight) });
+    paths.push({ color: colors.beerHighlight, path: foamPath(contentTop(percent), foamHeight) });
   }
   paths.push(...mugMarks(percent), mugOutline);
   writeMugVariants(`pint_${String(percent).padStart(2, "0")}`, paths);
@@ -157,7 +163,7 @@ writeMugVariants("pint_full_bubbles", [
   mugSurface,
   innerMug,
   { color: colors.amber, path: fillPath(100) },
-  { color: colors.beerHighlight, path: foamPath(fillTop(100), 9) },
+  { color: colors.beerHighlight, path: foamPath(contentTop(100), 9) },
   ...mugMarks(100),
   ...bubbles,
   mugOutline,
@@ -168,7 +174,7 @@ writeMugVariants("pint_draining", [
   mugSurface,
   innerMug,
   { color: colors.amber, path: fillPath(55) },
-  { color: colors.beerHighlight, path: foamPath(fillTop(55), 5) },
+  { color: colors.beerHighlight, path: foamPath(contentTop(55), 5) },
   ...mugMarks(55),
   ...bubbles.slice(2),
   mugOutline,
@@ -189,7 +195,7 @@ write("ic_pint", [
   mugSurface,
   innerMug,
   { color: colors.amber, path: fillPath(80) },
-  { color: colors.beerHighlight, path: foamPath(fillTop(80), 5) },
+  { color: colors.beerHighlight, path: foamPath(contentTop(80), 5) },
   ...mugMarks(80),
   mugOutline,
 ], vectorSizes.extensionIcon);

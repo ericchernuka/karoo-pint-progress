@@ -26,7 +26,7 @@
             android:pathData="M21,21.60 L64,21.60 L64,91 C64,96 61,99 57,99 L29,99 C24,99 21,96 21,91 L21,21.60 Z" />
         <path
             android:fillColor="@color/pint_beer_highlight"
-            android:pathData="M21,23.60 L64,23.60 L64,16.60 C58,14.60 52,17.60 44,16.60 C35,12.60 27,12.60 21,16.60 Z" />
+            android:pathData="M21,23.60 L64,23.60 L64,21 C64,16 62,13 58,13 C53,13 49,16 44,15 C38,13 32,14 27,13 C23,13 21,16 21,21 Z" />
         <path
             android:fillColor="@color/pint_beer_highlight"
             android:pathData="M32,38.00 C34,38.00 34,40.00 34,40.00 L34,85.00 C34,87.00 30,87.00 30,85.00 L30,40.00 C30,40.00 30,38.00 32,38.00 Z"
