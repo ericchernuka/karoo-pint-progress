@@ -39,9 +39,9 @@ internal fun streamDataFlow(
     }
 
     val listenerId = register(
-        onError = { _ -> terminate() },
-        onComplete = { terminate() },
-        onState = { state ->
+        { _: String -> terminate() },
+        { terminate() },
+        { state: StreamState ->
             if (!terminated.get()) {
                 trySend(state)
             }
