@@ -7,35 +7,63 @@ import org.junit.Test
 
 class PintFieldLayoutTest {
     @Test
-    fun `picker always uses its dedicated compact artwork`() {
-        assertEquals(PintFieldLayout.PICKER, PintFieldLayout.forSize(preview = true, widthPx = 480, heightPx = 200))
-        assertEquals(PintFieldLayout.PICKER, PintFieldLayout.forSize(preview = true, widthPx = 120, heightPx = 80))
+    fun `picker always uses its dedicated artwork`() {
+        assertEquals(PintFieldLayout.PICKER, layout(preview = true, widthDp = 480, heightDp = 200))
+        assertEquals(PintFieldLayout.PICKER, layout(preview = true, widthDp = 20, heightDp = 20, boundaries = true))
     }
 
     @Test
-    fun `roomy fields keep the full counter and mug`() {
-        assertEquals(PintFieldLayout.REGULAR, PintFieldLayout.forSize(preview = false, widthPx = 480, heightPx = 200))
+    fun `regular treatment requires both count and mug constraints`() {
+        assertEquals(PintFieldLayout.REGULAR, layout(widthDp = 184, heightDp = 93))
+        assertEquals(PintFieldLayout.COMPACT, layout(widthDp = 183, heightDp = 93))
+        assertEquals(PintFieldLayout.COMPACT, layout(widthDp = 184, heightDp = 92))
     }
 
     @Test
-    fun `narrow or short fields use the compact counter and mug`() {
-        assertEquals(PintFieldLayout.COMPACT, PintFieldLayout.forSize(preview = false, widthPx = 320, heightPx = 200))
-        assertEquals(PintFieldLayout.COMPACT, PintFieldLayout.forSize(preview = false, widthPx = 480, heightPx = 180))
+    fun `compact treatment requires both compact constraints`() {
+        assertEquals(PintFieldLayout.COMPACT, layout(widthDp = 112, heightDp = 69))
+        assertEquals(PintFieldLayout.ICON_ONLY, layout(widthDp = 111, heightDp = 69))
+        assertEquals(PintFieldLayout.ICON_ONLY, layout(widthDp = 112, heightDp = 68))
+        assertEquals(PintFieldLayout.ICON_ONLY, layout(widthDp = -1, heightDp = -1))
     }
 
     @Test
-    fun `tiles too small for a readable counter retain only the live mug`() {
-        assertEquals(PintFieldLayout.ICON_ONLY, PintFieldLayout.forSize(preview = false, widthPx = 180, heightPx = 200))
-        assertEquals(PintFieldLayout.ICON_ONLY, PintFieldLayout.forSize(preview = false, widthPx = 480, heightPx = 120))
+    fun `boundary inset participates in fit selection`() {
+        assertEquals(PintFieldLayout.REGULAR, layout(widthDp = 192, heightDp = 101, boundaries = true))
+        assertEquals(PintFieldLayout.COMPACT, layout(widthDp = 184, heightDp = 93, boundaries = true))
+        assertEquals(PintFieldLayout.COMPACT, layout(widthDp = 120, heightDp = 77, boundaries = true))
+        assertEquals(PintFieldLayout.ICON_ONLY, layout(widthDp = 112, heightDp = 69, boundaries = true))
     }
 
     @Test
-    fun `layout metadata identifies the treatments with a counter`() {
+    fun `equal dp dimensions choose the same treatment across densities`() {
+        val densityOne = PintFieldSize.resolve(
+            viewSize = 240 to 100,
+            gridSize = 30 to 15,
+            screenSize = 480 to 800,
+            density = 1f,
+        )
+        val densityTwo = PintFieldSize.resolve(
+            viewSize = 480 to 200,
+            gridSize = 30 to 15,
+            screenSize = 960 to 1600,
+            density = 2f,
+        )
+
+        assertEquals(densityOne.widthDp, densityTwo.widthDp)
+        assertEquals(densityOne.heightDp, densityTwo.heightDp)
+        assertEquals(
+            layout(widthDp = densityOne.widthDp, heightDp = densityOne.heightDp),
+            layout(widthDp = densityTwo.widthDp, heightDp = densityTwo.heightDp),
+        )
+    }
+
+    @Test
+    fun `layout metadata identifies treatments with a counter`() {
         assertFalse(PintFieldLayout.PICKER.showsCount)
         assertTrue(PintFieldLayout.REGULAR.showsCount)
         assertTrue(PintFieldLayout.COMPACT.showsCount)
         assertFalse(PintFieldLayout.ICON_ONLY.showsCount)
-
         assertEquals(
             listOf(
                 PintFieldLayout.PICKER,
@@ -48,4 +76,16 @@ class PintFieldLayoutTest {
         assertEquals(PintFieldLayout.PICKER, PintFieldLayout.valueOf("PICKER"))
         assertEquals(PintFieldLayout.values().toList(), PintFieldLayout.entries)
     }
+
+    private fun layout(
+        preview: Boolean = false,
+        widthDp: Int,
+        heightDp: Int,
+        boundaries: Boolean = false,
+    ): PintFieldLayout = PintFieldLayout.forSize(
+        preview = preview,
+        widthDp = widthDp,
+        heightDp = heightDp,
+        boundariesEnabled = boundaries,
+    )
 }

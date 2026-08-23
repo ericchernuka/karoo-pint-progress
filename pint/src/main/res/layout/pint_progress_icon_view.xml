@@ -14,8 +14,8 @@
 
         <ImageView
             android:id="@+id/pint_image"
-            android:layout_width="32dp"
-            android:layout_height="43dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:contentDescription="@null"
             android:scaleType="fitCenter" />
     </LinearLayout>

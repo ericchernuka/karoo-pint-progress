@@ -1,70 +1,150 @@
 package io.ericchernuka.pintprogress.core
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
 class PintFieldTypographyTest {
     @Test
-    fun `regular and compact counters use the host size up to their calibrated mug height`() {
-        val regularTypography = PintFieldTypography.forLayout(PintFieldLayout.REGULAR, karooTextSizeSp = 92)
+    fun `normal counts follow host guidance up to mug matched caps`() {
+        val regular = typography(PintFieldLayout.REGULAR, textSizeSp = 92, countLength = 2)
+        val compact = typography(PintFieldLayout.COMPACT, textSizeSp = 68, countLength = 2)
 
-        assertEquals(
-            PintFieldTypography(countTextSizeSp = 92f, suffixTextSizeSp = 43f),
-            regularTypography,
-        )
-        requireNotNull(regularTypography)
-        assertEquals(92f, regularTypography.countTextSizeSp)
-        assertEquals(43f, regularTypography.suffixTextSizeSp)
-        assertEquals(92f, regularTypography.component1())
-        assertEquals(43f, regularTypography.component2())
-        assertEquals(regularTypography, regularTypography.copy())
-        assertEquals(
-            PintFieldTypography(countTextSizeSp = 93f, suffixTextSizeSp = 43f),
-            regularTypography.copy(countTextSizeSp = 93f),
-        )
-        assertEquals(
-            PintFieldTypography(countTextSizeSp = 92f, suffixTextSizeSp = 44f),
-            regularTypography.copy(suffixTextSizeSp = 44f),
-        )
-        assertEquals(regularTypography.hashCode(), regularTypography.copy().hashCode())
-        assertEquals(
-            "PintFieldTypography(countTextSizeSp=92.0, suffixTextSizeSp=43.0)",
-            regularTypography.toString(),
-        )
-        assertEquals(regularTypography, regularTypography)
-        assertNotEquals(regularTypography, "92 plus 43")
-        assertNotEquals(
-            regularTypography,
-            PintFieldTypography(countTextSizeSp = 93f, suffixTextSizeSp = 43f),
-        )
-        assertNotEquals(
-            regularTypography,
-            PintFieldTypography(countTextSizeSp = 92f, suffixTextSizeSp = 44f),
-        )
-
-        assertEquals(
-            PintFieldTypography(countTextSizeSp = 68f, suffixTextSizeSp = 32f),
-            PintFieldTypography.forLayout(PintFieldLayout.COMPACT, karooTextSizeSp = 68),
-        )
+        requireNotNull(regular)
+        requireNotNull(compact)
+        assertEquals(92f, regular.countTextSizeSp)
+        assertEquals(43f, regular.suffixTextSizeSp)
+        assertEquals(68f, compact.countTextSizeSp)
+        assertEquals(32f, compact.suffixTextSizeSp)
     }
 
     @Test
-    fun `unexpected and oversized host sizes retain the calibrated maximum`() {
-        assertEquals(
-            PintFieldTypography(countTextSizeSp = 110f, suffixTextSizeSp = 52f),
-            PintFieldTypography.forLayout(PintFieldLayout.REGULAR, karooTextSizeSp = 999),
+    fun `missing and oversized host guidance use mug matched caps`() {
+        val regular = typography(PintFieldLayout.REGULAR, textSizeSp = 999, countLength = 3)
+        val compact = typography(PintFieldLayout.COMPACT, textSizeSp = 0, countLength = 0)
+
+        requireNotNull(regular)
+        requireNotNull(compact)
+        assertEquals(110f, regular.countTextSizeSp)
+        assertEquals(52f, regular.suffixTextSizeSp)
+        assertEquals(68f, compact.countTextSizeSp)
+        assertEquals(32f, compact.suffixTextSizeSp)
+    }
+
+    @Test
+    fun `font scale reduces sp while retaining mug matched physical height`() {
+        val scaled = typography(
+            PintFieldLayout.REGULAR,
+            textSizeSp = 999,
+            countLength = 2,
+            fontScale = 2f,
         )
-        assertEquals(
-            PintFieldTypography(countTextSizeSp = 68f, suffixTextSizeSp = 32f),
-            PintFieldTypography.forLayout(PintFieldLayout.COMPACT, karooTextSizeSp = 0),
+
+        requireNotNull(scaled)
+        assertEquals(55f, scaled.countTextSizeSp)
+        assertEquals(26f, scaled.suffixTextSizeSp)
+    }
+
+    @Test
+    fun `invalid font scales use the stable default`() {
+        listOf(0f, -1f, Float.NaN, Float.POSITIVE_INFINITY).forEach { invalidScale ->
+            val typography = typography(
+                PintFieldLayout.REGULAR,
+                textSizeSp = 999,
+                countLength = 2,
+                fontScale = invalidScale,
+            )
+
+            requireNotNull(typography)
+            assertEquals(110f, typography.countTextSizeSp)
+            assertEquals(52f, typography.suffixTextSizeSp)
+        }
+    }
+
+    @Test
+    fun `count width is constrained by the complete group budget`() {
+        val regularAtBoundary = typography(
+            PintFieldLayout.REGULAR,
+            textSizeSp = 999,
+            countLength = 3,
+            contentWidthDp = 180,
         )
+        val compactAtBoundary = typography(
+            PintFieldLayout.COMPACT,
+            textSizeSp = 999,
+            countLength = 3,
+            contentWidthDp = 108,
+        )
+        val alreadySmall = typography(
+            PintFieldLayout.COMPACT,
+            textSizeSp = 20,
+            countLength = 4,
+            contentWidthDp = 108,
+        )
+
+        requireNotNull(regularAtBoundary)
+        requireNotNull(compactAtBoundary)
+        requireNotNull(alreadySmall)
+        assertEquals(92.56198f, regularAtBoundary.countTextSizeSp, 0.001f)
+        assertEquals(44f, regularAtBoundary.suffixTextSizeSp)
+        assertEquals(48.76033f, compactAtBoundary.countTextSizeSp, 0.001f)
+        assertEquals(23f, compactAtBoundary.suffixTextSizeSp)
+        assertEquals(20f, alreadySmall.countTextSizeSp)
+        assertEquals(9f, alreadySmall.suffixTextSizeSp)
+    }
+
+    @Test
+    fun `transition from two to three digits remains inside a regular boundary field`() {
+        val twoDigits = typography(
+            PintFieldLayout.REGULAR,
+            textSizeSp = 999,
+            countLength = 2,
+            contentWidthDp = 180,
+        )
+        val threeDigits = typography(
+            PintFieldLayout.REGULAR,
+            textSizeSp = 999,
+            countLength = 3,
+            contentWidthDp = 180,
+        )
+
+        requireNotNull(twoDigits)
+        requireNotNull(threeDigits)
+        assertEquals(110f, twoDigits.countTextSizeSp)
+        assertEquals(92.56198f, threeDigits.countTextSizeSp, 0.001f)
+    }
+
+    @Test
+    fun `defensive narrow content budget remains positive`() {
+        val typography = typography(
+            PintFieldLayout.REGULAR,
+            textSizeSp = 999,
+            countLength = -1,
+            contentWidthDp = 0,
+        )
+
+        requireNotNull(typography)
+        assertEquals(1.9607843f, typography.countTextSizeSp, 0.001f)
+        assertEquals(1f, typography.suffixTextSizeSp)
     }
 
     @Test
     fun `picker and icon only treatments have no counter typography`() {
-        assertNull(PintFieldTypography.forLayout(PintFieldLayout.PICKER, karooTextSizeSp = 110))
-        assertNull(PintFieldTypography.forLayout(PintFieldLayout.ICON_ONLY, karooTextSizeSp = 68))
+        assertNull(typography(PintFieldLayout.PICKER, textSizeSp = 110, countLength = 2))
+        assertNull(typography(PintFieldLayout.ICON_ONLY, textSizeSp = 68, countLength = 2))
     }
+
+    private fun typography(
+        layout: PintFieldLayout,
+        textSizeSp: Int,
+        countLength: Int,
+        fontScale: Float = 1f,
+        contentWidthDp: Int = 240,
+    ): PintFieldTypography? = PintFieldTypography.forLayout(
+        layout = layout,
+        karooTextSizeSp = textSizeSp,
+        countLength = countLength,
+        fontScale = fontScale,
+        contentWidthDp = contentWidthDp,
+    )
 }

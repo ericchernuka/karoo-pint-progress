@@ -2,6 +2,7 @@ package io.ericchernuka.pintprogress
 
 import android.content.Context
 import android.os.SystemClock
+import android.util.Log
 import io.ericchernuka.pintprogress.core.PintFrame
 import io.ericchernuka.pintprogress.core.PintFieldLayout
 import io.ericchernuka.pintprogress.core.PintFieldSize
@@ -28,17 +29,33 @@ class PintProgressDataType(
         emitter.onNext(UpdateGraphicConfig(showHeader = false))
 
         val displayMetrics = context.resources.displayMetrics
-        val renderer = PintRemoteViews(context.packageName, displayMetrics.density)
+        val renderer = PintRemoteViews(
+            packageName = context.packageName,
+            displayDensity = displayMetrics.density,
+            scaledDensity = displayMetrics.scaledDensity,
+        )
         val fieldSize = PintFieldSize.resolve(
             viewSize = config.viewSize,
             gridSize = config.gridSize,
             screenSize = displayMetrics.widthPixels to displayMetrics.heightPixels,
+            density = displayMetrics.density,
         )
         val layout = PintFieldLayout.forSize(
             preview = config.preview,
-            widthPx = fieldSize.widthPx,
-            heightPx = fieldSize.heightPx,
+            widthDp = fieldSize.widthDp,
+            heightDp = fieldSize.heightDp,
+            boundariesEnabled = config.boundariesEnabled,
         )
+        if (BuildConfig.DEBUG) {
+            Log.d(
+                TAG,
+                "grid=${config.gridSize} viewPx=${config.viewSize} fieldDp=" +
+                    "${fieldSize.widthDp}x${fieldSize.heightDp} textSp=${config.textSize} " +
+                    "alignment=${config.alignment} boundaries=${config.boundariesEnabled} " +
+                    "preview=${config.preview} density=${displayMetrics.density} " +
+                    "scaledDensity=${displayMetrics.scaledDensity} layout=$layout",
+            )
+        }
         if (config.preview) {
             emitter.updateView(
                 renderer.render(
@@ -47,6 +64,7 @@ class PintProgressDataType(
                     alignment = config.alignment,
                     textSizeSp = config.textSize,
                     boundariesEnabled = config.boundariesEnabled,
+                    fieldWidthDp = fieldSize.widthDp,
                 ),
             )
             return
@@ -70,6 +88,7 @@ class PintProgressDataType(
                         alignment = config.alignment,
                         textSizeSp = config.textSize,
                         boundariesEnabled = config.boundariesEnabled,
+                        fieldWidthDp = fieldSize.widthDp,
                     ),
                 )
                 lastViewUpdateMillis = SystemClock.elapsedRealtime()
@@ -89,6 +108,7 @@ class PintProgressDataType(
 
     private companion object {
         const val TYPE_ID = "pint-progress"
+        const val TAG = "PintProgressField"
         const val VIEW_UPDATE_INTERVAL_MILLIS = 1_000L
     }
 }

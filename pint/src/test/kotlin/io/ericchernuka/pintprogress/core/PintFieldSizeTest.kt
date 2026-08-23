@@ -1,46 +1,70 @@
 package io.ericchernuka.pintprogress.core
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
 import org.junit.Test
 
 class PintFieldSizeTest {
     @Test
-    fun `reported physical size takes precedence over grid proportions`() {
-        val reportedSize = PintFieldSize(widthPx = 480, heightPx = 200)
-
-        assertEquals(
-            reportedSize,
-            PintFieldSize.resolve(
-                viewSize = 480 to 200,
-                gridSize = 30 to 15,
-                screenSize = 480 to 800,
-            ),
+    fun `reported physical size takes precedence and converts to dp`() {
+        val densityOne = PintFieldSize.resolve(
+            viewSize = 480 to 200,
+            gridSize = 30 to 15,
+            screenSize = 480 to 800,
+            density = 1f,
         )
-        assertEquals(480, reportedSize.widthPx)
-        assertEquals(200, reportedSize.heightPx)
-        assertEquals(480, reportedSize.component1())
-        assertEquals(200, reportedSize.component2())
-        assertEquals(reportedSize, reportedSize.copy())
-        assertEquals(PintFieldSize(widthPx = 481, heightPx = 200), reportedSize.copy(widthPx = 481))
-        assertEquals(PintFieldSize(widthPx = 480, heightPx = 201), reportedSize.copy(heightPx = 201))
-        assertEquals(reportedSize.hashCode(), reportedSize.copy().hashCode())
-        assertEquals("PintFieldSize(widthPx=480, heightPx=200)", reportedSize.toString())
-        assertEquals(reportedSize, reportedSize)
-        assertNotEquals(reportedSize, "480 by 200")
-        assertNotEquals(reportedSize, PintFieldSize(widthPx = 481, heightPx = 200))
-        assertNotEquals(reportedSize, PintFieldSize(widthPx = 480, heightPx = 201))
+        val densityTwo = PintFieldSize.resolve(
+            viewSize = 961 to 401,
+            gridSize = 30 to 15,
+            screenSize = 480 to 800,
+            density = 2f,
+        )
+
+        assertEquals(480, densityOne.widthDp)
+        assertEquals(200, densityOne.heightDp)
+        assertEquals(481, densityTwo.widthDp)
+        assertEquals(201, densityTwo.heightDp)
     }
 
     @Test
-    fun `grid proportions provide size when a host reports zero dimensions`() {
-        assertEquals(
-            PintFieldSize(widthPx = 240, heightPx = 200),
-            PintFieldSize.resolve(
-                viewSize = 0 to 0,
+    fun `grid proportions provide each missing physical dimension before conversion`() {
+        val widthFallback = PintFieldSize.resolve(
+            viewSize = 0 to 400,
+            gridSize = 30 to 15,
+            screenSize = 480 to 800,
+            density = 2f,
+        )
+        val heightFallback = PintFieldSize.resolve(
+            viewSize = 400 to 0,
+            gridSize = 30 to 15,
+            screenSize = 480 to 800,
+            density = 2f,
+        )
+
+        assertEquals(120, widthFallback.widthDp)
+        assertEquals(200, widthFallback.heightDp)
+        assertEquals(200, heightFallback.widthDp)
+        assertEquals(100, heightFallback.heightDp)
+    }
+
+    @Test
+    fun `invalid density falls back to density one`() {
+        val expected = PintFieldSize.resolve(
+            viewSize = 480 to 200,
+            gridSize = 30 to 15,
+            screenSize = 480 to 800,
+            density = 1f,
+        )
+
+        listOf(0f, -2f, Float.NaN, Float.POSITIVE_INFINITY).forEach { invalidDensity ->
+            val actual = PintFieldSize.resolve(
+                viewSize = 480 to 200,
                 gridSize = 30 to 15,
                 screenSize = 480 to 800,
-            ),
-        )
+                density = invalidDensity,
+            )
+
+            assertEquals(expected.widthDp, actual.widthDp)
+            assertEquals(expected.heightDp, actual.heightDp)
+        }
     }
 }
