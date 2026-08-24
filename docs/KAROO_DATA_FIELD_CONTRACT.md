@@ -36,6 +36,22 @@ SDK 1.1.9 and Android's `RemoteViews` and app-update requirements.
 9. The full-with-bubbles frame may extend its foam crown slightly above the mug rim. The crown stays
    within the vector viewport and mug width, while every normal fill state remains inside the glass.
 
+## Text-only field
+
+`Pints (Text)` is a second graphical data type, selected independently from `Pints` in Karoo's
+data-field picker. The choice is per tile and per ride profile, not a global appearance preference.
+Both types consume the same calorie stream and calories-per-beer setting.
+
+- Karoo still owns the standard data-type icon and `Pints (Text)` header; the field body is text
+  only.
+- The live value is floored to 0.1-pint increments from the existing 5% progress buckets. This
+  yields `0.0` at 5%, `0.1` at 10%, `0.9` at 95%, and `1.0` only at a full pint.
+- The text value uses `viewSize`, `textSize`, alignment, and boundaries just like the mug field.
+  Its width is constrained before Android receives the `RemoteViews` update.
+- Unavailable data renders `—`. Preview loops through `0.5`, `0.8`, and `1.0` at one Hz.
+- Completion frames retain the one-Hz lifecycle cap but render the stable text value, not mug
+  bubbles or drain artwork.
+
 ## Calories-per-beer setting
 
 Karoo extension SDK 1.1.9 exposes only the six `ViewConfig` inputs above. It does not provide a
@@ -78,6 +94,7 @@ Local tests cannot reproduce Karoo's host process or page editor. Before moving 
 - no completed mug, `1+`, `99+`, and `100+`;
 - light and dark system themes;
 - unavailable calories, normal fill, 80% foam, bubbles, and drain;
+- text-only `0.0`, `0.1`, `0.9`, `1.0`, and a three-digit completed total in narrow and roomy tiles;
 - default, minimum, maximum, and mid-ride calories-per-beer changes;
 - install over the previous signed build without uninstalling.
 

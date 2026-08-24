@@ -8,7 +8,10 @@ class PintProgressExtension : KarooExtension(EXTENSION_ID, BuildConfig.VERSION_N
     private val karooSystem by lazy { KarooSystemService(this) }
 
     override val types by lazy {
-        listOf(PintProgressDataType(karooSystem, extension))
+        listOf(
+            PintProgressDataType(karooSystem, extension, PintFieldStyle.MUG),
+            PintProgressDataType(karooSystem, extension, PintFieldStyle.TEXT),
+        )
     }
 
     override fun onCreate() {

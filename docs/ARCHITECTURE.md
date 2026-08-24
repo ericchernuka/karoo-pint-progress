@@ -17,10 +17,11 @@ private calorie setting -+                                         |
                                                          PintRemoteViews --> ViewEmitter
 ```
 
-`PintProgressExtension` owns the Karoo service connection and exposes `PintProgressDataType`.
-`PintProgressDataType` resolves the field viewport, combines Karoo calories with the global setting,
-paces output, and cancels work on detach. Preview mode bypasses the calorie stream and cycles through
-representative production frames.
+`PintProgressExtension` owns the Karoo service connection and exposes two `PintProgressDataType`
+instances: the original mug field and the text-only field. They share the same stream, progress
+reducer, lifecycle, update cap, and global calorie target. `PintProgressDataType` resolves the field
+viewport, combines Karoo calories with the global setting, paces output, and cancels work on detach.
+Preview mode bypasses the calorie stream and cycles through representative production frames.
 
 ## Ownership map
 
@@ -30,10 +31,13 @@ representative production frames.
 | Calories to completed mugs and 5% bucket | `core/PintProgressReducer.kt` |
 | Stream-state coalescing and animation plan | `core/PintViewReducer.kt` |
 | Frame to asset and count | `core/PintPresentation.kt` |
+| Frame to one-decimal text total | `core/PintTextPresentation.kt` |
 | Viewport and treatment selection | `core/PintFieldSize.kt`, `core/PintFieldLayout.kt` |
 | Text fitting and boundary inset | `core/PintFieldTypography.kt`, `core/PintFieldChrome.kt` |
+| Text-only value fitting | `core/PintTextTypography.kt` |
 | Karoo alignment mapping | `PintFieldGravity.kt` |
 | Android `RemoteViews` serialization | `PintRemoteViews.kt` |
+| Android text-only `RemoteViews` serialization | `PintTextRemoteViews.kt` |
 | One-Hz pacing and Karoo subscription | `PintProgressDataType.kt` |
 | Private preference adapter and UI | `BeerCaloriesStore.kt`, `PintSettingsActivity.kt` |
 | Caller authorization | `core/KarooCallerPolicy.kt`, `PintProgressExtension.kt` |

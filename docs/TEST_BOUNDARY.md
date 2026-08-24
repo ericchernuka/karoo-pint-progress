@@ -23,6 +23,7 @@ node tools/validate-drawables.mjs
 - first-attach, reset, skipped-threshold, full, bubbles, drain, and steady-state transitions;
 - stream-state conversion, visible-state coalescing, timed-frame plans, and preview behavior;
 - drawable frame selection, labels, and counter visibility.
+- text-only 0.1-pint flooring, unavailable and preview values, and constrained decimal typography.
 
 The following files are intentionally outside JaCoCo's JVM scope because each is a thin Android or Karoo IPC adapter, not a location for product decisions:
 

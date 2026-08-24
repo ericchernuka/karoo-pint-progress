@@ -3,6 +3,8 @@
     <string name="extension_name">Pint Progress</string>
     <string name="pint_progress">Pints</string>
     <string name="pint_progress_description">A beer mug that fills from ride calories</string>
+    <string name="pint_progress_text">Pints (Text)</string>
+    <string name="pint_progress_text_description">A text-only pint total from ride calories</string>
     <string name="pint_count_suffix">+</string>
     <string name="settings_title">Pint Progress</string>
     <string name="settings_mug_preview">A full beer mug</string>
