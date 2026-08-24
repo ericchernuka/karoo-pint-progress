@@ -10,6 +10,7 @@ Use this index to load only the context needed for a task.
 | [Drawables](DRAWABLES.md) | Mug generation, semantic colors, geometry checks, README artwork |
 | [Security](SECURITY.md) | Trust boundaries, prohibited capabilities, audit checklist |
 | [Release](RELEASE.md) | Versioning, signing, CI artifacts, release evidence |
+| [Build system comparison](BUILD_SYSTEM_COMPARISON.md) | Karoo Reminder comparison and release-design decisions |
 | [Troubleshooting](TROUBLESHOOTING.md) | Installation, discovery, rendering, calorie-stream, and build failures |
 
 ## Source-of-truth order

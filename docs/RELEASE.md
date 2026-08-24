@@ -21,6 +21,14 @@ is ephemeral. Debug APKs from different runs may require uninstalling the prior 
 6. Choose a unique increasing `versionCode` and the intended `versionName`.
 7. Build from the audited commit, sign outside the repository, and verify the final APK.
 
+## Automated signed release
+
+Push a tag such as `v1.1.0` after the candidate gate. The tag-only release workflow builds with
+that version name and its monotonically increasing GitHub Actions run number, verifies the signing
+certificate and checksum, and publishes the APK to a GitHub Release. Configure the four
+`PINT_*` signing secrets in the repository before using this workflow. Verification builds never
+receive these secrets.
+
 Example unsigned candidate build:
 
 ```bash

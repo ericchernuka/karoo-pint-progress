@@ -1,6 +1,7 @@
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
 import org.gradle.testing.jacoco.tasks.JacocoReport
+import java.util.Base64
 
 plugins {
     alias(libs.plugins.android.application)
@@ -13,6 +14,20 @@ val pintVersionCode = providers.gradleProperty("pintVersionCode")
     .orElse(2)
 val pintVersionName = providers.gradleProperty("pintVersionName")
     .orElse("1.1.0")
+
+val releaseSigningValues = listOf(
+    "PINT_KEY_ALIAS" to providers.environmentVariable("PINT_KEY_ALIAS").orNull,
+    "PINT_KEY_PASSWORD" to providers.environmentVariable("PINT_KEY_PASSWORD").orNull,
+    "PINT_KEYSTORE_PASSWORD" to providers.environmentVariable("PINT_KEYSTORE_PASSWORD").orNull,
+    "PINT_KEYSTORE_BASE64" to providers.environmentVariable("PINT_KEYSTORE_BASE64").orNull,
+)
+val releaseSigningConfigured = releaseSigningValues.any { !it.second.isNullOrBlank() }
+val releaseSigningReady = releaseSigningValues.all { !it.second.isNullOrBlank() }
+
+if (releaseSigningConfigured && !releaseSigningReady) {
+    val missing = releaseSigningValues.filter { it.second.isNullOrBlank() }.map { it.first }
+    throw GradleException("Release signing is partially configured. Missing: ${missing.joinToString()}")
+}
 
 jacoco {
     toolVersion = "0.8.15"
@@ -28,6 +43,33 @@ android {
         targetSdk = 34
         versionCode = pintVersionCode.get()
         versionName = pintVersionName.get()
+    }
+
+    if (releaseSigningReady) {
+        signingConfigs {
+            create("release") {
+                val keystoreFile = File.createTempFile("pint-progress-release-", ".jks")
+                keystoreFile.deleteOnExit()
+                keystoreFile.writeBytes(
+                    Base64.getDecoder().decode(
+                        releaseSigningValues.first { it.first == "PINT_KEYSTORE_BASE64" }.second!!,
+                    ),
+                )
+                keyAlias = releaseSigningValues.first { it.first == "PINT_KEY_ALIAS" }.second!!
+                keyPassword = releaseSigningValues.first { it.first == "PINT_KEY_PASSWORD" }.second!!
+                storeFile = keystoreFile
+                storePassword = releaseSigningValues.first { it.first == "PINT_KEYSTORE_PASSWORD" }.second!!
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            if (releaseSigningReady) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+            isMinifyEnabled = false
+        }
     }
 
     buildFeatures {

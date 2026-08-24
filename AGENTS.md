@@ -34,6 +34,7 @@ Start at [`docs/README.md`](docs/README.md).
 | Mug asset generation | [`docs/DRAWABLES.md`](docs/DRAWABLES.md) |
 | Security invariants | [`docs/SECURITY.md`](docs/SECURITY.md) |
 | Builds and releases | [`docs/RELEASE.md`](docs/RELEASE.md) |
+| Build system comparison | [`docs/BUILD_SYSTEM_COMPARISON.md`](docs/BUILD_SYSTEM_COMPARISON.md) |
 | Installation and runtime failures | [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) |
 
 ## Non-negotiable invariants
