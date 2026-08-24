@@ -9,7 +9,9 @@
 | Published APK | User distribution | Stable project-owned private key |
 
 GitHub Actions assigns each run a monotonically increasing `versionCode`, but its debug signing key
-is ephemeral. Debug APKs from different runs may require uninstalling the prior build.
+is ephemeral. Debug APKs from different runs may require uninstalling the prior build. Normal
+verification pushes do not publish debug APKs; a manually dispatched verification run can produce a
+short-lived artifact explicitly marked `UNSAFE-DEBUG`.
 
 ## Candidate gate
 

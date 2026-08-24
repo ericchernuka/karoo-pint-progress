@@ -43,7 +43,7 @@ This command produces a local debug APK and an intentionally unsigned release AP
 3. Add **Pints** under **Pint Progress** to a ride page from the Karoo data-field picker.
 4. Start a ride with power-based calories available.
 
-The debug APK is for local development only. Do not attach it to a public release. GitHub Actions gives each changed CI build an increasing `versionCode`, but its default debug key is ephemeral, so a CI debug APK may require uninstalling a debug APK from a different run. An actual update must use the same project-owned signing key as the installed app. The release build is deliberately unsigned: any distributable release must be rebuilt from an audited commit, signed with that private key, and published with its version, commit, and SHA-256 recorded.
+The debug APK is for local development only. Do not attach it to a public release. The verification workflow does not publish debug APKs on normal pushes; a manually dispatched run can produce an explicitly marked, short-lived `UNSAFE-DEBUG` artifact. Its default debug key is ephemeral, so it may require uninstalling a debug APK from a different run. An actual update must use the same project-owned signing key as the installed app. The release build is deliberately unsigned unless the tag-only release workflow receives the protected signing secrets: any distributable release must be rebuilt from an audited commit, signed with that private key, and published with its version, commit, and SHA-256 recorded.
 
 Before using it during a ride, run a short on-device smoke test. Verify initial rendering, the 80% foam state, a completion animation, a page change, and that the Karoo system can load the caller-gated extension.
 

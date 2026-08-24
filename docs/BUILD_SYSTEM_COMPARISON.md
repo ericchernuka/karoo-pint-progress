@@ -27,10 +27,10 @@ The relevant source is [settings](https://github.com/timklge/karoo-reminder/blob
 | Modules | One application module | App plus vendored `lib` SDK module | Keep ours. It avoids GitHub Packages credentials and keeps the SDK boundary auditable. |
 | SDK delivery | GitHub Packages dependency | Pinned source copy with NOTICE | Keep ours. Do not reintroduce package credentials without a concrete need. |
 | Gradle | Gradle 8.7, AGP 8.5.0 | Gradle 8.7, AGP 8.6.1 | Keep ours. The versions are compatible and ours is already checksum-verified. |
-| Verification | `./gradlew build` | Generated-asset assertions, unit tests, lint, debug/release builds, and 100% behavior coverage | Keep ours. The narrower checks produce stronger project-specific signal. |
+| Verification | `./gradlew build` | Generated-asset assertions, unit tests, lint, debug/release builds, 100% behavior coverage, and wrapper validation | Keep ours. The narrower checks produce stronger project-specific signal. |
 | Versioning | `100 + BUILD_NUMBER`; tag name becomes version name | CI run number and `1.1.0-dev.<run>` | Keep ours for development and use the tag name for signed releases. Both produce increasing build codes. |
 | Signing | Release signing on every workflow event | CI debug artifacts; unsigned release verification builds | Add tag-only signing with protected secrets. Keep untrusted verification unsigned. |
-| Release publication | Tag-triggered GitHub Release | Debug artifact on push only | Add a tag-only release workflow with APK and checksum publication. |
+| Release publication | Tag-triggered GitHub Release | Tag-triggered GitHub Release; manually dispatched `UNSAFE-DEBUG` artifact only | Add a tag-only release workflow with APK and checksum publication. |
 | Actions permissions | `contents: write` for branch and PR builds | `contents: read` for verification | Keep verification read-only. Write access exists only in the tag release job. |
 | Delivery manifest | Generates a Karoo manifest and points the app at it | No delivery manifest yet | Defer until the public release URL, icon, screenshots, and signing identity are ready. |
 
@@ -50,3 +50,12 @@ The release workflow expects these repository secrets:
 - `PINT_KEYSTORE_BASE64`
 
 No values belong in the repository, local `gradle.properties`, logs, or documentation.
+
+The Gradle wrapper is now validated by the official Gradle wrapper-validation action before either
+workflow can execute Gradle. The wrapper distribution checksum remains pinned locally as well.
+
+The audit also identified Gradle 8.7 advisories that are currently mitigated by repository
+restriction and dependency verification. Upgrading Gradle, AGP, Kotlin, coroutines, and the
+verification metadata should be a dedicated coordinated maintenance change, followed by the full
+Karoo device matrix. This release-alignment change deliberately does not mix that compatibility
+upgrade into the signing and publication work.
