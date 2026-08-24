@@ -11,11 +11,6 @@ jobs:
   release:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      PINT_KEY_ALIAS: ${{ secrets.PINT_KEY_ALIAS }}
-      PINT_KEY_PASSWORD: ${{ secrets.PINT_KEY_PASSWORD }}
-      PINT_KEYSTORE_PASSWORD: ${{ secrets.PINT_KEYSTORE_PASSWORD }}
-      PINT_KEYSTORE_BASE64: ${{ secrets.PINT_KEYSTORE_BASE64 }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -28,6 +23,11 @@ jobs:
       - uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
       - run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
       - name: Validate release signing configuration
+        env:
+          PINT_KEY_ALIAS: ${{ secrets.PINT_KEY_ALIAS }}
+          PINT_KEY_PASSWORD: ${{ secrets.PINT_KEY_PASSWORD }}
+          PINT_KEYSTORE_PASSWORD: ${{ secrets.PINT_KEYSTORE_PASSWORD }}
+          PINT_KEYSTORE_BASE64: ${{ secrets.PINT_KEYSTORE_BASE64 }}
         run: |
           for name in PINT_KEY_ALIAS PINT_KEY_PASSWORD PINT_KEYSTORE_PASSWORD PINT_KEYSTORE_BASE64; do
             if [ -z "${!name}" ]; then
@@ -38,6 +38,11 @@ jobs:
       - name: Verify generated drawables
         run: node tools/generate-drawables.mjs && node tools/validate-drawables.mjs && git diff --exit-code -- pint/src/main/res/drawable pint/src/main/kotlin/io/ericchernuka/pintprogress/PintAssetDrawables.kt
       - name: Build signed release
+        env:
+          PINT_KEY_ALIAS: ${{ secrets.PINT_KEY_ALIAS }}
+          PINT_KEY_PASSWORD: ${{ secrets.PINT_KEY_PASSWORD }}
+          PINT_KEYSTORE_PASSWORD: ${{ secrets.PINT_KEYSTORE_PASSWORD }}
+          PINT_KEYSTORE_BASE64: ${{ secrets.PINT_KEYSTORE_BASE64 }}
         run: >-
           ./gradlew
           -PpintVersionCode="${GITHUB_RUN_NUMBER}"
@@ -63,3 +68,4 @@ jobs:
             pint/build/outputs/apk/release/pint-release.apk.sha256 \
             --generate-notes \
             --latest
+
