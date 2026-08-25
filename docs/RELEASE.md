@@ -25,7 +25,7 @@ short-lived artifact explicitly marked `UNSAFE-DEBUG`.
 
 ## Automated signed release
 
-Push a tag such as `v1.1.0` after the candidate gate. The tag-only release workflow builds with
+Push a tag such as `v1.0.0` after the candidate gate. The tag-only release workflow builds with
 that version name and its monotonically increasing GitHub Actions run number, verifies the signing
 certificate and checksum, and publishes the APK to a GitHub Release. Configure the four
 `PINT_*` signing secrets in the repository before using this workflow. Verification builds never

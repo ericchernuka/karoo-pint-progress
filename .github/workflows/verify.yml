@@ -29,7 +29,7 @@ jobs:
         run: >-
           ./gradlew
           -PpintVersionCode="${GITHUB_RUN_NUMBER}"
-          -PpintVersionName="1.1.0-dev.${GITHUB_RUN_NUMBER}"
+          -PpintVersionName="1.0.0-dev.${GITHUB_RUN_NUMBER}"
           :lib:testDebugUnitTest
           :pint:lintDebug
           :pint:assembleDebug
@@ -39,7 +39,7 @@ jobs:
       - name: Verify APK version metadata
         run: |
           test "$(apkanalyzer manifest version-code pint/build/outputs/apk/debug/pint-debug.apk)" = "${GITHUB_RUN_NUMBER}"
-          test "$(apkanalyzer manifest version-name pint/build/outputs/apk/debug/pint-debug.apk)" = "1.1.0-dev.${GITHUB_RUN_NUMBER}"
+          test "$(apkanalyzer manifest version-name pint/build/outputs/apk/debug/pint-debug.apk)" = "1.0.0-dev.${GITHUB_RUN_NUMBER}"
       - name: Upload debug APK
         if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

@@ -13,7 +13,7 @@ val pintVersionCode = providers.gradleProperty("pintVersionCode")
     .map { it.toInt() }
     .orElse(2)
 val pintVersionName = providers.gradleProperty("pintVersionName")
-    .orElse("1.1.0")
+    .orElse("1.0.0")
 
 val releaseSigningValues = listOf(
     "PINT_KEY_ALIAS" to providers.environmentVariable("PINT_KEY_ALIAS").orNull,
