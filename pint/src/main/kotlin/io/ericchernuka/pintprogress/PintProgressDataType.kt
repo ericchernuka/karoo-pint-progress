@@ -15,6 +15,7 @@ import io.hammerhead.karooext.extension.DataTypeImpl
 import io.hammerhead.karooext.internal.Emitter
 import io.hammerhead.karooext.internal.ViewEmitter
 import io.hammerhead.karooext.models.DataType
+import io.hammerhead.karooext.models.ShowCustomStreamState
 import io.hammerhead.karooext.models.StreamState
 import io.hammerhead.karooext.models.UpdateGraphicConfig
 import io.hammerhead.karooext.models.UpdateNumericConfig
@@ -66,6 +67,17 @@ class PintProgressDataType internal constructor(
     override fun startView(context: Context, config: ViewConfig, emitter: ViewEmitter) {
         if (style == PintFieldStyle.TEXT) {
             emitter.onNext(UpdateNumericConfig(formatDataTypeId = DataType.Type.VARIABILITY_INDEX))
+            if (config.preview) {
+                val job = CoroutineScope(Dispatchers.Default).launch {
+                    while (true) {
+                        PintTextStreamState.previewMessages().forEach { message ->
+                            emitter.onNext(ShowCustomStreamState(message = message, color = null))
+                            delay(VIEW_UPDATE_INTERVAL_MILLIS)
+                        }
+                    }
+                }
+                emitter.setCancellable(job::cancel)
+            }
             return
         }
 

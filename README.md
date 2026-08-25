@@ -4,7 +4,7 @@
 
 Pint Progress provides two data fields for Hammerhead Karoo cycling computers. Both turn Karoo's
 native **Calories from Power** ride total into pints: **Pints** is a graphical filling beer mug, and
-**Pints (Text)** is a native numeric total rendered by Karoo.
+**Pints Count** is a native numeric total rendered by Karoo.
 
 One full mug corresponds to **150 kcal** by default, approximately a 12 fl oz / 355 ml 5% ABV beer. The "pint" name is branding, not a volume measurement. The mug fills in 5% steps, adds foam from 80%, crowns the rim with foam when full, shows bubbles when it observes a completion, drains, and starts the next mug. Until the first completed beer, the field shows only the filling mug. Afterwards it shows a compact `N+` count beside the mug.
 
@@ -14,7 +14,7 @@ One full mug corresponds to **150 kcal** by default, approximately a 12 fl oz / 
 
 Karoo supplies the cumulative calorie value through its `TYPE_CALORIES_ID` stream. Pint Progress does not calculate calories. Its fill level and completed-mug count follow Karoo's native calorie model and active ride state.
 
-The mug field adapts to the allocated Karoo tile: full count plus mug for roomy fields, a reduced count plus mug for narrow or short fields, and a live mug-only treatment where a readable counter cannot fit. Before the first completed mug, the live field and data-picker preview preserve the mug's aspect ratio while filling the height Karoo actually allocates. Karoo owns the text field's numeric sizing, alignment, boundaries, and preview.
+The mug field adapts to the allocated Karoo tile: full count plus mug for roomy fields, a reduced count plus mug for narrow or short fields, and a live mug-only treatment where a readable counter cannot fit. Before the first completed mug, the live field and data-picker preview preserve the mug's aspect ratio while filling the height Karoo actually allocates. Karoo owns the count field's numeric sizing, alignment, and boundaries.
 
 Pint Progress gives every Karoo `ViewConfig` input explicit behavior. It converts physical `viewSize` pixels into the dp units used by Android layouts, with grid span as a fallback for older hosts that report `0×0`. It chooses the largest treatment whose mug, counter, and configured boundary inset fit. Karoo's numeric text size is a ceiling; the live width budget, font scale, and count length reduce it before the complete group can clip, including when `99` becomes `100`. The selected left/centre/right alignment is applied to the complete rendered group. Karoo owns the standard data-type icon and compact header, while the extension's `RemoteViews` contain only the value graphic. See the [Karoo data-field contract](docs/KAROO_DATA_FIELD_CONTRACT.md) for the source-backed behavior matrix and required device checks.
 
@@ -24,8 +24,9 @@ Pint Progress gives every Karoo `ViewConfig` input explicit behavior. It convert
 - Normal rendering changes at 5% fill boundaries or completed-beer boundaries.
 - The completion animation has three static frames separated by one second, matching Karoo's limit of one view update per second.
 - The graphical mug preview loops through 50%, 80%, and full-with-bubbles frames at the same one-second cadence.
-- **Pints (Text)** publishes a floored decimal total. Karoo displays values such as `0.00`, `0.70`,
-  `1.00`, and `12.30` through its native formatter and owns the field preview.
+- **Pints Count** publishes a floored decimal total. Karoo displays values such as `0.00`, `0.70`,
+  `1.00`, and `12.30` through its native formatter. Its page-editor preview cycles through `0.5`,
+  `0.9`, `1`, and `1.1` at one Hz in Karoo's standard numeric container.
 - Changing the calories-per-beer setting establishes a new steady baseline immediately and never replays a completion animation for calories already recorded.
 - Pint Progress spaces every view update at least one second apart. It defers a quick source-state change rather than allowing Karoo to drop it.
 - The app has no timer, sensor scan, background job, bitmap allocation, or developer FIT field.
@@ -44,7 +45,7 @@ This command produces a local debug APK and an intentionally unsigned release AP
 
 1. Enable developer mode and USB debugging on the Karoo.
 2. Install the debug APK with `adb install -r pint/build/outputs/apk/debug/pint-debug.apk`.
-3. Add **Pints** or **Pints (Text)** under **Pint Progress** to a ride page from the Karoo data-field picker.
+3. Add **Pints** or **Pints Count** under **Pint Progress** to a ride page from the Karoo data-field picker.
 4. Start a ride with power-based calories available.
 
 The debug APK is for local development only. Do not attach it to a public release. The verification workflow does not publish debug APKs on normal pushes; a manually dispatched run can produce an explicitly marked, short-lived `UNSAFE-DEBUG` artifact. Its default debug key is ephemeral, so it may require uninstalling a debug APK from a different run. An actual update must use the same project-owned signing key as the installed app. The release build is deliberately unsigned unless the tag-only release workflow receives the protected signing secrets: any distributable release must be rebuilt from an audited commit, signed with that private key, and published with its version, commit, and SHA-256 recorded.

@@ -4,8 +4,10 @@ import io.hammerhead.karooext.models.DataPoint
 import io.hammerhead.karooext.models.DataType
 import io.hammerhead.karooext.models.StreamState
 
-/** Converts Karoo calorie states into the native numeric Pints (Text) stream. */
+/** Converts Karoo calorie states into the native numeric Pints Count stream. */
 object PintTextStreamState {
+    fun previewMessages(): List<String> = listOf("0.5", "0.9", "1", "1.1")
+
     fun from(
         source: StreamState,
         caloriesPerBeer: Int,

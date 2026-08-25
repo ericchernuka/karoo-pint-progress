@@ -19,10 +19,11 @@ private calorie setting -+                                         v
 ```
 
 `PintProgressExtension` owns the Karoo service connection and exposes two `PintProgressDataType`
-instances: the original mug field and the text-only field. They share the calorie source, lifecycle,
+instances: the original mug field and the native count field. They share the calorie source, lifecycle,
 one-Hz update cap, and global calorie target. The mug path resolves the viewport and cycles through
-representative graphical preview frames. The text path publishes a numeric stream and lets Karoo
-own its viewport, formatting, and preview. Both paths cancel their work on detach.
+representative graphical preview frames. The count path publishes a numeric stream and lets Karoo
+own its viewport and formatting. Its page-editor view sends representative messages through Karoo's
+standard stream container. Both paths cancel their work on detach.
 
 ## Ownership map
 

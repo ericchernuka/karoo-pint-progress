@@ -32,6 +32,14 @@ class PintTextStreamStateTest {
         assertEquals(StreamState.NotAvailable, convert(streaming(-0.1)))
     }
 
+    @Test
+    fun `native field preview demonstrates progress across a completed pint`() {
+        assertEquals(
+            listOf("0.5", "0.9", "1", "1.1"),
+            PintTextStreamState.previewMessages(),
+        )
+    }
+
     private fun valueFor(
         calories: Double,
         caloriesPerBeer: Int = BeerCaloriesPolicy.DEFAULT,

@@ -7,7 +7,21 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 class ExtensionInfoContractTest {
     @Test
-    fun `text field uses Karoo native numeric rendering`() {
+    fun `field labels distinguish the mug from the native count`() {
+        val document = DocumentBuilderFactory.newInstance()
+            .newDocumentBuilder()
+            .parse(File("src/main/res/values/strings.xml"))
+        val strings = document.getElementsByTagName("string")
+        val values = (0 until strings.length)
+            .map(strings::item)
+            .associate { it.attributes.getNamedItem("name").nodeValue to it.textContent }
+
+        assertEquals("Pints", values["pint_progress"])
+        assertEquals("Pints Count", values["pint_progress_text"])
+    }
+
+    @Test
+    fun `count field uses Karoo native numeric rendering`() {
         val document = DocumentBuilderFactory.newInstance()
             .newDocumentBuilder()
             .parse(File("src/main/res/xml/extension_info.xml"))

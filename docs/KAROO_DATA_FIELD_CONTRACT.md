@@ -9,10 +9,10 @@ SDK 1.1.9 and Android's `RemoteViews` and app-update requirements.
 | --- | --- | --- | --- |
 | `gridSize` | Column span × row span on a 60 × 60 grid | Used only as a fallback for a missing `viewSize` dimension | `PintFieldSizeTest` |
 | `viewSize` | Current configured view size in physical pixels | Takes precedence, converts to dp, and bounds the complete layout | `PintFieldSizeTest`, on-device size matrix |
-| `textSize` | Standard numeric field size for this grid size in sp | Caps graphical mug counter text; Karoo applies it directly to the native text field | `PintFieldTypographyTest`, on-device text matrix |
+| `textSize` | Standard numeric field size for this grid size in sp | Caps graphical mug counter text; Karoo applies it directly to the native count field | `PintFieldTypographyTest`, on-device text matrix |
 | `alignment` | User-selected in-ride alignment | Selects a left, center, or right XML layout for the complete group | `PintRemoteViewsLayoutTest`, on-device alignment matrix |
 | `boundariesEnabled` | Whether the user enabled field boundaries | Adds a larger inset before fitting or rendering content | `PintFieldChromeTest`, `PintFieldLayoutTest` |
-| `preview` | Page editing rather than an active ride | Renders one representative mug, does not subscribe to calories, and still fits `viewSize` | `PintFieldLayoutTest`, on-device page editor |
+| `preview` | Page editing rather than an active ride | Cycles representative mug frames or native count messages without using ride calories | `PintFieldLayoutTest`, `PintTextStreamStateTest`, on-device page editor |
 
 ## Rendering rules
 
@@ -38,15 +38,16 @@ SDK 1.1.9 and Android's `RemoteViews` and app-update requirements.
 9. The full-with-bubbles frame may extend its foam crown slightly above the mug rim. The crown stays
    within the vector viewport and mug width, while every normal fill state remains inside the glass.
 
-## Text-only field
+## Native count field
 
-`Pints (Text)` is a standard numeric data type, selected independently from `Pints` in Karoo's
+`Pints Count` is a standard numeric data type, selected independently from `Pints` in Karoo's
 data-field picker. The choice is per tile and per ride profile, not a global appearance preference.
 Both types consume the same calorie stream and calories-per-beer setting.
 
-- The field publishes a single numeric value through `startStream`. Karoo owns the complete native
-  numeric treatment, including its icon, header, sizing, alignment, boundaries, and page-editor
-  preview.
+- The field publishes a single numeric value through `startStream`. Karoo owns the native numeric
+  treatment, including its icon, header, sizing, alignment, and boundaries.
+- In page-editor preview mode, `startView` cycles `0.5`, `0.9`, `1`, and `1.1` through
+  `ShowCustomStreamState` at one Hz. Detaching the preview cancels the loop.
 - The live value is floored to 0.1-pint increments from the existing 5% progress buckets. This
   yields `0.00` at 5%, `0.10` at 10%, `0.90` at 95%, and `1.00` only at a full pint after Karoo
   applies its native Variability Index formatter.
@@ -57,7 +58,7 @@ Both types consume the same calorie stream and calories-per-beer setting.
   values become unavailable rather than entering the numeric formatter.
 - Distinct stream values are conflated and emitted no more than once per second. Detaching the
   field cancels its calorie and setting collection.
-- The text field does not create or update `RemoteViews`. This avoids a second, incomplete copy of
+- The count field does not create or update `RemoteViews`. This avoids a second, incomplete copy of
   Karoo's numeric measurement and baseline behavior.
 
 ## Calories-per-beer setting
@@ -102,7 +103,7 @@ Local tests cannot reproduce Karoo's host process or page editor. Before moving 
 - no completed mug, `1+`, `99+`, and `100+`;
 - light and dark system themes;
 - unavailable calories, normal fill, 80% foam, bubbles, and drain;
-- text-only `0.00`, `0.10`, `0.90`, `1.00`, and a three-digit completed total in narrow and roomy tiles;
+- count preview sequence, live `0.00`, `0.10`, `0.90`, `1.00`, and a three-digit total in narrow and roomy tiles;
 - default, minimum, maximum, and mid-ride calories-per-beer changes;
 - install over the previous signed build without uninstalling.
 
