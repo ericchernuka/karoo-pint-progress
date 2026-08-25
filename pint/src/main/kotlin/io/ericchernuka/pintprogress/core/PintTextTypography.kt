@@ -18,11 +18,9 @@ class PintTextTypography(
             value: String,
             fontScale: Float,
             contentWidthDp: Int,
-            contentHeightDp: Int,
         ): PintTextTypography {
             val validFontScale = fontScale.takeIf { it.isFinite() && it > 0f } ?: DEFAULT_FONT_SCALE
             val safeWidthDp = contentWidthDp.coerceAtLeast(1).toFloat()
-            val safeHeightDp = contentHeightDp.coerceAtLeast(1).toFloat()
             val widthPerTextSize = value.sumOf { character ->
                 when {
                     character.isDigit() -> DIGIT_WIDTH_PER_TEXT_SIZE.toDouble()
@@ -31,10 +29,9 @@ class PintTextTypography(
                 }
             }.toFloat().coerceAtLeast(OTHER_WIDTH_PER_TEXT_SIZE) * validFontScale
             val widthCapSp = safeWidthDp / widthPerTextSize
-            val heightCapSp = safeHeightDp / validFontScale
             val hostCapSp = karooTextSizeSp.takeIf { it > 0 }?.toFloat() ?: DEFAULT_TEXT_SIZE_SP
 
-            return PintTextTypography(minOf(hostCapSp, widthCapSp, heightCapSp))
+            return PintTextTypography(minOf(hostCapSp, widthCapSp))
         }
     }
 }

@@ -47,8 +47,9 @@ Both types consume the same calorie stream and calories-per-beer setting.
 - The live value is floored to 0.1-pint increments from the existing 5% progress buckets. This
   yields `0.0` at 5%, `0.1` at 10%, `0.9` at 95%, and `1.0` only at a full pint.
 - The text value uses `viewSize`, `textSize`, alignment, and boundaries just like the mug field.
-  Its width and height are constrained before Android receives the `RemoteViews` update.
-- Unavailable data renders `—`. Preview loops through `0.5`, `0.8`, and `1.0` at one Hz.
+  Its width is constrained before Android receives the `RemoteViews` update.
+- Unavailable data renders `—`. Preview loops through `0.5`, `0.8`, and `1.0` at one Hz in a
+  dedicated picker treatment that fits the host-measured preview body.
 - Completion frames retain the one-Hz lifecycle cap but render the stable text value, not mug
   bubbles or drain artwork.
 
