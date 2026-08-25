@@ -57,8 +57,10 @@ Do not patch a layout from one screenshot. Capture:
 - completed count length;
 - screenshot and Karoo software version.
 
-Reproduce the case in the pure size, layout, typography, and gravity tests. Fix derived policy first,
-then verify large, medium, short, narrow, and icon-only treatments on device.
+Reproduce the case in the pure size and typography tests and the XML layout contract tests. Fix
+derived policy first, then verify large, medium, short, narrow, and icon-only treatments on device.
+Include a navigation toast or reroute resize because Karoo can reduce the host container without
+calling `startView` again.
 
 ## Settings do not appear to apply
 

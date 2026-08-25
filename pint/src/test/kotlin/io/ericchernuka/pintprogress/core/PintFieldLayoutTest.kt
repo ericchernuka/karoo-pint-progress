@@ -93,6 +93,14 @@ class PintFieldLayoutTest {
         assertEquals(PintFieldLayout.PICKER, PintFieldLayout.PICKER.forDisplay(true))
     }
 
+    @Test
+    fun `only counter treatments expose count text`() {
+        assertEquals("12", PintFieldLayout.REGULAR.visibleCount("12"))
+        assertEquals("12", PintFieldLayout.COMPACT.visibleCount("12"))
+        assertEquals("", PintFieldLayout.ICON_ONLY.visibleCount("12"))
+        assertEquals("", PintFieldLayout.PICKER.visibleCount("12"))
+    }
+
     private fun layout(
         preview: Boolean = false,
         widthDp: Int,

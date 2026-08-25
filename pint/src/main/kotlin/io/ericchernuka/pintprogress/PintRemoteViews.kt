@@ -29,11 +29,10 @@ internal class PintRemoteViews(
 
         return RemoteViews(
             packageName,
-            effectiveLayout.remoteViewsLayout(),
+            effectiveLayout.remoteViewsLayout(alignment),
         ).apply {
             val edgeInsetPx = (PintFieldChrome.edgeInsetDp(boundariesEnabled) * displayDensity).roundToInt()
             setViewPadding(R.id.pint_root, edgeInsetPx, edgeInsetPx, edgeInsetPx, edgeInsetPx)
-            setInt(R.id.pint_content, "setGravity", alignment.gravity())
             setImageViewResource(R.id.pint_image, display.asset.drawableRes(effectiveLayout))
 
             PintFieldTypography.forLayout(
@@ -55,21 +54,12 @@ internal class PintRemoteViews(
                 )
             }
 
-            if (effectiveLayout.showsCount) {
-                val countText = display.count
-                val countVisibility = if (countText.isEmpty()) View.GONE else View.VISIBLE
-                setTextViewText(R.id.pint_count, countText)
-                setViewVisibility(R.id.pint_count, countVisibility)
-                setViewVisibility(R.id.pint_count_suffix, countVisibility)
-            }
+            val countText = effectiveLayout.visibleCount(display.count)
+            val countVisibility = if (countText.isEmpty()) View.GONE else View.VISIBLE
+            setTextViewText(R.id.pint_count, countText)
+            setViewVisibility(R.id.pint_count, countVisibility)
+            setViewVisibility(R.id.pint_count_suffix, countVisibility)
         }
-    }
-
-    private fun PintFieldLayout.remoteViewsLayout(): Int = when (this) {
-        PintFieldLayout.PICKER -> R.layout.pint_progress_picker_view
-        PintFieldLayout.REGULAR -> R.layout.pint_progress_view
-        PintFieldLayout.COMPACT -> R.layout.pint_progress_compact_view
-        PintFieldLayout.ICON_ONLY -> R.layout.pint_progress_icon_view
     }
 
 }

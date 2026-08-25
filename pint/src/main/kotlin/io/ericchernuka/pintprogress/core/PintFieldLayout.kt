@@ -27,6 +27,8 @@ enum class PintFieldLayout(val showsCount: Boolean) {
         else -> this
     }
 
+    fun visibleCount(count: String): String = count.takeIf { showsCount }.orEmpty()
+
     companion object {
         private const val REGULAR_MIN_WIDTH_DP = 180
         private const val REGULAR_MIN_HEIGHT_DP = 89

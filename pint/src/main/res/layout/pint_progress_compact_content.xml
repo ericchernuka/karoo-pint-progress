@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView
+        android:id="@+id/pint_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:fontFamily="sans-serif-condensed"
+        android:gravity="center_vertical"
+        android:includeFontPadding="false"
+        android:letterSpacing="-0.04"
+        android:singleLine="true"
+        android:textColor="@color/pint_foreground"
+        android:textScaleX="0.68"
+        android:textSize="68sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/pint_count_suffix"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="1dp"
+        android:fontFamily="sans-serif-condensed"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:singleLine="true"
+        android:text="@string/pint_count_suffix"
+        android:textColor="@color/pint_foreground"
+        android:textScaleX="0.68"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:translationY="-1dp"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/pint_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:contentDescription="@null"
+        android:maxWidth="48dp"
+        android:maxHeight="65dp"
+        android:scaleType="fitCenter" />
+</merge>

@@ -35,7 +35,9 @@ The following files are intentionally outside JaCoCo's JVM scope because each is
   and native numeric stream updates one second apart with `SystemClock.elapsedRealtime()` and
   coroutine `delay`, combines app-private target changes with Karoo's calorie stream, executes the
   fully covered timed plan, and bridges it to the Karoo emitters.
-- `PintRemoteViews.kt` serializes a fully covered `PintDisplay` model into Android `RemoteViews` and maps assets to compile-time `R.drawable` IDs.
+- `PintRemoteViews.kt` serializes a fully covered `PintDisplay` model into Android `RemoteViews`,
+  maps assets to compile-time `R.drawable` IDs, and selects a static alignment layout. XML contract
+  tests cover the alignment mapping and responsive mug bounds.
 - `PintSettingsActivity.kt` and `BeerCaloriesStore.kt` adapt the covered target policy to Android's
   `SeekBar` and app-private preferences.
 

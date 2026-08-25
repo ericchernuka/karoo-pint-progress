@@ -10,7 +10,7 @@ SDK 1.1.9 and Android's `RemoteViews` and app-update requirements.
 | `gridSize` | Column span × row span on a 60 × 60 grid | Used only as a fallback for a missing `viewSize` dimension | `PintFieldSizeTest` |
 | `viewSize` | Current configured view size in physical pixels | Takes precedence, converts to dp, and bounds the complete layout | `PintFieldSizeTest`, on-device size matrix |
 | `textSize` | Standard numeric field size for this grid size in sp | Caps graphical mug counter text; Karoo applies it directly to the native text field | `PintFieldTypographyTest`, on-device text matrix |
-| `alignment` | User-selected in-ride alignment | Positions the complete count-and-mug group, or the mug itself in mug-only views | `PintFieldGravityTest`, on-device alignment matrix |
+| `alignment` | User-selected in-ride alignment | Selects a left, center, or right XML layout for the complete group | `PintRemoteViewsLayoutTest`, on-device alignment matrix |
 | `boundariesEnabled` | Whether the user enabled field boundaries | Adds a larger inset before fitting or rendering content | `PintFieldChromeTest`, `PintFieldLayoutTest` |
 | `preview` | Page editing rather than an active ride | Renders one representative mug, does not subscribe to calories, and still fits `viewSize` | `PintFieldLayoutTest`, on-device page editor |
 
@@ -18,8 +18,9 @@ SDK 1.1.9 and Android's `RemoteViews` and app-update requirements.
 
 1. Karoo's reported `viewSize` is authoritative when positive. Grid-derived size is a defensive
    fallback for a missing dimension, not a second competing layout signal.
-2. Mug-only content uses the full available height, preserves the vector drawable's aspect ratio,
-   and leaves its width content-sized so Karoo's alignment setting can move it.
+2. Regular and compact mugs preserve their vector aspect ratio and use 66 × 89 dp and 48 × 65 dp
+   as maximums. They can shrink when Karoo temporarily reduces the host container without restarting
+   the field. Mug-only and preview treatments continue to fill available height.
 3. Before the first completed mug, and while data is unavailable, the live field uses the adaptive
    mug-only treatment. It must not keep an invisible counter's fixed-size count layout.
 4. Preview cycles through the production 50%, 80%, and full-with-bubbles frames at one Hz, using
@@ -27,7 +28,8 @@ SDK 1.1.9 and Android's `RemoteViews` and app-update requirements.
 5. Once a completed count exists, the largest count-and-mug treatment that fits both dimensions is
    used. Counter size follows Karoo up to the mug-height and complete-group width budgets.
 6. Every `RemoteViews` update is constructed from a fresh instance and resets every property it
-   relies on. Only Android-supported `RemoteViews` layouts and widgets are used.
+   relies on. Alignment is part of the selected XML layout because reflective calls such as
+   `setGravity` are not a reliable cross-process contract on Karoo.
 7. Graphical view and native numeric stream updates are spaced at least one second apart. Cancellation
    stops collection and pending animation frames when Karoo detaches the field.
 8. `showHeader = true` asks Karoo to render the standard data-type icon and compact `Pints` label.
@@ -48,6 +50,9 @@ Both types consume the same calorie stream and calories-per-beer setting.
 - The live value is floored to 0.1-pint increments from the existing 5% progress buckets. This
   yields `0.00` at 5%, `0.10` at 10%, `0.90` at 95%, and `1.00` only at a full pint after Karoo
   applies its native Variability Index formatter.
+- SDK 1.1.9 has no custom numeric precision API. Variability Index is the available dimensionless
+  two-decimal formatter, but using it for pints is host-dependent and requires the device value
+  matrix below for each Karoo software release.
 - Idle, searching, and unavailable calorie states remain native stream states. Invalid calorie
   values become unavailable rather than entering the numeric formatter.
 - Distinct stream values are conflated and emitted no more than once per second. Detaching the

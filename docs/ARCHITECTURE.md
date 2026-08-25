@@ -10,18 +10,19 @@
 ## Runtime flow
 
 ```text
-Karoo calorie stream ----+
-                         +--> PintViewReducer --> RenderPlan --> PintPresentation
-private calorie setting -+                                         |
-                                                                   v
-                                                         PintRemoteViews --> ViewEmitter
+Karoo calorie stream ----+--> PintViewReducer --> RenderPlan --> PintPresentation
+                         |                                         |
+private calorie setting -+                                         v
+                         |                               PintRemoteViews --> ViewEmitter
+                         |
+                         +--> PintTextStreamState ------------------------> StreamEmitter
 ```
 
 `PintProgressExtension` owns the Karoo service connection and exposes two `PintProgressDataType`
-instances: the original mug field and the text-only field. They share the same stream, progress
-reducer, lifecycle, update cap, and global calorie target. `PintProgressDataType` resolves the field
-viewport, combines Karoo calories with the global setting, paces output, and cancels work on detach.
-Preview mode bypasses the calorie stream and cycles through representative production frames.
+instances: the original mug field and the text-only field. They share the calorie source, lifecycle,
+one-Hz update cap, and global calorie target. The mug path resolves the viewport and cycles through
+representative graphical preview frames. The text path publishes a numeric stream and lets Karoo
+own its viewport, formatting, and preview. Both paths cancel their work on detach.
 
 ## Ownership map
 
@@ -34,7 +35,7 @@ Preview mode bypasses the calorie stream and cycles through representative produ
 | Calorie stream to decimal pint total | `core/PintTextStreamState.kt` |
 | Viewport and treatment selection | `core/PintFieldSize.kt`, `core/PintFieldLayout.kt` |
 | Text fitting and boundary inset | `core/PintFieldTypography.kt`, `core/PintFieldChrome.kt` |
-| Karoo alignment mapping | `PintFieldGravity.kt` |
+| Karoo alignment layout selection | `PintRemoteViewsLayout.kt`, `res/layout/pint_progress_*_view.xml` |
 | Android `RemoteViews` serialization | `PintRemoteViews.kt` |
 | One-Hz pacing and Karoo subscription | `PintProgressDataType.kt` |
 | Private preference adapter and UI | `BeerCaloriesStore.kt`, `PintSettingsActivity.kt` |
