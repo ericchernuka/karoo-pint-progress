@@ -8,7 +8,6 @@ import io.ericchernuka.pintprogress.core.PintFrame
 import io.ericchernuka.pintprogress.core.PintFieldLayout
 import io.ericchernuka.pintprogress.core.PintFieldSize
 import io.ericchernuka.pintprogress.core.PintPresentation
-import io.ericchernuka.pintprogress.core.PintTextLayout
 import io.ericchernuka.pintprogress.core.PintTextPresentation
 import io.ericchernuka.pintprogress.core.PintViewReducer
 import io.hammerhead.karooext.KarooSystemService
@@ -133,11 +132,9 @@ class PintProgressDataType internal constructor(
                 displayDensity = context.resources.displayMetrics.density,
                 scaledDensity = context.resources.displayMetrics.scaledDensity,
             )
-            val layout = PintTextLayout.forMode(config.preview)
-            FieldRenderer(treatment = "TEXT_${layout.name}") { frame ->
+            FieldRenderer(treatment = "TEXT") { frame ->
                 renderer.render(
                     display = PintTextPresentation.displayFor(frame),
-                    layout = layout,
                     alignment = config.alignment,
                     textSizeSp = config.textSize,
                     boundariesEnabled = config.boundariesEnabled,
