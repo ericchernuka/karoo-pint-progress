@@ -139,6 +139,7 @@ class PintProgressDataType internal constructor(
                     textSizeSp = config.textSize,
                     boundariesEnabled = config.boundariesEnabled,
                     fieldWidthDp = fieldSize.widthDp,
+                    fieldHeightDp = fieldSize.heightDp,
                 )
             }
         }

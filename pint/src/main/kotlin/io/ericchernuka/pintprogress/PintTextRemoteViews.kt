@@ -21,6 +21,7 @@ internal class PintTextRemoteViews(
         textSizeSp: Int,
         boundariesEnabled: Boolean,
         fieldWidthDp: Int,
+        fieldHeightDp: Int,
     ): RemoteViews = RemoteViews(packageName, R.layout.pint_progress_text_view).apply {
         val edgeInsetDp = PintFieldChrome.edgeInsetDp(boundariesEnabled)
         val edgeInsetPx = (edgeInsetDp * displayDensity).roundToInt()
@@ -33,6 +34,7 @@ internal class PintTextRemoteViews(
             value = display.value,
             fontScale = fontScale,
             contentWidthDp = fieldWidthDp - (edgeInsetDp * 2),
+            contentHeightDp = fieldHeightDp - (edgeInsetDp * 2),
         )
         setTextViewTextSize(
             R.id.pint_text_value,

@@ -30,6 +30,18 @@ class PintTextTypographyTest {
     }
 
     @Test
+    fun `shallow tiles shrink the value to the available height`() {
+        assertEquals(
+            40f,
+            typography(
+                textSizeSp = 72,
+                value = "0.5",
+                contentHeightDp = 40,
+            ).textSizeSp,
+        )
+    }
+
+    @Test
     fun `missing host guidance falls back to a stable default`() {
         assertEquals(
             72f,
@@ -82,10 +94,12 @@ class PintTextTypographyTest {
         value: String,
         fontScale: Float = 1f,
         contentWidthDp: Int = 120,
+        contentHeightDp: Int = 1_000,
     ): PintTextTypography = PintTextTypography.forField(
         karooTextSizeSp = textSizeSp,
         value = value,
         fontScale = fontScale,
         contentWidthDp = contentWidthDp,
+        contentHeightDp = contentHeightDp,
     )
 }
