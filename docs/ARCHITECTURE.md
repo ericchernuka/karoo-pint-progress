@@ -31,13 +31,11 @@ Preview mode bypasses the calorie stream and cycles through representative produ
 | Calories to completed mugs and 5% bucket | `core/PintProgressReducer.kt` |
 | Stream-state coalescing and animation plan | `core/PintViewReducer.kt` |
 | Frame to asset and count | `core/PintPresentation.kt` |
-| Frame to one-decimal text total | `core/PintTextPresentation.kt` |
+| Calorie stream to decimal pint total | `core/PintTextStreamState.kt` |
 | Viewport and treatment selection | `core/PintFieldSize.kt`, `core/PintFieldLayout.kt` |
 | Text fitting and boundary inset | `core/PintFieldTypography.kt`, `core/PintFieldChrome.kt` |
-| Text-only value fitting | `core/PintTextTypography.kt` |
 | Karoo alignment mapping | `PintFieldGravity.kt` |
 | Android `RemoteViews` serialization | `PintRemoteViews.kt` |
-| Android text-only `RemoteViews` serialization | `PintTextRemoteViews.kt` |
 | One-Hz pacing and Karoo subscription | `PintProgressDataType.kt` |
 | Private preference adapter and UI | `BeerCaloriesStore.kt`, `PintSettingsActivity.kt` |
 | Caller authorization | `core/KarooCallerPolicy.kt`, `PintProgressExtension.kt` |

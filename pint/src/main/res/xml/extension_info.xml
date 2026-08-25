@@ -13,7 +13,7 @@
     <DataType
         description="@string/pint_progress_text_description"
         displayName="@string/pint_progress_text"
-        graphical="true"
+        graphical="false"
         icon="@drawable/ic_pint"
         typeId="pint-progress-text" />
 </ExtensionInfo>

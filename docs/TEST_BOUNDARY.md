@@ -23,7 +23,7 @@ node tools/validate-drawables.mjs
 - first-attach, reset, skipped-threshold, full, bubbles, drain, and steady-state transitions;
 - stream-state conversion, visible-state coalescing, timed-frame plans, and preview behavior;
 - drawable frame selection, labels, and counter visibility.
-- text-only 0.1-pint flooring, unavailable and preview values, and constrained decimal typography.
+- text-only 0.1-pint flooring, native stream-state propagation, and custom data-point identity.
 
 The following files are intentionally outside JaCoCo's JVM scope because each is a thin Android or Karoo IPC adapter, not a location for product decisions:
 
@@ -31,10 +31,10 @@ The following files are intentionally outside JaCoCo's JVM scope because each is
 - `KarooFlows.kt` adapts the official Binder consumer into a finite callback Flow. Its normal,
   terminal, synchronous-terminal, cancellation, and idempotent-cleanup behavior is JVM-tested;
   Binder delivery and the concrete `KarooSystemService` remain device-tested.
-- `PintProgressDataType.kt` applies standard Flow backpressure (`conflate`), globally spaces
-  actual `ViewEmitter` calls one second apart with `SystemClock.elapsedRealtime()` and coroutine
-  `delay`, combines app-private target changes with Karoo's calorie stream, executes the fully
-  covered timed plan, and bridges it to a real `ViewEmitter`.
+- `PintProgressDataType.kt` applies standard Flow backpressure (`conflate`), spaces graphical view
+  and native numeric stream updates one second apart with `SystemClock.elapsedRealtime()` and
+  coroutine `delay`, combines app-private target changes with Karoo's calorie stream, executes the
+  fully covered timed plan, and bridges it to the Karoo emitters.
 - `PintRemoteViews.kt` serializes a fully covered `PintDisplay` model into Android `RemoteViews` and maps assets to compile-time `R.drawable` IDs.
 - `PintSettingsActivity.kt` and `BeerCaloriesStore.kt` adapt the covered target policy to Android's
   `SeekBar` and app-private preferences.

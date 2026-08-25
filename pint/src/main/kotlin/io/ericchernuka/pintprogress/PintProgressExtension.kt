@@ -6,11 +6,12 @@ import io.hammerhead.karooext.extension.KarooExtension
 
 class PintProgressExtension : KarooExtension(EXTENSION_ID, BuildConfig.VERSION_NAME) {
     private val karooSystem by lazy { KarooSystemService(this) }
+    private val beerCalories by lazy { BeerCaloriesStore(this).values }
 
     override val types by lazy {
         listOf(
-            PintProgressDataType(karooSystem, extension, PintFieldStyle.MUG),
-            PintProgressDataType(karooSystem, extension, PintFieldStyle.TEXT),
+            PintProgressDataType(karooSystem, beerCalories, extension, PintFieldStyle.MUG),
+            PintProgressDataType(karooSystem, beerCalories, extension, PintFieldStyle.TEXT),
         )
     }
 

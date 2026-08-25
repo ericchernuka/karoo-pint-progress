@@ -1,4 +1,4 @@
-# Karoo graphical data-field contract
+# Karoo data-field contract
 
 This document is the implementation contract for Pint Progress. It is based on Karoo extension
 SDK 1.1.9 and Android's `RemoteViews` and app-update requirements.
@@ -9,7 +9,7 @@ SDK 1.1.9 and Android's `RemoteViews` and app-update requirements.
 | --- | --- | --- | --- |
 | `gridSize` | Column span × row span on a 60 × 60 grid | Used only as a fallback for a missing `viewSize` dimension | `PintFieldSizeTest` |
 | `viewSize` | Current configured view size in physical pixels | Takes precedence, converts to dp, and bounds the complete layout | `PintFieldSizeTest`, on-device size matrix |
-| `textSize` | Standard numeric field size for this grid size in sp | Caps counter text; width, height, count length, and font scale may reduce it | `PintFieldTypographyTest` |
+| `textSize` | Standard numeric field size for this grid size in sp | Caps graphical mug counter text; Karoo applies it directly to the native text field | `PintFieldTypographyTest`, on-device text matrix |
 | `alignment` | User-selected in-ride alignment | Positions the complete count-and-mug group, or the mug itself in mug-only views | `PintFieldGravityTest`, on-device alignment matrix |
 | `boundariesEnabled` | Whether the user enabled field boundaries | Adds a larger inset before fitting or rendering content | `PintFieldChromeTest`, `PintFieldLayoutTest` |
 | `preview` | Page editing rather than an active ride | Renders one representative mug, does not subscribe to calories, and still fits `viewSize` | `PintFieldLayoutTest`, on-device page editor |
@@ -28,8 +28,8 @@ SDK 1.1.9 and Android's `RemoteViews` and app-update requirements.
    used. Counter size follows Karoo up to the mug-height and complete-group width budgets.
 6. Every `RemoteViews` update is constructed from a fresh instance and resets every property it
    relies on. Only Android-supported `RemoteViews` layouts and widgets are used.
-7. Actual view updates are spaced at least one second apart, and cancellation stops collection and
-   pending animation frames when Karoo detaches the field.
+7. Graphical view and native numeric stream updates are spaced at least one second apart. Cancellation
+   stops collection and pending animation frames when Karoo detaches the field.
 8. `showHeader = true` asks Karoo to render the standard data-type icon and compact `Pints` label.
    Pint Progress does not duplicate that chrome inside its `RemoteViews` or ask Karoo to render its
    numeric value through `formatDataTypeId`.
@@ -38,20 +38,22 @@ SDK 1.1.9 and Android's `RemoteViews` and app-update requirements.
 
 ## Text-only field
 
-`Pints (Text)` is a second graphical data type, selected independently from `Pints` in Karoo's
+`Pints (Text)` is a standard numeric data type, selected independently from `Pints` in Karoo's
 data-field picker. The choice is per tile and per ride profile, not a global appearance preference.
 Both types consume the same calorie stream and calories-per-beer setting.
 
-- Karoo still owns the standard data-type icon and `Pints (Text)` header; the field body is text
-  only.
+- The field publishes a single numeric value through `startStream`. Karoo owns the complete native
+  numeric treatment, including its icon, header, sizing, alignment, boundaries, and page-editor
+  preview.
 - The live value is floored to 0.1-pint increments from the existing 5% progress buckets. This
-  yields `0.0` at 5%, `0.1` at 10%, `0.9` at 95%, and `1.0` only at a full pint.
-- The text value uses `viewSize`, `textSize`, alignment, and boundaries just like the mug field.
-  Its width is constrained before Android receives the `RemoteViews` update.
-- Unavailable data renders `—`. Preview loops through `0.5`, `0.8`, and `1.0` at one Hz and uses
-  the same host-supplied numeric text size as live rendering.
-- Completion frames retain the one-Hz lifecycle cap but render the stable text value, not mug
-  bubbles or drain artwork.
+  yields `0.00` at 5%, `0.10` at 10%, `0.90` at 95%, and `1.00` only at a full pint after Karoo
+  applies its native Variability Index formatter.
+- Idle, searching, and unavailable calorie states remain native stream states. Invalid calorie
+  values become unavailable rather than entering the numeric formatter.
+- Distinct stream values are conflated and emitted no more than once per second. Detaching the
+  field cancels its calorie and setting collection.
+- The text field does not create or update `RemoteViews`. This avoids a second, incomplete copy of
+  Karoo's numeric measurement and baseline behavior.
 
 ## Calories-per-beer setting
 
@@ -95,7 +97,7 @@ Local tests cannot reproduce Karoo's host process or page editor. Before moving 
 - no completed mug, `1+`, `99+`, and `100+`;
 - light and dark system themes;
 - unavailable calories, normal fill, 80% foam, bubbles, and drain;
-- text-only `0.0`, `0.1`, `0.9`, `1.0`, and a three-digit completed total in narrow and roomy tiles;
+- text-only `0.00`, `0.10`, `0.90`, `1.00`, and a three-digit completed total in narrow and roomy tiles;
 - default, minimum, maximum, and mid-ride calories-per-beer changes;
 - install over the previous signed build without uninstalling.
 
