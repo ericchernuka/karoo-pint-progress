@@ -31,11 +31,14 @@ The following files are intentionally outside JaCoCo's JVM scope because each is
 - `KarooFlows.kt` adapts the official Binder consumer into a finite callback Flow. Its normal,
   terminal, synchronous-terminal, cancellation, and idempotent-cleanup behavior is JVM-tested;
   Binder delivery and the concrete `KarooSystemService` remain device-tested.
-- `PintProgressDataType.kt` applies standard Flow backpressure (`conflate`), spaces graphical view
-  and native numeric stream updates one second apart with `SystemClock.elapsedRealtime()` and
-  coroutine `delay`, combines app-private target changes with Karoo's calorie stream, executes the
-  fully covered timed plan, cycles native preview messages at one Hz, and bridges both paths to the
-  Karoo emitters.
+- `PintProgressDataType.kt` wires `SystemClock.elapsedRealtime()` and coroutine `delay` into the
+  pure `PintDataFieldRuntime` coordinator, keeps the initial numeric and graphic configuration, and
+  bridges coordinator outputs to the Karoo emitters.
+- `PintDataFieldRuntime.kt` is a plain-Kotlin coordinator outside the `core` JaCoCo ratio. Its JVM
+  tests cover deterministic Flow backpressure, one-second pacing, numeric and graphical routing,
+  preview order, reducer-plan delays, target-change baseline, and cancellation. Coroutine state
+  machines contain generated normal-completion instructions that prevent this adapter from joining
+  the core ratio. These tests verify callback order and waits, not Binder or `RemoteViews` delivery.
 - `PintRemoteViews.kt` serializes a fully covered `PintDisplay` model into Android `RemoteViews`,
   maps assets to compile-time `R.drawable` IDs, and selects a static alignment layout. XML contract
   tests cover the alignment mapping and responsive mug bounds.
@@ -44,5 +47,6 @@ The following files are intentionally outside JaCoCo's JVM scope because each is
 
 Those adapters are compile-verified by `:pint:assembleDebug`, which validates the manifest, service declaration, extension metadata, layouts, vector assets, and SDK calls. They still require an on-device Karoo smoke test because local JVM tests cannot bind the Karoo System service or receive its Binder-backed `ViewEmitter`.
 
-This keeps the coverage gate honest: no deterministic product decision is excluded, while Flow
-scheduling, Android timing, and Karoo IPC are not misrepresented as locally executable.
+This keeps the coverage gate honest: the `core` ratio remains at 100% instruction and branch
+coverage, while Flow scheduling, Android timing, and Karoo IPC are not misrepresented as locally
+executable.
