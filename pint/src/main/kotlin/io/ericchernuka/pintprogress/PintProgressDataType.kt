@@ -8,8 +8,6 @@ import io.ericchernuka.pintprogress.core.PintFrame
 import io.ericchernuka.pintprogress.core.PintFieldLayout
 import io.ericchernuka.pintprogress.core.PintFieldSize
 import io.ericchernuka.pintprogress.core.PintPresentation
-import io.ericchernuka.pintprogress.core.PintTextStreamState
-import io.ericchernuka.pintprogress.core.PintViewReducer
 import io.hammerhead.karooext.KarooSystemService
 import io.hammerhead.karooext.extension.DataTypeImpl
 import io.hammerhead.karooext.internal.Emitter
@@ -24,10 +22,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.conflate
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 class PintProgressDataType internal constructor(
@@ -40,26 +34,12 @@ class PintProgressDataType internal constructor(
         if (style != PintFieldStyle.TEXT) return
 
         val job = CoroutineScope(Dispatchers.Default).launch {
-            var lastStreamUpdateMillis: Long? = null
-            karooSystem.streamDataFlow(DataType.Type.CALORIES)
-                .combine(beerCalories) { source, caloriesPerBeer ->
-                    PintTextStreamState.from(
-                        source = source,
-                        caloriesPerBeer = caloriesPerBeer,
-                        dataTypeId = dataTypeId,
-                    )
-                }
-                .distinctUntilChanged()
-                .conflate()
-                .collect { state ->
-                    lastStreamUpdateMillis?.let { lastUpdateMillis ->
-                        val waitMillis = VIEW_UPDATE_INTERVAL_MILLIS -
-                            (SystemClock.elapsedRealtime() - lastUpdateMillis)
-                        if (waitMillis > 0) delay(waitMillis)
-                    }
-                    emitter.onNext(state)
-                    lastStreamUpdateMillis = SystemClock.elapsedRealtime()
-                }
+            runtime().runNumericStream(
+                calorieStates = karooSystem.streamDataFlow(DataType.Type.CALORIES),
+                caloriesPerBeer = beerCalories,
+                dataTypeId = dataTypeId,
+                emit = emitter::onNext,
+            )
         }
         emitter.setCancellable(job::cancel)
     }
@@ -69,11 +49,8 @@ class PintProgressDataType internal constructor(
             emitter.onNext(UpdateNumericConfig(formatDataTypeId = DataType.Type.VARIABILITY_INDEX))
             if (config.preview) {
                 val job = CoroutineScope(Dispatchers.Default).launch {
-                    while (true) {
-                        PintTextStreamState.previewMessages().forEach { message ->
-                            emitter.onNext(ShowCustomStreamState(message = message, color = null))
-                            delay(VIEW_UPDATE_INTERVAL_MILLIS)
-                        }
+                    runtime().runNumericPreview { message ->
+                        emitter.onNext(ShowCustomStreamState(message = message, color = null))
                     }
                 }
                 emitter.setCancellable(job::cancel)
@@ -108,11 +85,8 @@ class PintProgressDataType internal constructor(
         }
         if (config.preview) {
             val job = CoroutineScope(Dispatchers.Default).launch {
-                while (true) {
-                    previewFrames().forEach { frame ->
-                        emitter.updateView(fieldRenderer.render(frame))
-                        delay(VIEW_UPDATE_INTERVAL_MILLIS)
-                    }
+                runtime().runGraphicalPreview { frame ->
+                    emitter.updateView(fieldRenderer.render(frame))
                 }
             }
             emitter.setCancellable(job::cancel)
@@ -120,29 +94,11 @@ class PintProgressDataType internal constructor(
         }
 
         val job = CoroutineScope(Dispatchers.Default).launch {
-            val reducer = PintViewReducer()
-            var lastViewUpdateMillis: Long? = null
-
-            suspend fun render(frame: PintFrame) {
-                lastViewUpdateMillis?.let { lastUpdateMillis ->
-                    val waitMillis = VIEW_UPDATE_INTERVAL_MILLIS -
-                        (SystemClock.elapsedRealtime() - lastUpdateMillis)
-                    if (waitMillis > 0) delay(waitMillis)
-                }
-
-                emitter.updateView(fieldRenderer.render(frame))
-                lastViewUpdateMillis = SystemClock.elapsedRealtime()
-            }
-
-            karooSystem.streamDataFlow(DataType.Type.CALORIES)
-                .combine(beerCalories) { state, caloriesPerBeer -> state to caloriesPerBeer }
-                .conflate()
-                .collect { (state, caloriesPerBeer) ->
-                    reducer.accept(state, caloriesPerBeer)?.frames?.forEach { timedFrame ->
-                        if (timedFrame.delayMillis > 0) delay(timedFrame.delayMillis)
-                        render(timedFrame.frame)
-                    }
-                }
+            runtime().runGraphicalStream(
+                calorieStates = karooSystem.streamDataFlow(DataType.Type.CALORIES),
+                caloriesPerBeer = beerCalories,
+                emit = { frame -> emitter.updateView(fieldRenderer.render(frame)) },
+            )
         }
         emitter.setCancellable(job::cancel)
     }
@@ -175,11 +131,13 @@ class PintProgressDataType internal constructor(
         }
     }
 
-    private fun previewFrames(): List<PintFrame> = PintViewReducer.previewFrames()
+    private fun runtime() = PintDataFieldRuntime(
+        nowMillis = SystemClock::elapsedRealtime,
+        waitMillis = { millis -> delay(millis) },
+    )
 
     private companion object {
         const val TAG = "PintProgressField"
-        const val VIEW_UPDATE_INTERVAL_MILLIS = 1_000L
     }
 }
 
