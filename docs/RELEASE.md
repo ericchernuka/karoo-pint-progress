@@ -22,6 +22,9 @@ short-lived artifact explicitly marked `UNSAFE-DEBUG`.
 5. Complete the security checklist in `SECURITY.md`.
 6. Choose a unique increasing `versionCode` and the intended `versionName`.
 7. Build from the audited commit, sign outside the repository, and verify the final APK.
+8. Complete a copy of the [release evidence template](RELEASE_EVIDENCE_TEMPLATE.md). Keep every
+   failed and waived row visible. For a pre-release candidate, store the completed record in the
+   pull request or another stable review record before moving the candidate to `main`.
 
 ## Automated signed release
 
@@ -39,7 +42,9 @@ Example unsigned candidate build:
 
 ## Release evidence
 
-Record together:
+For every published release, include a completed copy of the [release evidence
+template](RELEASE_EVIDENCE_TEMPLATE.md) in the GitHub Release notes or attach it as a Markdown
+evidence file. Record together:
 
 - Git commit SHA;
 - version name and code;
@@ -48,6 +53,10 @@ Record together:
 - successful CI run;
 - completed device matrix;
 - release notes and known limitations.
+
+The template is the record format. Keep failed and waived rows visible, with the reason and
+approver. If the APK bytes, candidate commit, or signing identity changes after evidence
+collection, the record is invalid and the relevant checks must run again.
 
 Useful verification commands:
 
@@ -62,6 +71,6 @@ sha256sum app.apk
 
 - Never publish the CI debug artifact as a release.
 - Never publish an unsigned release APK.
-- Never rebuild after evidence collection. If bytes change, repeat verification and checksums.
+- Never rebuild after evidence collection.
 - Keep package name `io.ericchernuka.pintprogress` and the signing identity stable for upgrades.
 - If using a Karoo delivery manifest, ensure its URL, `latestVersionCode`, APK, and checksum agree.
