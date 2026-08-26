@@ -27,6 +27,7 @@ The relevant source is [settings](https://github.com/timklge/karoo-reminder/blob
 | Modules | One application module | App plus vendored `lib` SDK module | Keep ours. It avoids GitHub Packages credentials and keeps the SDK boundary auditable. |
 | SDK delivery | GitHub Packages dependency | Pinned source copy with NOTICE | Keep ours. Do not reintroduce package credentials without a concrete need. |
 | Gradle | Gradle 8.7, AGP 8.5.0 | Gradle 8.7, AGP 8.6.1 | Keep ours. The versions are compatible and ours is already checksum-verified. |
+| Gradle CI state | No shared Gradle setup or cache documented | Both workflows use the pinned official `gradle/actions/setup-gradle` action with the basic open-source cache provider | Keep the basic provider for reusable Gradle state without adding a dependency or proprietary cache service. |
 | Verification | `./gradlew build` | Generated-asset assertions, unit tests, lint, debug/release builds, 100% behavior coverage, and wrapper validation | Keep ours. The narrower checks produce stronger project-specific signal. |
 | Versioning | `100 + BUILD_NUMBER`; tag name becomes version name | CI run number and `1.0.0-dev.<run>` | Keep ours for development and use the tag name for signed releases. Both produce increasing build codes. |
 | Signing | Release signing on every workflow event | CI debug artifacts; unsigned release verification builds | Add tag-only signing with protected secrets. Keep untrusted verification unsigned. |
@@ -51,8 +52,11 @@ The release workflow expects these repository secrets:
 
 No values belong in the repository, local `gradle.properties`, logs, or documentation.
 
-The Gradle wrapper is now validated by the official Gradle wrapper-validation action before either
-workflow can execute Gradle. The wrapper distribution checksum remains pinned locally as well.
+Both workflows use the pinned official `gradle/actions/setup-gradle` action with its basic
+open-source cache provider. The Gradle wrapper is validated by the official Gradle
+`wrapper-validation` action before either workflow can execute Gradle, and the wrapper
+distribution checksum remains pinned locally. Wrapper checksum validation and Gradle dependency
+verification are separate integrity controls.
 
 The audit also identified Gradle 8.7 advisories that are currently mitigated by repository
 restriction and dependency verification. Upgrading Gradle, AGP, Kotlin, coroutines, and the
