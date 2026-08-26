@@ -107,6 +107,8 @@ Local tests cannot reproduce Karoo's host process or page editor. Before moving 
 - default, minimum, maximum, and mid-ride calories-per-beer changes;
 - install over the previous signed build without uninstalling.
 
+Record each candidate run with the [release evidence template](RELEASE_EVIDENCE_TEMPLATE.md).
+
 ## Primary references
 
 - https://hammerheadnav.github.io/karoo-ext/karoo-ext/io.hammerhead.karooext.models/-view-config/index.html
