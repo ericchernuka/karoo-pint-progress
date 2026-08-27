@@ -13,15 +13,15 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-/** Small, dependency-light launcher screen for extension-wide Pint Progress settings. */
+/** Dependency-light launcher screen for extension-wide Pint Progress settings */
 class PintSettingsActivity : Activity() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
-    private lateinit var store: BeerCaloriesStore
-    private lateinit var slider: SeekBar
-    private lateinit var valueLabel: TextView
-    private lateinit var decreaseButton: Button
-    private lateinit var increaseButton: Button
+    private val store by lazy { BeerCaloriesStore(applicationContext) }
+    private val slider by lazy { findViewById<SeekBar>(R.id.calories_slider) }
+    private val valueLabel by lazy { findViewById<TextView>(R.id.calories_value) }
+    private val decreaseButton by lazy { findViewById<Button>(R.id.decrease_calories) }
+    private val increaseButton by lazy { findViewById<Button>(R.id.increase_calories) }
     private var value = BeerCaloriesPolicy.DEFAULT
     private var dragging = false
 
@@ -30,12 +30,6 @@ class PintSettingsActivity : Activity() {
         setContentView(R.layout.activity_pint_settings)
 
         findViewById<android.view.View>(R.id.back_button).setOnClickListener { finish() }
-
-        store = BeerCaloriesStore(applicationContext)
-        slider = findViewById(R.id.calories_slider)
-        valueLabel = findViewById(R.id.calories_value)
-        decreaseButton = findViewById(R.id.decrease_calories)
-        increaseButton = findViewById(R.id.increase_calories)
 
         slider.max = BeerCaloriesPolicy.STEP_COUNT
         slider.setOnSeekBarChangeListener(

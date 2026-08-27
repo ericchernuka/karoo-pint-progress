@@ -1,6 +1,6 @@
 package io.ericchernuka.pintprogress
 
-import io.ericchernuka.pintprogress.core.KarooCallerPolicy
+import io.ericchernuka.pintprogress.core.allowsKarooCaller
 import io.hammerhead.karooext.KarooSystemService
 import io.hammerhead.karooext.extension.KarooExtension
 
@@ -9,10 +9,9 @@ class PintProgressExtension : KarooExtension(EXTENSION_ID, BuildConfig.VERSION_N
     private val beerCalories by lazy { BeerCaloriesStore(this).values }
 
     override val types by lazy {
-        listOf(
-            PintProgressDataType(karooSystem, beerCalories, extension, PintFieldStyle.MUG),
-            PintProgressDataType(karooSystem, beerCalories, extension, PintFieldStyle.TEXT),
-        )
+        PintFieldStyle.entries.map { style ->
+            PintProgressDataType(karooSystem, beerCalories, extension, style)
+        }
     }
 
     override fun onCreate() {
@@ -26,7 +25,7 @@ class PintProgressExtension : KarooExtension(EXTENSION_ID, BuildConfig.VERSION_N
     }
 
     override fun isCallerAllowed(callingUid: Int): Boolean =
-        KarooCallerPolicy.allows(packageManager.getPackagesForUid(callingUid))
+        allowsKarooCaller(packageManager.getPackagesForUid(callingUid))
 
     private companion object {
         const val EXTENSION_ID = "pintprogress"

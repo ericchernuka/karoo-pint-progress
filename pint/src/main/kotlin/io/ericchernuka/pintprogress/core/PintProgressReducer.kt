@@ -5,7 +5,7 @@ import java.math.RoundingMode
 
 /**
  * The visible state deliberately has 20 fill levels. It avoids an IPC update for every calorie
- * while still reading as a smoothly filling mug at a glance.
+ * while still reading as a smoothly filling mug at a glance
  */
 data class PintProgress(
     val completed: Int,
@@ -32,9 +32,9 @@ data class TimedFrame(
     val frame: PintFrame,
 )
 
-data class RenderPlan(val frames: List<TimedFrame>)
+typealias RenderPlan = List<TimedFrame>
 
-/** Pure decision engine for the field. Android-specific code only renders its output. */
+/** Pure field decision engine whose output is rendered by Android-specific code */
 object PintProgressReducer {
     private const val BUCKETS_PER_PINT = 20
     private val bucketsPerPint = BigDecimal.valueOf(BUCKETS_PER_PINT.toLong())
@@ -53,9 +53,7 @@ object PintProgressReducer {
             BeerCaloriesPolicy.normalize(caloriesPerBeer).toLong(),
         )
 
-        // Work in whole 5% buckets before splitting them into full and partial pints. This keeps
-        // decimal boundaries such as 180 kcal (one pint plus 20%) from underflowing after a
-        // floating-point subtraction.
+        // Use whole 5% buckets to prevent floating-point underflow at decimal boundaries
         val totalBuckets = BigDecimal.valueOf(calories)
             .multiply(bucketsPerPint)
             .divide(beerCalories, 0, RoundingMode.FLOOR)
@@ -70,21 +68,19 @@ object PintProgressReducer {
 
     /**
      * Animate only a single, observed threshold crossing. This prevents a celebration on first
-     * attach, a resumed field, a data-source reset, or a skipped threshold.
+     * attach, a resumed field, a data-source reset, or a skipped threshold
      */
     fun plan(previous: PintProgress?, current: PintProgress?): RenderPlan {
-        if (current == null) return RenderPlan(listOf(TimedFrame(0, PintFrame.Unavailable)))
+        if (current == null) return listOf(TimedFrame(0, PintFrame.Unavailable))
 
         return if (previous != null && current.completed == previous.completed + 1) {
-            RenderPlan(
-                listOf(
-                    TimedFrame(0, PintFrame.FullBubbles(current.completed)),
-                    TimedFrame(ANIMATION_STEP_MILLIS, PintFrame.Draining(current.completed)),
-                    TimedFrame(ANIMATION_STEP_MILLIS, PintFrame.Steady(current)),
-                ),
+            listOf(
+                TimedFrame(0, PintFrame.FullBubbles(current.completed)),
+                TimedFrame(ANIMATION_STEP_MILLIS, PintFrame.Draining(current.completed)),
+                TimedFrame(ANIMATION_STEP_MILLIS, PintFrame.Steady(current)),
             )
         } else {
-            RenderPlan(listOf(TimedFrame(0, PintFrame.Steady(current))))
+            listOf(TimedFrame(0, PintFrame.Steady(current)))
         }
     }
 }

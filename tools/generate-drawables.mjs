@@ -5,29 +5,23 @@ const destination = path.resolve("pint/src/main/res/drawable");
 const kotlinDestination = path.resolve(
   "pint/src/main/kotlin/io/ericchernuka/pintprogress/PintAssetDrawables.kt",
 );
+const assetDestination = path.resolve(
+  "pint/src/main/kotlin/io/ericchernuka/pintprogress/core/PintAsset.kt",
+);
 fs.mkdirSync(destination, { recursive: true });
 
 const semanticAssets = [
-  ...Array.from({ length: 20 }, (_, bucket) => {
-    const percent = bucket * 5;
-    const suffix = String(percent).padStart(2, "0");
-    return { kotlinName: `PINT_${suffix}`, resourceName: `pint_${suffix}` };
-  }),
-  { kotlinName: "FULL_BUBBLES", resourceName: "pint_full_bubbles" },
-  { kotlinName: "DRAINING", resourceName: "pint_draining" },
-  { kotlinName: "UNAVAILABLE", resourceName: "pint_unavailable" },
+  ...Array.from({ length: 20 }, (_, bucket) => `pint_${String(bucket * 5).padStart(2, "0")}`),
+  "pint_full_bubbles",
+  "pint_draining",
+  "pint_unavailable",
 ];
 
-const colors = {
-  foreground: "@color/pint_foreground",
-  surface: "@color/pint_surface",
-  amber: "@color/pint_amber",
-  foam: "@color/pint_foam",
-  beerHighlight: "@color/pint_beer_highlight",
-  bubble: "@color/pint_bubble",
-  unavailableForeground: "@color/pint_unavailable_foreground",
-  unavailableSurface: "@color/pint_unavailable_surface",
-};
+const color = (name) => `@color/pint_${name}`;
+const shape = (color, path) => ({ color, path });
+const outline = (path, stroke = color("foreground"), lineCap) => ({
+  fill: "#00000000", stroke, strokeWidth: "4", lineCap, lineJoin: "round", path,
+});
 
 const vectorSizes = {
   regular: { width: "66dp", height: "89dp" },
@@ -48,49 +42,35 @@ ${paths.map((entry) => `        <path\n            android:fillColor="${entry.fi
 </vector>
 `;
 
-// The glass uses a straight-sided silhouette. The same path is also filled over the handle so
-// Android's vector antialiasing cannot reveal the hidden handle joins at large Karoo view sizes.
+// The glass uses a straight-sided silhouette filled over the handle so Android vector
+// antialiasing cannot reveal the hidden handle joins at large Karoo view sizes
 const mugBodyPath = "M27,8 L58,8 C65,8 69,13 69,20 L69,92 C69,100 65,104 58,104 L28,104 C20,104 16,100 16,92 L16,20 C16,13 20,8 27,8 Z";
 
-const mugSurface = {
-  color: colors.surface,
-  path: mugBodyPath,
-};
+const mugSurface = shape(color("surface"), mugBodyPath);
+const mugOutline = outline(mugBodyPath);
+const mugHandleFill = shape(
+  color("surface"),
+  "M67,28 L80,28 C89,28 94,34 94,44 L94,73 C94,83 89,89 80,89 L67,89 L67,78 L79,78 C83,78 85,76 85,72 L85,45 C85,41 83,39 79,39 L67,39 Z",
+);
 
-const mugOutline = {
-  fill: "#00000000",
-  stroke: colors.foreground,
-  strokeWidth: "4",
-  lineJoin: "round",
-  path: mugBodyPath,
-};
-
-const mugHandleFill = {
-  fill: colors.surface,
-  path: "M67,28 L80,28 C89,28 94,34 94,44 L94,73 C94,83 89,89 80,89 L67,89 L67,78 L79,78 C83,78 85,76 85,72 L85,45 C85,41 83,39 79,39 L67,39 Z",
-};
-
-const mugHandleOutline = {
-  fill: "#00000000",
-  stroke: colors.foreground,
-  strokeWidth: "4",
-  lineCap: "round",
-  lineJoin: "round",
-  // Open subpaths omit the two handle/body joins. Their endpoints extend behind mugSurface,
-  // making the visible connection independent of VectorDrawable scaling and antialiasing.
-  path: "M67,28 L80,28 C89,28 94,34 94,44 L94,73 C94,83 89,89 80,89 L67,89 M67,78 L79,78 C83,78 85,76 85,72 L85,45 C85,41 83,39 79,39 L67,39",
-};
+// Open subpaths omit the two handle/body joins, and their endpoints extend behind mugSurface
+// to keep the visible connection independent of VectorDrawable scaling and antialiasing
+const mugHandleOutline = outline(
+  "M67,28 L80,28 C89,28 94,34 94,44 L94,73 C94,83 89,89 80,89 L67,89 M67,78 L79,78 C83,78 85,76 85,72 L85,45 C85,41 83,39 79,39 L67,39",
+  color("foreground"),
+  "round",
+);
 
 const mugHandle = [mugHandleFill, mugHandleOutline];
 
-const innerMug = {
-  color: colors.surface,
-  path: "M27,13 L58,13 C62,13 64,16 64,21 L64,91 C64,96 61,99 57,99 L29,99 C24,99 21,96 21,91 L21,21 C21,16 23,13 27,13 Z",
-};
+const innerMug = shape(
+  color("surface"),
+  "M27,13 L58,13 C62,13 64,16 64,21 L64,91 C64,96 61,99 57,99 L29,99 C24,99 21,96 21,91 L21,21 C21,16 23,13 27,13 Z",
+);
 
 const fillTop = (percent) => 99 - (percent / 100) * 86;
 // Keep liquid inside the straight section of the inner glass. Foam occupies the rounded cap for
-// near-full states, so neither layer needs a clip path that could render differently on Karoo.
+// near-full states, so neither layer needs a clip path that could render differently on Karoo
 const contentTop = (percent) => Math.max(fillTop(percent), 21);
 
 const fillPath = (percent) => {
@@ -107,8 +87,8 @@ const foamPath = (top, height) => {
   return `M21,${(top + 2).toFixed(2)} L64,${(top + 2).toFixed(2)} L64,${(crest + 3).toFixed(2)} C58,${(crest + 1).toFixed(2)} 52,${(crest + 4).toFixed(2)} 44,${(crest + 3).toFixed(2)} C35,${(crest - 1).toFixed(2)} 27,${(crest - 1).toFixed(2)} 21,${(crest + 3).toFixed(2)} Z`;
 };
 
-// The completed-pint celebration gets a restrained foam crown above the rim. It stays within the
-// mug's horizontal envelope and is drawn before the outline so the glass lip remains unmistakable.
+// Keep the completed-pint foam crown inside the mug envelope and behind the outline so the glass
+// lip remains clear
 const fullFoamPath = () =>
   "M21,23 L64,23 L64,21 C64,16 62,13 58,13 " +
   "C58,9 56,6 53,6 C50,6 48,8 45,7 " +
@@ -128,15 +108,29 @@ const mugMarks = (percent) => {
     roundedPill(30, start + 5, 87),
     roundedPill(41, start, 92),
     roundedPill(52, start + 11, 83),
-  ].filter(Boolean).map((path) => ({ color: colors.beerHighlight, alpha: "0.9", path }));
+  ].filter(Boolean).map((path) => ({ color: color("beer_highlight"), alpha: "0.9", path }));
 };
 
 const bubbles = [
-  { color: colors.bubble, alpha: "0.9", path: "M28,7 A2.5,2.5 0,1 0,28.01,7" },
-  { color: colors.bubble, alpha: "0.85", path: "M44,3 A2,2 0,1 0,44.01,3" },
-  { color: colors.bubble, alpha: "0.75", path: "M59,8 A3,3 0,1 0,59.01,8" },
-  { color: colors.bubble, alpha: "0.8", path: "M74,4 A1.5,1.5 0,1 0,74.01,4" },
+  { color: color("bubble"), alpha: "0.9", path: "M28,7 A2.5,2.5 0,1 0,28.01,7" },
+  { color: color("bubble"), alpha: "0.85", path: "M44,3 A2,2 0,1 0,44.01,3" },
+  { color: color("bubble"), alpha: "0.75", path: "M59,8 A3,3 0,1 0,59.01,8" },
+  { color: color("bubble"), alpha: "0.8", path: "M74,4 A1.5,1.5 0,1 0,74.01,4" },
 ];
+
+const mugPaths = (percent, foam = null, extra = []) => {
+  const fill = fillPath(percent);
+  return [
+    ...mugHandle,
+    mugSurface,
+    innerMug,
+    ...(fill ? [{ color: color("amber"), path: fill }] : []),
+    ...(foam ? [{ color: color("foam"), path: foam }] : []),
+    ...mugMarks(percent),
+    ...extra,
+    mugOutline,
+  ];
+};
 
 const write = (name, paths, size) => fs.writeFileSync(path.join(destination, `${name}.xml`), xml(paths, size));
 
@@ -146,65 +140,35 @@ const writeMugVariants = (name, paths) => {
   write(`${name}_icon`, paths, vectorSizes.icon);
 };
 
+const kotlinName = (resourceName) =>
+  (resourceName.match(/^pint_\d/) ? resourceName : resourceName.slice("pint_".length)).toUpperCase();
 const kotlinMappings = (suffix) => semanticAssets
-  .map(({ kotlinName, resourceName }) => `        PintAsset.${kotlinName} -> R.drawable.${resourceName}${suffix}`)
+  .map((name) => `        PintAsset.${kotlinName(name)} -> R.drawable.${name}${suffix}`)
   .join("\n");
 
 const generatedKotlin = `// Generated by tools/generate-drawables.mjs. Do not edit.\n// Regenerate with: node tools/generate-drawables.mjs\npackage io.ericchernuka.pintprogress\n\nimport io.ericchernuka.pintprogress.core.PintAsset\nimport io.ericchernuka.pintprogress.core.PintFieldLayout\n\n/** Compile-time drawable mappings generated alongside the drawable vectors. */\ninternal fun PintAsset.drawableRes(layout: PintFieldLayout): Int = when (layout) {\n    PintFieldLayout.PICKER -> when (this) {\n${kotlinMappings("_compact")}\n    }\n    PintFieldLayout.REGULAR -> when (this) {\n${kotlinMappings("")}\n    }\n    PintFieldLayout.COMPACT -> when (this) {\n${kotlinMappings("_compact")}\n    }\n    PintFieldLayout.ICON_ONLY -> when (this) {\n${kotlinMappings("_icon")}\n    }\n}\n`;
 
 fs.writeFileSync(kotlinDestination, generatedKotlin);
+fs.writeFileSync(assetDestination, `// Generated by tools/generate-drawables.mjs. Do not edit.\npackage io.ericchernuka.pintprogress.core\n\n/** Static drawable frames generated with the vector assets. */\nenum class PintAsset {\n    ${semanticAssets.map(kotlinName).join(",\n    ")}\n}\n\nfun displayFor(frame: PintFrame): Pair<PintAsset, String> = when (frame) {\n    PintFrame.Unavailable -> PintAsset.UNAVAILABLE to ""\n    is PintFrame.Steady -> PintAsset.entries[frame.progress.fillBucket] to frame.progress.completed.completedText()\n    is PintFrame.FullBubbles -> PintAsset.FULL_BUBBLES to frame.completed.completedText()\n    is PintFrame.Draining -> PintAsset.DRAINING to frame.completed.completedText()\n}\n\nprivate fun Int.completedText() = if (this == 0) "" else toString()\n`);
 
 for (let bucket = 0; bucket < 20; bucket += 1) {
   const percent = bucket * 5;
-  const paths = [...mugHandle, mugSurface, innerMug];
-  const fill = fillPath(percent);
-  if (fill) paths.push({ color: colors.amber, path: fill });
-  if (percent >= 80) {
-    const foamHeight = 5 + ((percent - 80) / 5) * 1.5;
-    paths.push({ color: colors.foam, path: foamPath(contentTop(percent), foamHeight) });
-  }
-  paths.push(...mugMarks(percent), mugOutline);
-  writeMugVariants(`pint_${String(percent).padStart(2, "0")}`, paths);
+  const foamHeight = 5 + ((percent - 80) / 5) * 1.5;
+  const foam = percent >= 80 ? foamPath(contentTop(percent), foamHeight) : null;
+  writeMugVariants(`pint_${String(percent).padStart(2, "0")}`, mugPaths(percent, foam));
 }
 
-writeMugVariants("pint_full_bubbles", [
-  ...mugHandle,
-  mugSurface,
-  innerMug,
-  { color: colors.amber, path: fillPath(100) },
-  { color: colors.foam, path: fullFoamPath() },
-  ...mugMarks(100),
-  ...bubbles,
-  mugOutline,
-]);
-
-writeMugVariants("pint_draining", [
-  ...mugHandle,
-  mugSurface,
-  innerMug,
-  { color: colors.amber, path: fillPath(55) },
-  { color: colors.foam, path: foamPath(contentTop(55), 5) },
-  ...mugMarks(55),
-  ...bubbles.slice(2),
-  mugOutline,
-]);
+writeMugVariants("pint_full_bubbles", mugPaths(100, fullFoamPath(), bubbles));
+writeMugVariants("pint_draining", mugPaths(55, foamPath(contentTop(55), 5), bubbles.slice(2)));
 
 writeMugVariants("pint_unavailable", [
-  { ...mugHandleFill, fill: colors.unavailableSurface },
-  { ...mugHandleOutline, stroke: colors.unavailableForeground },
-  { ...mugSurface, color: colors.unavailableSurface },
-  { ...innerMug, color: colors.unavailableSurface },
-  { color: colors.unavailableForeground, path: "M38,42 L42,42 L42,68 L38,68 Z M38,78 L42,78 L42,84 L38,84 Z" },
-  { color: colors.unavailableForeground, path: "M50,42 L54,42 L54,68 L50,68 Z M50,78 L54,78 L54,84 L50,84 Z" },
-  { ...mugOutline, stroke: colors.unavailableForeground },
+  { ...mugHandleFill, fill: color("unavailable_surface") },
+  { ...mugHandleOutline, stroke: color("unavailable_foreground") },
+  { ...mugSurface, color: color("unavailable_surface") },
+  { ...innerMug, color: color("unavailable_surface") },
+  { color: color("unavailable_foreground"), path: "M38,42 L42,42 L42,68 L38,68 Z M38,78 L42,78 L42,84 L38,84 Z" },
+  { color: color("unavailable_foreground"), path: "M50,42 L54,42 L54,68 L50,68 Z M50,78 L54,78 L54,84 L50,84 Z" },
+  { ...mugOutline, stroke: color("unavailable_foreground") },
 ]);
 
-write("ic_pint", [
-  ...mugHandle,
-  mugSurface,
-  innerMug,
-  { color: colors.amber, path: fillPath(80) },
-  { color: colors.foam, path: foamPath(contentTop(80), 5) },
-  ...mugMarks(80),
-  mugOutline,
-], vectorSizes.extensionIcon);
+write("ic_pint", mugPaths(80, foamPath(contentTop(80), 5)), vectorSizes.extensionIcon);

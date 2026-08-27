@@ -5,163 +5,94 @@ import io.ericchernuka.pintprogress.core.PintProgress
 import io.hammerhead.karooext.models.DataPoint
 import io.hammerhead.karooext.models.DataType
 import io.hammerhead.karooext.models.StreamState
-import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.yield
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.currentTime
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class PintDataFieldRuntimeTest {
     @Test
-    fun `numeric stream converts distinct states and spaces emissions`() = runBlocking {
-        val source = MutableSharedFlow<StreamState>(replay = 1, extraBufferCapacity = 8)
-        val target = MutableStateFlow(150)
-        val clock = TestClock()
-        val output = mutableListOf<StreamState>()
-        val firstEmitted = CompletableDeferred<Unit>()
-        val secondEmitted = CompletableDeferred<Unit>()
-        val runtime = runtime(clock)
-        val job = launch {
-            runtime.runNumericStream(source, target, DATA_TYPE_ID) {
-                output += it
-                firstEmitted.complete(Unit)
-                if (output.size == 2) secondEmitted.complete(Unit)
-            }
-        }
-
-        source.emit(streaming(150.0))
-        awaitSignal(firstEmitted)
-        source.emit(streaming(150.0))
-        source.emit(streaming(300.0))
-        awaitSignal(secondEmitted)
-        job.cancelAndJoin()
-
-        assertEquals(2, output.size)
-        assertEquals(1.0, (output[0] as StreamState.Streaming).dataPoint.singleValue!!, 0.0)
-        assertEquals(2.0, (output[1] as StreamState.Streaming).dataPoint.singleValue!!, 0.0)
-        assertEquals(listOf(1_000L), clock.waits)
-    }
-
-    @Test
-    fun `numeric stream conflates to latest pending state`() = runBlocking {
+    fun `numeric runtime covers stream pacing conflation completion and preview`() = runTest {
         val source = MutableStateFlow(streaming(150.0))
         val target = MutableStateFlow(150)
-        val clock = TestClock()
-        val firstStarted = CompletableDeferred<Unit>()
-        val releaseFirst = CompletableDeferred<Unit>()
-        val secondEmitted = CompletableDeferred<Unit>()
         val output = mutableListOf<StreamState>()
-        val job = launch {
-            runtime(clock).runNumericStream(source, target, DATA_TYPE_ID) {
+        val times = mutableListOf<Long>()
+        val job = backgroundScope.launch {
+            runtime().runNumericStream(source, target, DATA_TYPE_ID) {
                 output += it
-                if (output.size == 1) {
-                    firstStarted.complete(Unit)
-                    releaseFirst.await()
-                }
-                if (output.size == 2) secondEmitted.complete(Unit)
+                times += currentTime
             }
         }
 
-        firstStarted.await()
-        source.value = streaming(225.0)
+        runCurrent()
+        source.value = streaming(150.0)
         source.value = streaming(300.0)
-        releaseFirst.complete(Unit)
-        awaitSignal(secondEmitted)
-        job.cancelAndJoin()
-
-        assertEquals(2, output.size)
-        assertEquals(2.0, (output[1] as StreamState.Streaming).dataPoint.singleValue!!, 0.0)
-        assertEquals(listOf(1_000L), clock.waits)
-    }
-
-    @Test
-    fun `numeric preview repeats its ordered messages`() = runBlocking {
-        val output = mutableListOf<String>()
-        val fifthMessage = CompletableDeferred<Unit>()
-        val job = launch {
-            runtime(TestClock()).runNumericPreview {
-                output += it
-                if (output.size == 5) fifthMessage.complete(Unit)
-            }
+        runCurrent()
+        source.value = streaming(450.0)
+        source.value = streaming(600.0)
+        repeat(2) {
+            advanceTimeBy(1_000)
+            runCurrent()
         }
-        awaitSignal(fifthMessage)
         job.cancelAndJoin()
 
-        assertEquals(listOf("0.5", "0.9", "1", "1.1", "0.5"), output)
-    }
+        assertEquals(listOf(1.0, 2.0, 4.0), output.map { (it as StreamState.Streaming).dataPoint.singleValue })
+        assertEquals(listOf(0L, 1_000L, 2_000L), times)
 
-    @Test
-    fun `numeric preview cancellation during wait prevents later callbacks`() = runBlocking {
-        val output = mutableListOf<String>()
-        val first = CompletableDeferred<Unit>()
-        val waitStarted = CompletableDeferred<Unit>()
-        val gate = CompletableDeferred<Unit>()
-        val job = launch {
-            PintDataFieldRuntime({ 0L }) { millis ->
-                assertEquals(1_000L, millis)
-                waitStarted.complete(Unit)
-                gate.await()
-            }.runNumericPreview {
-                output += it
-                first.complete(Unit)
-            }
+        val finite = mutableListOf<StreamState>()
+        runtime().runNumericStream(flowOf(streaming(150.0)), flowOf(150), DATA_TYPE_ID) {
+            finite += it
         }
-        first.await()
-        waitStarted.await()
-        job.cancelAndJoin()
-        gate.complete(Unit)
-
-        assertEquals(listOf("0.5"), output)
+        assertEquals(1, finite.size)
+        assertEquals(
+            listOf("0.5", "0.9", "1", "1.1", "0.5"),
+            capturePreview(runtime().numericPreview(), 5),
+        )
     }
 
     @Test
-    fun `graphical stream starts steady without a false completion`() = runBlocking {
-        val source = MutableSharedFlow<StreamState>(replay = 1, extraBufferCapacity = 2)
-        val target = MutableStateFlow(150)
-        val output = mutableListOf<PintFrame>()
-        val attached = CompletableDeferred<Unit>()
-        val job = launch {
-            runtime(TestClock()).runGraphicalStream(source, target) {
-                output += it
-                attached.complete(Unit)
-            }
-        }
-
-        source.emit(streaming(150.0))
-        attached.await()
-        job.cancelAndJoin()
-
-        assertEquals(listOf(PintFrame.Steady(PintProgress(1, 0))), output)
-    }
-
-    @Test
-    fun `graphical stream executes full drain steady order`() = runBlocking {
+    fun `graphical runtime covers stream transitions cancellation and preview`() = runTest {
         val source = MutableSharedFlow<StreamState>(replay = 1, extraBufferCapacity = 4)
         val target = MutableStateFlow(150)
-        val clock = TestClock()
         val output = mutableListOf<PintFrame>()
-        val firstRendered = CompletableDeferred<Unit>()
-        val allRendered = CompletableDeferred<Unit>()
-        val job = launch {
-            runtime(clock).runGraphicalStream(source, target) {
+        val times = mutableListOf<Long>()
+        val job = backgroundScope.launch {
+            runtime().runGraphicalStream(source, target) {
                 output += it
-                firstRendered.complete(Unit)
-                if (output.size == 4) allRendered.complete(Unit)
+                times += currentTime
             }
         }
 
         source.emit(streaming(149.0))
-        awaitSignal(firstRendered)
+        runCurrent()
         source.emit(streaming(150.0))
-        awaitSignal(allRendered)
+        advanceSeconds(3)
+        target.value = 300
+        advanceSeconds(1)
+        source.emit(streaming(150.0))
+        runCurrent()
+        target.value = 150
+        advanceSeconds(1)
+        source.emit(streaming(149.0))
+        advanceSeconds(1)
+        source.emit(streaming(150.0))
+        advanceSeconds(1)
         job.cancelAndJoin()
 
         assertEquals(
@@ -170,59 +101,14 @@ class PintDataFieldRuntimeTest {
                 PintFrame.FullBubbles(1),
                 PintFrame.Draining(1),
                 PintFrame.Steady(PintProgress(1, 0)),
-            ),
-            output,
-        )
-        assertEquals(listOf(1_000L, 1_000L, 1_000L), clock.waits)
-    }
-
-    @Test
-    fun `graphical target change establishes a steady baseline`() = runBlocking {
-        val source = MutableSharedFlow<StreamState>(replay = 1, extraBufferCapacity = 4)
-        val target = MutableStateFlow(150)
-        val output = mutableListOf<PintFrame>()
-        val firstRendered = CompletableDeferred<Unit>()
-        val secondRendered = CompletableDeferred<Unit>()
-        val job = launch {
-            runtime(TestClock()).runGraphicalStream(source, target) {
-                output += it
-                firstRendered.complete(Unit)
-                if (output.size == 2) secondRendered.complete(Unit)
-            }
-        }
-
-        source.emit(streaming(150.0))
-        awaitSignal(firstRendered)
-        target.value = 300
-        source.emit(streaming(150.0))
-        awaitSignal(secondRendered)
-        job.cancelAndJoin()
-
-        assertEquals(
-            listOf(
-                PintFrame.Steady(PintProgress(1, 0)),
                 PintFrame.Steady(PintProgress(0, 10)),
+                PintFrame.Steady(PintProgress(1, 0)),
+                PintFrame.Steady(PintProgress(0, 19)),
+                PintFrame.FullBubbles(1),
             ),
             output,
         )
-    }
-
-    @Test
-    fun `graphical preview repeats ordered frames and waits one second`() = runBlocking {
-        val output = mutableListOf<PintFrame>()
-        val clock = TestClock()
-        val fourthWait = CompletableDeferred<Unit>()
-        val job = launch {
-            PintDataFieldRuntime({ clock.nowMillis }) { millis ->
-                clock.waits += millis
-                clock.nowMillis += millis
-                if (clock.waits.size == 4) fourthWait.complete(Unit)
-                yield()
-            }.runGraphicalPreview { output += it }
-        }
-        awaitSignal(fourthWait)
-        job.cancelAndJoin()
-
+        assertEquals((0L..7_000L step 1_000L).toList(), times)
         assertEquals(
             listOf(
                 PintFrame.Steady(PintProgress(0, 10)),
@@ -230,108 +116,28 @@ class PintDataFieldRuntimeTest {
                 PintFrame.FullBubbles(0),
                 PintFrame.Steady(PintProgress(0, 10)),
             ),
-            output,
+            capturePreview(runtime().graphicalPreview(), 4),
         )
-        assertEquals(List(4) { 1_000L }, clock.waits)
     }
 
-    @Test
-    fun `graphical preview cancellation during wait prevents later callbacks`() = runBlocking {
-        val output = mutableListOf<PintFrame>()
-        val first = CompletableDeferred<Unit>()
-        val waitStarted = CompletableDeferred<Unit>()
-        val gate = CompletableDeferred<Unit>()
-        val job = launch {
-            PintDataFieldRuntime({ 0L }) { millis ->
-                assertEquals(1_000L, millis)
-                waitStarted.complete(Unit)
-                gate.await()
-            }.runGraphicalPreview {
-                output += it
-                first.complete(Unit)
-            }
-        }
-
-        awaitSignal(first)
-        awaitSignal(waitStarted)
-        job.cancelAndJoin()
-        gate.complete(Unit)
-
-        assertEquals(listOf(PintFrame.Steady(PintProgress(0, 10))), output)
+    private suspend fun <T> TestScope.capturePreview(
+        flow: Flow<T>,
+        count: Int,
+    ): List<T> {
+        val start = currentTime
+        val times = mutableListOf<Long>()
+        val output = flow.onEach { times += currentTime }.take(count).toList()
+        assertEquals(List(count) { start + it * 1_000L }, times)
+        return output
     }
 
-    @Test
-    fun `graphical stream cancellation during pending delay prevents later callbacks`() = runBlocking {
-        val source = MutableSharedFlow<StreamState>(replay = 1, extraBufferCapacity = 4)
-        val target = MutableStateFlow(150)
-        val output = mutableListOf<PintFrame>()
-        val clock = TestClock()
-        val firstRendered = CompletableDeferred<Unit>()
-        val waitStarted = CompletableDeferred<Unit>()
-        val gate = CompletableDeferred<Unit>()
-        var waitCount = 0
-        val job = launch {
-            PintDataFieldRuntime({ clock.nowMillis }) { millis ->
-                clock.waits += millis
-                clock.nowMillis += millis
-                waitCount += 1
-                if (waitCount == 2) {
-                    waitStarted.complete(Unit)
-                    gate.await()
-                }
-            }.runGraphicalStream(source, target) {
-                output += it
-                firstRendered.complete(Unit)
-            }
-        }
-
-        source.emit(streaming(149.0))
-        awaitSignal(firstRendered)
-        source.emit(streaming(150.0))
-        waitStarted.await()
-        job.cancelAndJoin()
-        gate.complete(Unit)
-
-        assertEquals(2, output.size)
-        assertTrue(output[0] is PintFrame.Steady)
-        assertTrue(output[1] is PintFrame.FullBubbles)
-    }
-
-    @Test
-    fun `finite streams complete and suppress duplicate graphical state`() = runBlocking {
-        val runtime = runtime(TestClock())
-        val numericOutput = mutableListOf<StreamState>()
-        runtime.runNumericStream(
-            calorieStates = flowOf(streaming(150.0)),
-            caloriesPerBeer = flowOf(150),
-            dataTypeId = DATA_TYPE_ID,
-            emit = { numericOutput += it },
-        )
-        val graphicalOutput = mutableListOf<PintFrame>()
-        runtime.runGraphicalStream(
-            calorieStates = flow {
-                emit(streaming(150.0))
-                emit(streaming(150.0))
-            },
-            caloriesPerBeer = flowOf(150),
-            emit = { graphicalOutput += it },
-        )
-
-        assertEquals(1, numericOutput.size)
-        assertEquals(listOf(PintFrame.Steady(PintProgress(1, 0))), graphicalOutput)
-    }
-
-    private fun runtime(clock: TestClock) = PintDataFieldRuntime(
-        nowMillis = { clock.nowMillis },
-        waitMillis = { millis ->
-            clock.waits += millis
-            clock.nowMillis += millis
-            yield()
-        },
+    private fun TestScope.runtime() = PintDataFieldRuntime(
+        nowMillis = { currentTime },
     )
 
-    private suspend fun awaitSignal(signal: CompletableDeferred<Unit>) {
-        withTimeout(TEST_TIMEOUT_MILLIS) { signal.await() }
+    private fun TestScope.advanceSeconds(count: Int) = repeat(count) {
+        advanceTimeBy(1_000)
+        runCurrent()
     }
 
     private fun streaming(calories: Double) = StreamState.Streaming(
@@ -341,13 +147,104 @@ class PintDataFieldRuntimeTest {
         ),
     )
 
-    private class TestClock {
-        var nowMillis = 0L
-        val waits = mutableListOf<Long>()
+    @Test
+    fun `flow forwards normal and terminal states and always cleans up`() = runTest {
+        val normalCallbacks = CallbackCapture()
+        val normalStates = mutableListOf<StreamState>()
+        val normalCollection = launchCollection(normalCallbacks.flow(), normalStates)
+        runCurrent()
+
+        normalCallbacks.state(StreamState.Idle)
+        normalCallbacks.state(StreamState.Searching)
+        runCurrent()
+        normalCollection.cancelAndJoin()
+
+        assertEquals(listOf(StreamState.Idle, StreamState.Searching), normalStates)
+        assertEquals(1, normalCallbacks.adapterRemovalAttempts)
+        listOf<(CallbackCapture) -> Unit>(
+            { it.complete(); it.complete() },
+            { it.error("host error text"); it.error("different host error text") },
+        ).forEach { terminate ->
+            val callbacks = CallbackCapture()
+            val states = mutableListOf<StreamState>()
+            val collection = launchCollection(callbacks.flow(), states)
+            runCurrent()
+
+            terminate(callbacks)
+            callbacks.state(StreamState.Searching)
+            runCurrent()
+            collection.join()
+
+            assertEquals(listOf(StreamState.NotAvailable), states)
+            assertEquals(1, callbacks.adapterRemovalAttempts)
+            assertEquals(2, callbacks.sdkRemovalAttempts)
+        }
+        val callbacks = CallbackCapture(terminalDuringRegistration = true)
+
+        assertEquals(listOf(StreamState.NotAvailable), callbacks.flow().toList())
+        assertEquals(1, callbacks.adapterRemovalAttempts)
+        assertEquals(1, callbacks.sdkRemovalAttempts)
+    }
+
+    private fun CoroutineScope.launchCollection(
+        flow: Flow<StreamState>,
+        states: MutableList<StreamState>,
+    ): Job = launch { flow.toList(states) }
+
+    private class CallbackCapture(
+        private val terminalDuringRegistration: Boolean = false,
+    ) {
+        private var onError: ((String) -> Unit)? = null
+        private var onComplete: (() -> Unit)? = null
+        private var onState: ((StreamState) -> Unit)? = null
+        var adapterRemovalAttempts = 0
+            private set
+        var sdkRemovalAttempts = 0
+            private set
+
+        fun flow(): Flow<StreamState> = streamDataFlow(::register, ::adapterRemove)
+
+        private fun register(
+            onError: (String) -> Unit,
+            onComplete: () -> Unit,
+            onState: (StreamState) -> Unit,
+        ): String {
+            this.onError = onError
+            this.onComplete = onComplete
+            this.onState = onState
+            if (terminalDuringRegistration) complete()
+            return LISTENER_ID
+        }
+
+        fun state(state: StreamState) {
+            onState?.invoke(state)
+        }
+
+        fun complete() {
+            onComplete?.invoke()
+            sdkRemove()
+        }
+
+        fun error(message: String) {
+            onError?.invoke(message)
+            sdkRemove()
+        }
+
+        private fun adapterRemove(listenerId: String) {
+            assertEquals(LISTENER_ID, listenerId)
+            adapterRemovalAttempts += 1
+        }
+
+        private fun sdkRemove() {
+            sdkRemovalAttempts += 1
+        }
+
+        private companion object {
+            const val LISTENER_ID = "listener-id"
+        }
     }
 
     private companion object {
         const val DATA_TYPE_ID = "pint-progress-text"
-        const val TEST_TIMEOUT_MILLIS = 5_000L
     }
 }

@@ -9,7 +9,7 @@
 # Full repository gate
 ./gradlew :lib:testDebugUnitTest :pint:lintDebug :pint:assembleDebug :pint:assembleRelease :pint:jacocoBehaviorTestCoverageVerification
 
-# Generated visual contracts
+# Generated drawable and static-resource contracts
 node tools/generate-drawables.mjs
 node tools/validate-drawables.mjs
 ```
@@ -22,26 +22,25 @@ node tools/validate-drawables.mjs
 - caller-package authorization for the Karoo Binder boundary;
 - first-attach, reset, skipped-threshold, full, bubbles, drain, and steady-state transitions;
 - stream-state conversion, visible-state coalescing, timed-frame plans, and preview behavior;
-- drawable frame selection, labels, and counter visibility.
+- drawable frame selection and counter visibility;
 - count-field 0.1-pint flooring, preview messages, native stream-state propagation, and custom data-point identity.
 
-The following files are intentionally outside JaCoCo's JVM scope because each is a thin Android or Karoo IPC adapter, not a location for product decisions:
+The following files are outside the core JaCoCo ratio. Android and Karoo adapters are compile- and
+device-verified, while the embedded runtime scheduling policy has focused JVM coverage:
 
 - `PintProgressExtension.kt` creates and binds the official `KarooSystemService` from an Android `Service`.
-- `KarooFlows.kt` adapts the official Binder consumer into a finite callback Flow. Its normal,
-  terminal, synchronous-terminal, cancellation, and idempotent-cleanup behavior is JVM-tested;
-  Binder delivery and the concrete `KarooSystemService` remain device-tested.
 - `PintProgressDataType.kt` wires `SystemClock.elapsedRealtime()` and coroutine `delay` into the
-  pure `PintDataFieldRuntime` coordinator, keeps the initial numeric and graphic configuration, and
-  bridges coordinator outputs to the Karoo emitters.
-- `PintDataFieldRuntime.kt` is a plain-Kotlin coordinator outside the `core` JaCoCo ratio. Its JVM
-  tests cover deterministic Flow backpressure, one-second pacing, numeric and graphical routing,
-  preview order, reducer-plan delays, target-change baseline, and cancellation. Coroutine state
+  pure `PintDataFieldRuntime` coordinator, keeps the initial numeric and graphic configuration,
+  bridges coordinator outputs to the Karoo emitters, and adapts the official Binder consumer into a
+  finite callback Flow. JVM tests cover deterministic Flow backpressure, one-second pacing, numeric
+  and graphical routing, preview order, reducer-plan delays, target-change baseline, cancellation,
+  terminal callbacks, synchronous terminal callbacks, and idempotent cleanup. Coroutine state
   machines contain generated normal-completion instructions that prevent this adapter from joining
   the core ratio. These tests verify callback order and waits, not Binder or `RemoteViews` delivery.
-- `PintRemoteViews.kt` serializes a fully covered `PintDisplay` model into Android `RemoteViews`,
-  maps assets to compile-time `R.drawable` IDs, and selects a static alignment layout. XML contract
-  tests cover the alignment mapping and responsive mug bounds.
+- `PintRemoteViews.kt` serializes the covered asset and count display into Android `RemoteViews`,
+  maps assets to compile-time `R.drawable` IDs, and selects a static alignment layout. The resource
+  validator checks every static alignment wrapper, responsive mug bounds, initial visibility,
+  field labels, extension metadata, and the representative generated drawable mapping.
 - `PintSettingsActivity.kt` and `BeerCaloriesStore.kt` adapt the covered target policy to Android's
   `SeekBar` and app-private preferences.
 

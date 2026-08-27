@@ -8,7 +8,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 
-/** App-private persistence shared by the launcher activity and extension service process. */
+/** App-private persistence shared by the launcher activity and extension service process */
 internal class BeerCaloriesStore(context: Context) {
     private val preferences = context.applicationContext.getSharedPreferences(
         PREFERENCES_NAME,

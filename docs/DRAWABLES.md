@@ -3,7 +3,8 @@
 ## Source of truth
 
 `tools/generate-drawables.mjs` owns all mug vector variants and
-`PintAssetDrawables.kt`. Never edit generated drawable XML or the Kotlin mapping directly.
+`PintAssetDrawables.kt` and `core/PintAsset.kt`. Never edit generated drawable XML or either Kotlin
+mapping directly.
 
 Generated states include 0% through 95% in 5% steps, full bubbles, draining, and unavailable. Each
 state has regular, compact, and icon variants. `ic_pint.xml` is the extension icon.
@@ -16,8 +17,14 @@ node tools/validate-drawables.mjs
 git diff --check
 ```
 
-Commit the generator and every generated output together. CI regenerates assets and fails if the
-working tree differs.
+Commit the generator and every generated output together. CI regenerates and compares the drawable
+XML and `PintAssetDrawables.kt`; local review must also confirm that generated `core/PintAsset.kt`
+matches the generator.
+
+The validator also owns static resource contracts that support the generated assets. It checks all
+alignment wrappers, responsive mug bounds, initial count visibility, field labels, extension
+metadata, and a representative generated drawable mapping. Run it when any of those resources
+change, even when mug geometry does not.
 
 ## Visual contracts
 

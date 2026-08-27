@@ -7,12 +7,12 @@ SDK 1.1.9 and Android's `RemoteViews` and app-update requirements.
 
 | Karoo input | Official meaning | Pint Progress behavior | Verification |
 | --- | --- | --- | --- |
-| `gridSize` | Column span × row span on a 60 × 60 grid | Used only as a fallback for a missing `viewSize` dimension | `PintFieldSizeTest` |
-| `viewSize` | Current configured view size in physical pixels | Takes precedence, converts to dp, and bounds the complete layout | `PintFieldSizeTest`, on-device size matrix |
-| `textSize` | Standard numeric field size for this grid size in sp | Caps graphical mug counter text; Karoo applies it directly to the native count field | `PintFieldTypographyTest`, on-device text matrix |
-| `alignment` | User-selected in-ride alignment | Selects a left, center, or right XML layout for the complete group | `PintRemoteViewsLayoutTest`, on-device alignment matrix |
-| `boundariesEnabled` | Whether the user enabled field boundaries | Adds a larger inset before fitting or rendering content | `PintFieldChromeTest`, `PintFieldLayoutTest` |
-| `preview` | Page editing rather than an active ride | Cycles representative mug frames or native count messages without using ride calories | `PintFieldLayoutTest`, `PintTextStreamStateTest`, on-device page editor |
+| `gridSize` | Column span × row span on a 60 × 60 grid | Used only as a fallback for a missing `viewSize` dimension | `CorePolicyBehaviorTest` |
+| `viewSize` | Current configured view size in physical pixels | Takes precedence, converts to dp, and bounds the complete layout | `CorePolicyBehaviorTest`, on-device size matrix |
+| `textSize` | Standard numeric field size for this grid size in sp | Caps graphical mug counter text; Karoo applies it directly to the native count field | `CorePolicyBehaviorTest`, on-device text matrix |
+| `alignment` | User-selected in-ride alignment | Selects a left, center, or right XML layout for the complete group | resource validator, `assembleDebug`, on-device alignment matrix |
+| `boundariesEnabled` | Whether the user enabled field boundaries | Adds a larger inset before fitting or rendering content | `CorePolicyBehaviorTest` |
+| `preview` | Page editing rather than an active ride | Cycles representative mug frames or native count messages without using ride calories | `PintDataFieldRuntimeTest`, on-device page editor |
 
 ## Rendering rules
 
