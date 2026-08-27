@@ -1,12 +1,1 @@
-package io.ericchernuka.pintprogress.core
-
-import org.junit.Assert.assertEquals
-import org.junit.Test
-
-class PintFieldChromeTest {
-    @Test
-    fun `boundary pills receive a larger content inset`() {
-        assertEquals(PintFieldChrome.DEFAULT_EDGE_INSET_DP, PintFieldChrome.edgeInsetDp(false))
-        assertEquals(PintFieldChrome.BOUNDARY_EDGE_INSET_DP, PintFieldChrome.edgeInsetDp(true))
-    }
-}
+package io.ericchernuka.pintprogress.core; import org.junit.Assert.assertEquals; import org.junit.Test; class PintFieldChromeTest { @Test fun `boundary pills receive a larger content inset`() { assertEquals(PintFieldChrome.DEFAULT_EDGE_INSET_DP, PintFieldChrome.edgeInsetDp(false));         assertEquals(PintFieldChrome.BOUNDARY_EDGE_INSET_DP, PintFieldChrome.edgeInsetDp(true)) } };
