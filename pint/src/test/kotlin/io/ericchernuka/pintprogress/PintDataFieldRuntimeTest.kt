@@ -12,6 +12,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
@@ -27,6 +28,14 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PintDataFieldRuntimeTest {
+    @Test
+    fun `style and preview state select each cancellation route`() {
+        assertEquals("numeric-live", PintFieldStyle.TEXT.cancellationLabel(preview = false))
+        assertEquals("numeric-preview", PintFieldStyle.TEXT.cancellationLabel(preview = true))
+        assertEquals("graphical-live", PintFieldStyle.MUG.cancellationLabel(preview = false))
+        assertEquals("graphical-preview", PintFieldStyle.MUG.cancellationLabel(preview = true))
+    }
+
     @Test
     fun `numeric runtime covers stream pacing conflation completion and preview`() = runTest {
         val source = MutableStateFlow(streaming(150.0))
@@ -114,10 +123,24 @@ class PintDataFieldRuntimeTest {
                 PintFrame.Steady(PintProgress(0, 10)),
                 PintFrame.Steady(PintProgress(0, 16)),
                 PintFrame.FullBubbles(0),
+                PintFrame.Steady(PintProgress(1, 10)),
+                PintFrame.Steady(PintProgress(99, 10)),
+                PintFrame.Steady(PintProgress(100, 10)),
                 PintFrame.Steady(PintProgress(0, 10)),
             ),
-            capturePreview(runtime().graphicalPreview(), 4),
+            capturePreview(runtime().graphicalPreview(), 7),
         )
+
+        val cancelled = mutableListOf<PintFrame>()
+        val cancelledJob = backgroundScope.launch {
+            runtime().graphicalPreview().collect { cancelled += it }
+        }
+        runCurrent()
+        assertEquals(1, cancelled.size)
+        cancelledJob.cancelAndJoin()
+        advanceTimeBy(5_000)
+        runCurrent()
+        assertEquals(1, cancelled.size)
     }
 
     private suspend fun <T> TestScope.capturePreview(

@@ -40,6 +40,7 @@ jobs:
           -PpintVersionCode="${GITHUB_RUN_NUMBER}"
           -PpintVersionName="1.0.0-dev.${GITHUB_RUN_NUMBER}"
           :lib:testDebugUnitTest
+          :pint:testReleaseUnitTest
           :pint:lintDebug
           :pint:assembleDebug
           :pint:assembleRelease

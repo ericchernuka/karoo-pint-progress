@@ -1,13 +1,23 @@
 package io.ericchernuka.pintprogress
 
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.Typeface
+import android.os.Build
+import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
 import io.ericchernuka.pintprogress.core.PintAsset
 import io.ericchernuka.pintprogress.core.PintFieldLayout
+import io.ericchernuka.pintprogress.core.countRasterUpwardBiasDp
 import io.ericchernuka.pintprogress.core.edgeInsetDp
+import io.ericchernuka.pintprogress.core.opticalCenterOffset
+import io.ericchernuka.pintprogress.core.opticalTranslationY
 import io.ericchernuka.pintprogress.core.resolveTypography
 import io.hammerhead.karooext.models.ViewConfig
 import kotlin.math.roundToInt
+
+private const val SUFFIX_RASTER_UPWARD_BIAS_DP = 2f
 
 /** Android adapter that delegates presentation decisions to [io.ericchernuka.pintprogress.core.displayFor] */
 internal class PintRemoteViews(
@@ -16,6 +26,14 @@ internal class PintRemoteViews(
     scaledDensity: Float,
 ) {
     private val fontScale = scaledDensity / displayDensity
+    private val countPaint = Paint().apply {
+        typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
+        textSize = 100f
+        textScaleX = 0.68f
+    }
+    private val countLineHeightPerTextSize = countPaint.fontMetrics.run { (bottom - top) / countPaint.textSize }
+    private val unpaddedCountOpticalOffsetPerTextSize = countPaint.opticalOffsetPerTextSize("100")
+    private val suffixOpticalOffsetPerTextSize = countPaint.opticalOffsetPerTextSize("+")
 
     fun render(
         display: Pair<PintAsset, String>,
@@ -24,6 +42,7 @@ internal class PintRemoteViews(
         textSizeSp: Int,
         boundariesEnabled: Boolean,
         fieldWidthDp: Int,
+        fieldHeightDp: Int,
     ): RemoteViews {
         val (asset, count) = display
         val effectiveLayout = layout.forDisplay(count.isNotEmpty())
@@ -35,16 +54,65 @@ internal class PintRemoteViews(
             val edgeInsetPx = (edgeInsetDp(boundariesEnabled) * displayDensity).roundToInt()
             setViewPadding(R.id.pint_root, edgeInsetPx, edgeInsetPx, edgeInsetPx, edgeInsetPx)
             setImageViewResource(R.id.pint_image, asset.drawableRes(effectiveLayout))
-
             resolveTypography(
                 layout = effectiveLayout,
                 karooTextSizeSp = textSizeSp,
                 countLength = count.length,
                 fontScale = fontScale,
                 contentWidthDp = fieldWidthDp - (edgeInsetDp(boundariesEnabled) * 2),
+                contentHeightDp = fieldHeightDp - (edgeInsetDp(boundariesEnabled) * 2),
+                lineHeightPerTextSize = countLineHeightPerTextSize,
+                measuredTextWidthPerCountSize = (
+                    countPaint.measureText(count) +
+                        countPaint.measureText("+") * effectiveLayout.suffixToCountRatio
+                    ) / countPaint.textSize,
+                maximumScale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    effectiveLayout.maxScale
+                } else {
+                    1f
+                },
             )?.let { (countSizeSp, suffixSizeSp) ->
                 setTextSizeSp(R.id.pint_count, countSizeSp)
                 setTextSizeSp(R.id.pint_count_suffix, suffixSizeSp)
+                val countOffsetPx =
+                    unpaddedCountOpticalOffsetPerTextSize * countSizeSp * displayDensity * fontScale
+                setFloat(
+                    R.id.pint_count,
+                    "setTranslationY",
+                    opticalTranslationY(
+                        countOffsetPx,
+                        upwardBiasPx = effectiveLayout.countRasterUpwardBiasDp(countSizeSp) *
+                            displayDensity,
+                    ),
+                )
+                val suffixOffsetPx =
+                    suffixOpticalOffsetPerTextSize * suffixSizeSp * displayDensity * fontScale
+                setFloat(
+                    R.id.pint_count_suffix,
+                    "setTranslationY",
+                    opticalTranslationY(
+                        suffixOffsetPx,
+                        upwardBiasPx = SUFFIX_RASTER_UPWARD_BIAS_DP * displayDensity,
+                    ),
+                )
+                val mugScale = requireNotNull(effectiveLayout.mugScaleFor(countSizeSp, fontScale))
+                val mugWidthDp = effectiveLayout.nominalMugWidthDp * mugScale
+                val mugHeightDp = effectiveLayout.nominalMugHeightDp * mugScale
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && mugScale > 1f) {
+                    setViewLayoutWidth(R.id.pint_image, mugWidthDp, TypedValue.COMPLEX_UNIT_DIP)
+                    setViewLayoutHeight(R.id.pint_image, mugHeightDp, TypedValue.COMPLEX_UNIT_DIP)
+                } else {
+                    setInt(
+                        R.id.pint_image,
+                        "setMaxWidth",
+                        (mugWidthDp * displayDensity).roundToInt(),
+                    )
+                    setInt(
+                        R.id.pint_image,
+                        "setMaxHeight",
+                        (mugHeightDp * displayDensity).roundToInt(),
+                    )
+                }
             }
 
             val countText = effectiveLayout.visibleCount(count)
@@ -55,6 +123,18 @@ internal class PintRemoteViews(
         }
     }
 
+}
+
+private fun Paint.opticalOffsetPerTextSize(text: String): Float {
+    val bounds = Rect()
+    getTextBounds(text, 0, text.length, bounds)
+    val metrics = fontMetrics
+    return opticalCenterOffset(
+        metrics.ascent,
+        metrics.descent,
+        bounds.top.toFloat(),
+        bounds.bottom.toFloat(),
+    ) / textSize
 }
 
 /** Selects XML layouts because RemoteViews blocks runtime gravity changes */

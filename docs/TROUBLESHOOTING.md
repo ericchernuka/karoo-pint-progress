@@ -57,10 +57,36 @@ Do not patch a layout from one screenshot. Capture:
 - completed count length;
 - screenshot and Karoo software version.
 
-Reproduce the case in the pure size and typography tests and the XML layout contract tests. Fix
-derived policy first, then verify large, medium, short, narrow, and icon-only treatments on device.
+Reproduce the case in the pure size and typography tests and the resource validator. Fix derived
+policy first, then verify large, medium, short, narrow, and small treatments on device. A completed
+count must remain visible in every live graphical treatment.
 Include a navigation toast or reroute resize because Karoo can reduce the host container without
 calling `startView` again.
+
+The issue #11 device study found three important limits:
+
+- Treat the visible glyph raster, the `TextView` bounds, and the mug bounds as separate geometry.
+  A centered `TextView` can still place a digit curve too close to its lower raster edge.
+- Use fixed `1+`, `99+`, and `100+` diagnostic states through the production rendering path when
+  investigating geometry. Add colored root, count, suffix, and mug outlines only in a disposable
+  local debug build. Remove these fields and outlines before review.
+- Validate in the live ride view. Page-editor navigation can cover the bottom row and cannot prove
+  whether the underlying `RemoteViews` clips.
+
+The verified fix keeps count and mug scaling linked, applies a measured optical offset, and reserves
+8 dp of vertical glyph clearance in constrained regular fields. Do not replace that clearance with
+another baseline translation. A translation changes position but does not reduce an oversized glyph.
+
+Reference vectors captured on a Hammerhead k24 running KOS 1.650.2509 were:
+
+| Layout | `gridSize` | `viewSize` | Resolved dp | `textSize` | Boundaries | Treatment |
+| --- | --- | --- | --- | ---: | --- | --- |
+| Full-width constrained | 60 × 25 | 478 × 243 px | 255 × 130 dp | 96 sp | on | regular |
+| Half-width compact | 30 × 15 | 238 × 148 px | 127 × 79 dp | 50 sp | on | compact |
+| Full-width roomy | 60 × 60 | 478 × 642 px | 255 × 342 dp | 96 sp | on | regular |
+
+These values are evidence from one host version, not new layout thresholds. Always record the actual
+`ViewConfig` for the candidate under test.
 
 ## Settings do not appear to apply
 
