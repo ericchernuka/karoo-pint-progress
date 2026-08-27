@@ -6,6 +6,10 @@
 # Focused JVM suite
 ./gradlew :pint:testDebugUnitTest
 
+# Dokka HTML documentation
+./gradlew :lib:dokkaGeneratePublicationHtml
+python3 tools/verify-dokka-output.py
+
 # Full repository gate
 ./gradlew :lib:testDebugUnitTest :pint:lintDebug :pint:assembleDebug :pint:assembleRelease :pint:jacocoBehaviorTestCoverageVerification
 

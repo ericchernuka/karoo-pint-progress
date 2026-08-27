@@ -1,5 +1,6 @@
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Base64
 plugins { alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -35,7 +36,7 @@ android { namespace = "io.ericchernuka.pintprogress"
     buildFeatures { buildConfig = true }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8 }
-    kotlinOptions { jvmTarget = "1.8" }
+    kotlin { compilerOptions { jvmTarget.set(JvmTarget.JVM_1_8) } }
     testOptions { unitTests.all { it.extensions.configure<JacocoTaskExtension> { isIncludeNoLocationClasses = true
                 excludes = listOf("jdk.internal.*") } } } }
 dependencies { implementation(project(":lib"))

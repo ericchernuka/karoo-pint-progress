@@ -1,6 +1,6 @@
-import org.jetbrains.dokka.base.DokkaBase
-import org.jetbrains.dokka.base.DokkaBaseConfiguration
-import java.net.URL
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.time.LocalDateTime
 
 /*
@@ -15,14 +15,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.serialization)
 }
 
-val moduleName = "karoo-ext"
 val libVersion = "1.1.9"
-
-buildscript {
-    dependencies {
-        classpath(libs.jetbrains.dokka.android)
-    }
-}
 
 android {
     namespace = "io.hammerhead.karooext"
@@ -44,8 +37,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
+        }
     }
 
     buildFeatures {
@@ -55,35 +50,33 @@ android {
 
 }
 
-tasks.dokkaHtml.configure {
-    moduleName = "karoo-ext"
-    moduleVersion = libVersion
-    outputDirectory.set(rootDir.resolve("docs"))
-    suppressInheritedMembers = true
-
-    pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
-        val assetsDir = rootDir.resolve("assets")
-        homepageLink = "https://github.com/hammerheadnav/karoo-ext"
-
-        footerMessage = "© ${LocalDateTime.now().year} SRAM LLC."
-        customAssets = listOf(assetsDir.resolve("logo-icon.svg"))
-        customStyleSheets = listOf(assetsDir.resolve("hammerhead-style.css"))
+dokka {
+    dokkaPublications.html {
+        moduleName.set("karoo-ext")
+        moduleVersion.set(libVersion)
+        suppressInheritedMembers.set(true)
     }
-
-    dokkaSourceSets {
-        configureEach {
-            // A bug exists in dokka for Android libraries that prevents this from being generated
-            // https://github.com/Kotlin/dokka/issues/2876
-            sourceLink {
-                localDirectory.set(projectDir.resolve("lib/src/main/kotlin"))
-                remoteUrl.set(URL("https://github.com/hammerheadnav/karoo-ext/blob/${libVersion}/lib"))
-                remoteLineSuffix.set("#L")
-            }
-            skipEmptyPackages.set(true)
-            includeNonPublic.set(false)
-            includes.from("Module.md")
-            samples.from("src/test/kotlin/Samples.kt")
+    pluginsConfiguration.named("html", DokkaHtmlPluginParameters::class.java) {
+        val assetsDir = rootDir.resolve("assets")
+        homepageLink.set("https://github.com/hammerheadnav/karoo-ext")
+        footerMessage.set("© ${LocalDateTime.now().year} SRAM LLC.")
+        customAssets.from(assetsDir.resolve("logo-icon.svg"))
+        customStyleSheets.from(assetsDir.resolve("hammerhead-style.css"))
+    }
+    dokkaSourceSets.configureEach {
+        // A bug exists in dokka for Android libraries that prevents this from being generated
+        // https://github.com/Kotlin/dokka/issues/2876
+        sourceLink {
+            localDirectory.set(projectDir.resolve("src/main/kotlin"))
+            remoteUrl("https://github.com/ericchernuka/karoo-pint-progress/blob/main/lib/src/main/kotlin")
+            remoteLineSuffix.set("#L")
         }
+        skipEmptyPackages.set(true)
+        documentedVisibilities.set(setOf(VisibilityModifier.Public))
+        includes.from("Module.md")
+    }
+    dokkaSourceSets.named("main") {
+        samples.from("src/test/kotlin/Samples.kt")
     }
 }
 
