@@ -1,6 +1,5 @@
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
-import org.gradle.testing.jacoco.tasks.JacocoReport
 import java.util.Base64
 plugins { alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -41,21 +40,13 @@ android { namespace = "io.ericchernuka.pintprogress"
                 excludes = listOf("jdk.internal.*") } } } }
 dependencies { implementation(project(":lib"))
     implementation(libs.kotlinx.coroutines.android)
-    testImplementation(libs.junit) }
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test) }
 val behaviorClasses = layout.buildDirectory.dir("tmp/kotlin-classes/debug/io/ericchernuka/pintprogress/core")
-tasks.register<JacocoReport>("jacocoBehaviorTestReport") { dependsOn("testDebugUnitTest")
+tasks.register<JacocoCoverageVerification>("jacocoBehaviorTestCoverageVerification") { dependsOn("testDebugUnitTest")
     classDirectories.setFrom(fileTree(behaviorClasses) { include("**/*.class") })
     sourceDirectories.setFrom(files("src/main/kotlin"))
     executionData.setFrom(fileTree(layout.buildDirectory) { include("jacoco/testDebugUnitTest.exec") })
-    reports { xml.required.set(true)
-        html.required.set(true) } }
-tasks.register<JacocoCoverageVerification>("jacocoBehaviorTestCoverageVerification") { dependsOn("jacocoBehaviorTestReport")
-    classDirectories.setFrom(fileTree(behaviorClasses) { include("**/*.class") })
-    sourceDirectories.setFrom(files("src/main/kotlin"))
-    executionData.setFrom(fileTree(layout.buildDirectory) { include("jacoco/testDebugUnitTest.exec") })
-    violationRules { rule { limit { counter = "INSTRUCTION"
-                value = "COVEREDRATIO"
-                minimum = "1.0".toBigDecimal() } }
-        rule { limit { counter = "BRANCH"
-                value = "COVEREDRATIO"
-                minimum = "1.0".toBigDecimal() } } } }
+    violationRules { rule { listOf("INSTRUCTION", "BRANCH").forEach { counterType -> limit { counter = counterType
+                    value = "COVEREDRATIO"
+                    minimum = "1.0".toBigDecimal() } } } } }

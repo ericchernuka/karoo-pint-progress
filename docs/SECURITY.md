@@ -3,7 +3,7 @@
 ## Trust boundaries
 
 - The exported extension service is required for Karoo discovery. Binder calls are accepted only
-  from the Karoo system package through `KarooCallerPolicy`.
+  from the Karoo system package through `allowsKarooCaller`.
 - The launcher activity exposes only a non-sensitive calorie preference. It accepts no intent data.
 - Preferences use app-private storage and contain only calories per beer.
 - The app consumes Karoo's calorie stream and emits package-owned static resources.

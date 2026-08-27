@@ -12,6 +12,7 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version = "1.2.1
 jetbrains-dokka-android = { module = "org.jetbrains.dokka:android-documentation-plugin", version.ref = "dokka" }
 junit = { group = "junit", name = "junit", version = "4.13.2" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.6.3" }
 timber = { module = "com.jakewharton.timber:timber", version = "5.0.1" }
 

@@ -10,12 +10,12 @@
 ## Runtime flow
 
 ```text
-Karoo calorie stream ----+--> PintViewReducer --> RenderPlan --> PintPresentation
+Karoo calorie stream ----+--> PintViewReducer --> RenderPlan --> displayFor
                          |                                         |
 private calorie setting -+                                         v
                          |                               PintRemoteViews --> ViewEmitter
                          |
-                         +--> PintTextStreamState ------------------------> StreamEmitter
+                         +--> numericStateFrom ---------------------------> StreamEmitter
 ```
 
 `PintProgressExtension` owns the Karoo service connection and exposes two `PintProgressDataType`
@@ -32,11 +32,11 @@ standard stream container. Both paths cancel their work on detach.
 | Calorie target bounds and slider mapping | `core/BeerCaloriesPolicy.kt` |
 | Calories to completed mugs and 5% bucket | `core/PintProgressReducer.kt` |
 | Stream-state coalescing and animation plan | `core/PintViewReducer.kt` |
-| Frame to asset and count | `core/PintPresentation.kt` |
+| Frame to asset and count | generated `core/PintAsset.kt` |
 | Calorie stream to decimal pint total | `core/PintTextStreamState.kt` |
-| Viewport and treatment selection | `core/PintFieldSize.kt`, `core/PintFieldLayout.kt` |
-| Text fitting and boundary inset | `core/PintFieldTypography.kt`, `core/PintFieldChrome.kt` |
-| Karoo alignment layout selection | `PintRemoteViewsLayout.kt`, `res/layout/pint_progress_*_view.xml` |
+| Viewport and treatment selection | `core/PintFieldLayout.kt` |
+| Text fitting and boundary inset | `core/PintFieldLayout.kt` |
+| Karoo alignment layout selection | `PintRemoteViews.kt`, static `res/layout/pint_progress_*_view.xml` |
 | Android `RemoteViews` serialization | `PintRemoteViews.kt` |
 | One-Hz pacing and Karoo subscription | `PintProgressDataType.kt` |
 | Private preference adapter and UI | `BeerCaloriesStore.kt`, `PintSettingsActivity.kt` |
