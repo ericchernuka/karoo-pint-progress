@@ -9,3 +9,5 @@ dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_P
         mavenCentral() } }
 rootProject.name = "karoo-pint-progress"
 include(":lib", ":pint")
+include(":calorie-source")
+project(":calorie-source").projectDir = file("tools/karoo-calorie-source")

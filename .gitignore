@@ -6,6 +6,7 @@
 /.idea
 .DS_Store
 /build
+/tools/karoo-calorie-source/build
 /captures
 .externalNativeBuild
 .cxx
