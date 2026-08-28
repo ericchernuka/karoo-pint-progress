@@ -6,6 +6,9 @@
 # Focused JVM suite
 ./gradlew :pint:testDebugUnitTest
 
+# Controlled Karoo Calories source
+./gradlew :calorie-source:testDebugUnitTest :calorie-source:assembleDebug
+
 # Dokka HTML documentation
 ./gradlew :lib:dokkaGeneratePublicationHtml
 python3 tools/verify-dokka-output.py
@@ -60,10 +63,11 @@ device-verified, while the embedded runtime scheduling policy has focused JVM co
 
 Those adapters are compile-verified by `:pint:assembleDebug`, which validates the manifest, service declaration, extension metadata, layouts, vector assets, and SDK calls. They still require an on-device Karoo smoke test because local JVM tests cannot bind the Karoo System service or receive its Binder-backed `ViewEmitter`. The device methods for the host-owned native count placeholder, the graphical no-count, `1+`, `99+`, `100+` sequence, and preview detach evidence are documented in [the Karoo data-field contract](KAROO_DATA_FIELD_CONTRACT.md#device-verification-method). Record the observed placeholder value with the exact device and KOS evidence, and keep that row separate from the emitted-message row.
 
-Temporary local calibration fields were used to isolate fixed `1+`, `99+`, and `100+` states during
-the physical typography investigation. They exercised the production `RemoteViews` path without
-requiring accumulated ride calories. They are not part of the committed debug or release extension
-catalog. The permanent picker sequence provides the deterministic count states for later checks.
+The separate QA calorie-source APK drives KOS native Calories through supported Power and Speed
+sensor types without changing the candidate APK. Use it for threshold, count, multi-pint,
+target-change, and dropout checks. Its build, pairing, calibration, evidence, and cleanup procedure
+is in the [QA calorie-source runbook](agents/karoo-calorie-source.md). Evidence is valid only when
+the paired source is connected and the candidate reaches the selected state.
 
 Record the device-only checks with the [release evidence template](RELEASE_EVIDENCE_TEMPLATE.md).
 

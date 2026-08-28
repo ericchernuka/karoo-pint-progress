@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Pint QA Calorie Driver</string>
+    <string name="instructions">Select a Calories target. The fake power sensor stops adding power when KOS reaches it.</string>
+    <string name="status_emitting">Driving toward %1$d Calories</string>
+    <string name="status_silent">Power output paused</string>
+    <string name="output_50">50%: 90</string>
+    <string name="output_80">80%: 144</string>
+    <string name="output_95">95%: 171</string>
+    <string name="output_one_pint">1 pint: 180</string>
+    <string name="output_99">99 pints: 17,820</string>
+    <string name="output_100">100 pints: 18,000</string>
+    <string name="output_multi_pint">2.5 pints: 450</string>
+    <string name="output_silence">Pause output</string>
+    <string name="output_resume">Resume last value</string>
+</resources>

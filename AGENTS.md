@@ -7,7 +7,7 @@ derived presentation in `pint/.../core`; keep Android and Karoo classes as thin 
 
 - `pint/`: application, resources, and tests
 - `lib/`: vendored Karoo extension SDK, avoid edits
-- `tools/`: generated drawable source plus drawable and static-resource validation
+- `tools/`: generated drawable source, validation, and the debug-only Karoo QA calorie source
 - `docs/`: implementation and operations guidance
 
 ## Common tasks
@@ -18,6 +18,7 @@ derived presentation in `pint/.../core`; keep Android and Karoo classes as thin 
 | Unit tests | `./gradlew :pint:testDebugUnitTest` |
 | Regenerate mug assets | `node tools/generate-drawables.mjs` |
 | Validate drawable and resource contracts | `node tools/validate-drawables.mjs` |
+| Drive exact Calories on Karoo | [`docs/agents/karoo-calorie-source.md`](docs/agents/karoo-calorie-source.md) |
 | Install debug APK | `adb install -r pint/build/outputs/apk/debug/pint-debug.apk` |
 | Uninstall | `adb uninstall io.ericchernuka.pintprogress` |
 | Check patch hygiene | `git diff --check` |

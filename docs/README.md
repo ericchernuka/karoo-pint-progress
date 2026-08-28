@@ -12,6 +12,7 @@ Use this index to load only the context needed for a task.
 | [Release](RELEASE.md) | Versioning, signing, CI artifacts, release evidence ([template](RELEASE_EVIDENCE_TEMPLATE.md)) |
 | [Build system comparison](BUILD_SYSTEM_COMPARISON.md) | Karoo Reminder comparison and release-design decisions |
 | [Troubleshooting](TROUBLESHOOTING.md) | Installation, discovery, rendering, calorie-stream, and build failures |
+| [QA calorie source](agents/karoo-calorie-source.md) | Build, pair, drive, and remove the controlled Karoo Calories sensor |
 
 ## Source-of-truth order
 
