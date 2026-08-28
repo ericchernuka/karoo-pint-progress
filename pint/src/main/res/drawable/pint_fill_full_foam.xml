@@ -9,14 +9,14 @@
         android:pathData="M0,0 L100,0 L100,100 L0,100 Z" />
     <path
         android:fillColor="@color/pint_amber"
-        android:pathData="M0,45 L100,45 L100,100 L0,100 Z" />
+        android:pathData="M0,0 L100,0 L100,100 L0,100 Z" />
     <path
         android:fillColor="@color/pint_beer_highlight"
-        android:pathData="M16,54.00 C18,54.00 18,60.00 18,60.00 L18,86.00 C18,92.00 14,92.00 14,86.00 L14,60.00 C14,54.00 14,54.00 16,54.00 Z"
+        android:pathData="M16,24.00 C18,24.00 18,30.00 18,30.00 L18,86.00 C18,92.00 14,92.00 14,86.00 L14,30.00 C14,24.00 14,24.00 16,24.00 Z"
         android:fillAlpha="0.42" />
     <path
         android:fillColor="@color/pint_beer_highlight"
-        android:pathData="M23,64.00 C25,64.00 25,69.00 25,69.00 L25,79.00 C25,84.00 21,84.00 21,79.00 L21,69.00 C21,64.00 21,64.00 23,64.00 Z"
+        android:pathData="M23,34.00 C25,34.00 25,39.00 25,39.00 L25,79.00 C25,84.00 21,84.00 21,79.00 L21,39.00 C21,34.00 21,34.00 23,34.00 Z"
         android:fillAlpha="0.28" />
     <path
         android:fillColor="@color/pint_bubble"
@@ -47,6 +47,22 @@
         android:pathData="M89.5,61 C89.5,58.5 94.5,58.5 94.5,61 C94.5,63.5 89.5,63.5 89.5,61 Z"
         android:fillAlpha="0.72" />
     <path
+        android:fillColor="@color/pint_bubble"
+        android:pathData="M82,42.00 C84,42.00 84,44.00 84,44.00 L84,48.00 C84,50.00 80,50.00 80,48.00 L80,44.00 C80,44.00 80,42.00 82,42.00 Z"
+        android:fillAlpha="0.5" />
+    <path
         android:fillColor="@color/pint_foam"
-        android:pathData="M0,43 L100,43 L100,47 C90,46 82,48 72,47 C61,48 52,46 42,47 C31,46 20,48 0,47 Z" />
+        android:pathData="M0,0 L100,0 L100,10 C90,9 82,11 72,10 C61,11 52,9 42,10 C31,9 20,11 0,10 Z" />
+    <path
+        android:fillColor="@color/pint_amber"
+        android:pathData="M9.5,8 C9.5,5.5 14.5,5.5 14.5,8 C14.5,10.5 9.5,10.5 9.5,8 Z"
+        android:fillAlpha="0.86" />
+    <path
+        android:fillColor="@color/pint_amber"
+        android:pathData="M87,5.00 C89,5.00 89,7.00 89,7.00 L89,9.00 C89,11.00 85,11.00 85,9.00 L85,7.00 C85,7.00 85,5.00 87,5.00 Z"
+        android:fillAlpha="0.86" />
+    <path
+        android:fillColor="@color/pint_amber"
+        android:pathData="M18,10 C18,8 22,8 22,10 C22,12 18,12 18,10 Z"
+        android:fillAlpha="0.86" />
 </vector>

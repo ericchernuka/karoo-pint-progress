@@ -131,5 +131,7 @@ internal fun PintFillAsset.drawableRes(): Int = when (this) {
     PintFillAsset.FILL_85 -> R.drawable.pint_fill_85
     PintFillAsset.FILL_90 -> R.drawable.pint_fill_90
     PintFillAsset.FILL_95 -> R.drawable.pint_fill_95
+    PintFillAsset.FILL_FULL_FOAM -> R.drawable.pint_fill_full_foam
+    PintFillAsset.FILL_DRAINING -> R.drawable.pint_fill_draining
     PintFillAsset.FILL_UNAVAILABLE -> R.drawable.pint_fill_unavailable
 }

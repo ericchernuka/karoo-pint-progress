@@ -24,6 +24,10 @@ _Avoid_: Mode, style
 A field variation in which next-pint progress fills the field while completed pints remain visible over it.
 _Avoid_: Fill variation, fill mode, full-tile mode
 
+**Beer texture**:
+Static bubbles, highlights, and an irregular foam boundary that make Pints Fill read as beer while keeping completed pints legible.
+_Avoid_: Realistic fill, beer effect
+
 **Foam cap**:
 The thin foam layer that follows the top of the beer fill. It becomes deeper during the final fifth of next-pint progress.
 _Avoid_: Foam state, completion foam
