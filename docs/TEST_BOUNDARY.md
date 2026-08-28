@@ -38,7 +38,8 @@ device-verified, while the embedded runtime scheduling policy has focused JVM co
   pure `PintDataFieldRuntime` coordinator, keeps the initial numeric and graphic configuration,
   bridges coordinator outputs to the Karoo emitters, and adapts the official Binder consumer into a
   finite callback Flow. JVM tests cover deterministic Flow backpressure, one-second pacing, numeric
-  and graphical routing, preview order, reducer-plan delays, target-change baseline, cancellation,
+  and graphical routing, preview order, reducer-plan delays, direct target changes,
+  unavailable-progress recovery, conflated multi-pint jumps, pending-transition cancellation,
   terminal callbacks, synchronous terminal callbacks, and idempotent cleanup. Coroutine state
   machines contain generated normal-completion instructions that prevent this adapter from joining
   the core ratio. These tests verify callback order and waits, not Binder or `RemoteViews` delivery.

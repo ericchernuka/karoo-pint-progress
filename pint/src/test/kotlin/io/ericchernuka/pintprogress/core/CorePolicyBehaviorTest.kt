@@ -72,11 +72,21 @@ class CorePolicyBehaviorTest {
             PintFillAsset.FILL_00 to "0",
             fillDisplayFor(PintFrame.Steady(PintProgress(0, 0))),
         )
-        listOf(PintFrame.FullBubbles(1), PintFrame.Draining(1)).forEach { frame ->
-            assertEquals(PintFillAsset.FILL_00 to "1", fillDisplayFor(frame))
-        }
         assertEquals(
-            listOf(PintFrame.Steady(PintProgress(completed = 0, fillBucket = 10))),
+            PintFillAsset.FILL_FULL_FOAM to "1",
+            fillDisplayFor(PintFrame.FullBubbles(1)),
+        )
+        assertEquals(
+            PintFillAsset.FILL_DRAINING to "1",
+            fillDisplayFor(PintFrame.Draining(1)),
+        )
+        assertEquals(
+            listOf(
+                PintFrame.Steady(PintProgress(completed = 0, fillBucket = 10)),
+                PintFrame.Steady(PintProgress(completed = 0, fillBucket = 16)),
+                PintFrame.FullBubbles(completed = 1),
+                PintFrame.Draining(completed = 1),
+            ),
             fillPreviewFrames(),
         )
         assertNull(PintProgressReducer.progressFor(null))
@@ -155,9 +165,20 @@ class CorePolicyBehaviorTest {
         assertEquals(steady(1, 17), reducer.accept(calories(149.0), 80))
         assertEquals(animation(2), reducer.accept(calories(160.0), 80))
 
+        val activeReducer = PintViewReducer()
+        assertEquals(steady(0, 19), activeReducer.accept(calories(149.0)))
+        assertEquals(animation(1), activeReducer.accept(calories(150.0)))
+        assertEquals(
+            PintViewUpdate.RefreshTransition(
+                completed = 1,
+                steady = PintFrame.Steady(PintProgress(1, 1)),
+            ),
+            activeReducer.accept(calories(158.0), activeTransitionCompleted = 1),
+        )
+
         val bucketReducer = PintViewReducer()
         assertEquals(steady(0, 0), bucketReducer.accept(calories(1.0)))
-        assertEquals(null, bucketReducer.accept(calories(1.0), 400))
+        assertEquals(steady(0, 0), bucketReducer.accept(calories(1.0), 400))
         assertEquals(steady(0, 1), bucketReducer.accept(calories(20.0), 400))
         listOf(idle, unavailableState, searching).forEach {
             assertEquals(unavailable, PintViewReducer().accept(it))
@@ -428,13 +449,19 @@ class CorePolicyBehaviorTest {
         ),
     )
 
-    private fun steady(completed: Int, bucket: Int) = plan(PintFrame.Steady(PintProgress(completed, bucket)))
-    private fun animation(completed: Int) = listOf(
-        TimedFrame(0, PintFrame.FullBubbles(completed)),
-        TimedFrame(PintProgressReducer.ANIMATION_STEP_MILLIS, PintFrame.Draining(completed)),
-        TimedFrame(PintProgressReducer.ANIMATION_STEP_MILLIS, PintFrame.Steady(PintProgress(completed, 0))),
+    private fun steady(completed: Int, bucket: Int) = render(
+        PintFrame.Steady(PintProgress(completed, bucket)),
     )
-    private fun plan(frame: PintFrame) = listOf(TimedFrame(0, frame))
+    private fun animation(completed: Int) = PintViewUpdate.BeginTransition(
+        completed = completed,
+        transientFrames = listOf(
+            TimedFrame(0, PintFrame.FullBubbles(completed)),
+            TimedFrame(PintProgressReducer.ANIMATION_STEP_MILLIS, PintFrame.Draining(completed)),
+        ),
+        steadyDelayMillis = PintProgressReducer.ANIMATION_STEP_MILLIS,
+        steady = PintFrame.Steady(PintProgress(completed, 0)),
+    )
+    private fun render(frame: PintFrame) = PintViewUpdate.Render(TimedFrame(0, frame))
     private fun calories(value: Double): StreamState = StreamState.Streaming(DataPoint(
         dataTypeId = "TYPE_CALORIES_ID",
         values = mapOf("FIELD_CALORIES_ID" to value),
@@ -450,6 +477,6 @@ class CorePolicyBehaviorTest {
         val idle = StreamState.Idle
         val unavailableState = StreamState.NotAvailable
         val searching = StreamState.Searching
-        val unavailable = listOf(TimedFrame(0, PintFrame.Unavailable))
+        val unavailable = PintViewUpdate.Render(TimedFrame(0, PintFrame.Unavailable))
     }
 }

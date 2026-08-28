@@ -55,13 +55,20 @@ SDK 1.1.9 and Android's `RemoteViews` and app-update requirements.
 `Pints` and `Pints Count`, uses the existing pint icon, shares the graphical runtime and global
 calorie target, and requests `showHeader = false`.
 
-- Twenty generated steady assets fill the field from bottom to top in 5% steps.
+- Twenty generated steady assets fill the field from bottom to top in 5% steps. Separate generated
+  full-foam and draining assets show the completion transition.
 - Every nonzero fill has a foam cap. The cap becomes deeper from the 80% bucket.
 - Available progress shows the exact completed-pint count, including `0`, without a suffix.
 - Unavailable progress uses the neutral surface and an em dash.
-- The initial picker preview repeats the 50% steady frame with `0` at one Hz without using ride
-  calories. The complete transition and preview sequence are owned by issue 16.
-- Each update uses a fresh `RemoteViews`, and detaching the field cancels its shared runtime job.
+- One observed increase in completed pints shows full foam for one second and draining for one second
+  before the current steady state. The completed-pint number increases on the full frame and stays
+  stable while draining. Normal same-pint calorie updates refresh the final steady frame without
+  interrupting the transition. First attachment, target changes, resets, unavailable recovery, and
+  jumps of two or more completed pints render the current state directly.
+- The picker preview loops at one Hz through 50% with `0`, 80% with `0`, full foam with `1`, and
+  draining with `1`. It does not collect ride calories.
+- Each update uses a fresh `RemoteViews`. Detaching the field cancels its stream, preview, and pending
+  transition frames.
 
 ## Native count field
 

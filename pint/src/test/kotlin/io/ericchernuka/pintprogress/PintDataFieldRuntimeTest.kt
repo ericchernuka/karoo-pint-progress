@@ -141,14 +141,17 @@ class PintDataFieldRuntimeTest {
         assertEquals(
             listOf(
                 PintFrame.Steady(PintProgress(0, 10)),
+                PintFrame.Steady(PintProgress(0, 16)),
+                PintFrame.FullBubbles(1),
+                PintFrame.Draining(1),
                 PintFrame.Steady(PintProgress(0, 10)),
             ),
-            capturePreview(runtime().graphicalPreview(fillPreviewFrames()), 2),
+            capturePreview(runtime().graphicalPreview(fillPreviewFrames()), 5),
         )
 
         val cancelled = mutableListOf<PintFrame>()
         val cancelledJob = backgroundScope.launch {
-            runtime().graphicalPreview(graphicalPreviewFrames()).collect { cancelled += it }
+            runtime().graphicalPreview(fillPreviewFrames()).collect { cancelled += it }
         }
         runCurrent()
         assertEquals(1, cancelled.size)
@@ -156,6 +159,130 @@ class PintDataFieldRuntimeTest {
         advanceTimeBy(5_000)
         runCurrent()
         assertEquals(1, cancelled.size)
+    }
+
+    @Test
+    fun `fill runtime renders direct baselines and cancellation stops a pending transition`() = runTest {
+        val source = MutableStateFlow<StreamState>(streaming(300.0))
+        val target = MutableStateFlow(150)
+        val output = mutableListOf<PintFrame>()
+        val times = mutableListOf<Long>()
+        val job = backgroundScope.launch {
+            runtime().runGraphicalStream(source, target) {
+                output += it
+                times += currentTime
+            }
+        }
+
+        runCurrent()
+        source.value = StreamState.NotAvailable
+        advanceSeconds(1)
+        source.value = streaming(150.0)
+        advanceSeconds(1)
+        source.value = streaming(300.0)
+        source.value = streaming(450.0)
+        advanceSeconds(1)
+        target.value = 300
+        advanceSeconds(1)
+        source.value = streaming(600.0)
+        advanceSeconds(1)
+        job.cancelAndJoin()
+        advanceSeconds(5)
+
+        assertEquals(
+            listOf(
+                PintFrame.Steady(PintProgress(2, 0)),
+                PintFrame.Unavailable,
+                PintFrame.Steady(PintProgress(1, 0)),
+                PintFrame.Steady(PintProgress(3, 0)),
+                PintFrame.Steady(PintProgress(1, 10)),
+                PintFrame.FullBubbles(2),
+            ),
+            output,
+        )
+        assertEquals((0L..5_000L step 1_000L).toList(), times)
+    }
+
+    @Test
+    fun `new stream state or target interrupts pending transition frames`() = runTest {
+        val source = MutableStateFlow<StreamState>(streaming(149.0))
+        val target = MutableStateFlow(150)
+        val output = mutableListOf<PintFrame>()
+        val times = mutableListOf<Long>()
+        val job = backgroundScope.launch {
+            runtime().runGraphicalStream(source, target) {
+                output += it
+                times += currentTime
+            }
+        }
+
+        runCurrent()
+        source.value = streaming(150.0)
+        advanceSeconds(1)
+        source.value = StreamState.NotAvailable
+        runCurrent()
+        advanceSeconds(1)
+        source.value = streaming(149.0)
+        runCurrent()
+        advanceSeconds(1)
+        source.value = streaming(150.0)
+        advanceSeconds(1)
+        target.value = 145
+        runCurrent()
+        advanceSeconds(1)
+        source.value = streaming(290.0)
+        advanceSeconds(1)
+        source.value = streaming(580.0)
+        runCurrent()
+        advanceSeconds(1)
+        job.cancelAndJoin()
+
+        assertEquals(
+            listOf(
+                PintFrame.Steady(PintProgress(0, 19)),
+                PintFrame.FullBubbles(1),
+                PintFrame.Unavailable,
+                PintFrame.Steady(PintProgress(0, 19)),
+                PintFrame.FullBubbles(1),
+                PintFrame.Steady(PintProgress(1, 0)),
+                PintFrame.FullBubbles(2),
+                PintFrame.Steady(PintProgress(4, 0)),
+            ),
+            output,
+        )
+        assertEquals((0L..7_000L step 1_000L).toList(), times)
+    }
+
+    @Test
+    fun `same-pint calorie update refreshes the final frame without interrupting transition`() = runTest {
+        val source = MutableStateFlow<StreamState>(streaming(149.0))
+        val output = mutableListOf<PintFrame>()
+        val times = mutableListOf<Long>()
+        val job = backgroundScope.launch {
+            runtime().runGraphicalStream(source, flowOf(150)) {
+                output += it
+                times += currentTime
+            }
+        }
+
+        runCurrent()
+        source.value = streaming(150.0)
+        advanceSeconds(1)
+        source.value = streaming(158.0)
+        runCurrent()
+        advanceSeconds(2)
+        job.cancelAndJoin()
+
+        assertEquals(
+            listOf(
+                PintFrame.Steady(PintProgress(0, 19)),
+                PintFrame.FullBubbles(1),
+                PintFrame.Draining(1),
+                PintFrame.Steady(PintProgress(1, 1)),
+            ),
+            output,
+        )
+        assertEquals((0L..3_000L step 1_000L).toList(), times)
     }
 
     private suspend fun <T> TestScope.capturePreview(

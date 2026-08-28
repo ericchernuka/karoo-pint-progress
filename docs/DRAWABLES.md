@@ -7,8 +7,8 @@
 mapping directly.
 
 Mug states include 0% through 95% in 5% steps, full bubbles, draining, and unavailable. Each mug
-state has regular, compact, and icon variants. Field-fill states include 0% through 95% in 5% steps
-and unavailable. `ic_pint.xml` is the shared extension icon.
+state has regular, compact, and icon variants. Field-fill states include 0% through 95% in 5% steps,
+full foam, draining, and unavailable. `ic_pint.xml` is the shared extension icon.
 
 ## Change workflow
 
@@ -35,6 +35,8 @@ change, even when mug geometry does not.
 - Only `pint_full_bubbles` may crown the rim. It must remain inside the viewport and mug width.
 - Preserve the mug aspect ratio in every mug layout. The normalized field-fill rectangle uses
   `fitXY` because its purpose is to cover the host content rectangle.
+- The field-fill completion frame reaches 100% with a deep foam cap. The draining frame uses the
+  same 55% transition level as the mug presentation and keeps a thin foam cap.
 - Use semantic resources from `values/colors.xml` and `values-night/colors.xml`.
 - Validate contrast and geometry for regular, compact, and icon variants.
 

@@ -177,6 +177,20 @@ for (let bucket = 0; bucket < 20; bucket += 1) {
     assert.equal(foam.maxY - foam.minY, bucket >= 16 ? 8 : 4);
   }
 }
+for (const [name, amberTop, foamTop, foamBottom] of [
+  ["pint_fill_full_foam", 0, 0, 10],
+  ["pint_fill_draining", 45, 43, 47],
+]) {
+  const xml = drawable(name);
+  const assetName = name.slice("pint_".length).toUpperCase();
+  assert.match(mappings, new RegExp(`PintFillAsset\\.${assetName} -> R\\.drawable\\.${name}`));
+  assert.deepEqual(bounds(pathForColor(xml, "pint_amber")), {
+    minX: 0, maxX: 100, minY: amberTop, maxY: 100,
+  });
+  assert.deepEqual(bounds(pathForColor(xml, "pint_foam")), {
+    minX: 0, maxX: 100, minY: foamTop, maxY: foamBottom,
+  });
+}
 assert.match(drawable("pint_fill_unavailable"), /android:fillColor="@color\/pint_unavailable_surface"/);
 assert.match(resource("values", "strings"), /name="pint_progress">Pints<.*name="pint_progress_fill">Pints Fill<.*name="pint_progress_text">Pints Count</s);
 assert.match(resource("values", "strings"), /name="pint_count_suffix">\+</);

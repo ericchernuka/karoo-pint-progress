@@ -49,6 +49,8 @@ enum class PintFillAsset {
     FILL_85,
     FILL_90,
     FILL_95,
+    FILL_FULL_FOAM,
+    FILL_DRAINING,
     FILL_UNAVAILABLE
 }
 
@@ -62,8 +64,8 @@ fun displayFor(frame: PintFrame): Pair<PintAsset, String> = when (frame) {
 fun fillDisplayFor(frame: PintFrame): Pair<PintFillAsset, String> = when (frame) {
     PintFrame.Unavailable -> PintFillAsset.FILL_UNAVAILABLE to "—"
     is PintFrame.Steady -> PintFillAsset.entries[frame.progress.fillBucket] to frame.progress.completed.toString()
-    is PintFrame.FullBubbles -> PintFillAsset.FILL_00 to frame.completed.toString()
-    is PintFrame.Draining -> PintFillAsset.FILL_00 to frame.completed.toString()
+    is PintFrame.FullBubbles -> PintFillAsset.FILL_FULL_FOAM to frame.completed.toString()
+    is PintFrame.Draining -> PintFillAsset.FILL_DRAINING to frame.completed.toString()
 }
 
 private fun Int.mugText() = if (this == 0) "" else toString()

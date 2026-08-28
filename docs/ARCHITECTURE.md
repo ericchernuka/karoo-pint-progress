@@ -53,7 +53,7 @@ The calorie stream is cumulative for the active ride. Progress has two derived v
 Only an observed single completion crossing animates `FULL_BUBBLES -> DRAINING -> steady`. Initial
 attachment, reset, skipped thresholds, unavailable data, and target changes render a steady state.
 A target change updates the baseline immediately so historical calories never trigger a false
-celebration.
+celebration. The mug and field-fill renderers map the shared frames to their own generated assets.
 
 ## Settings scope
 

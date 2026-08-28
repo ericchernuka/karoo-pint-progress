@@ -6,6 +6,8 @@ import android.util.Log
 import io.ericchernuka.pintprogress.core.PintFrame
 import io.ericchernuka.pintprogress.core.PintFieldLayout
 import io.ericchernuka.pintprogress.core.PintViewReducer
+import io.ericchernuka.pintprogress.core.PintViewUpdate
+import io.ericchernuka.pintprogress.core.TimedFrame
 import io.ericchernuka.pintprogress.core.displayFor
 import io.ericchernuka.pintprogress.core.fillDisplayFor
 import io.ericchernuka.pintprogress.core.fillPreviewFrames
@@ -32,12 +34,15 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 
 class PintProgressDataType internal constructor(
     private val karooSystem: KarooSystemService,
@@ -216,16 +221,61 @@ internal class PintDataFieldRuntime(
         emit: suspend (PintFrame) -> Unit,
     ) {
         val reducer = PintViewReducer()
+        val activeTransition = AtomicReference<ActiveGraphicalTransition?>(null)
         var lastEmissionMillis: Long? = null
+
+        suspend fun emitAfter(delayMillis: Long, frame: () -> PintFrame) {
+            if (delayMillis > 0) delay(delayMillis)
+            pace(lastEmissionMillis)?.let { delay(it) }
+            emit(frame())
+            lastEmissionMillis = nowMillis()
+        }
+
         calorieStates
             .combine(caloriesPerBeer) { state, target -> state to target }
             .conflate()
-            .collect { (state, target) ->
-                reducer.accept(state, target)?.forEach { timedFrame ->
-                    if (timedFrame.delayMillis > 0) delay(timedFrame.delayMillis)
-                    pace(lastEmissionMillis)?.let { delay(it) }
-                    emit(timedFrame.frame)
-                    lastEmissionMillis = nowMillis()
+            .mapNotNull { (state, target) ->
+                reducer.accept(state, target, activeTransition.get()?.completed)
+            }
+            .mapNotNull { update ->
+                if (update is PintViewUpdate.RefreshTransition) {
+                    val transition = activeTransition.get()
+                    if (transition?.completed == update.completed) {
+                        transition.steady.set(update.steady)
+                        null
+                    } else {
+                        PintViewUpdate.Render(TimedFrame(0, update.steady))
+                    }
+                } else {
+                    update
+                }
+            }
+            .collectLatest { update ->
+                when (update) {
+                    is PintViewUpdate.Render -> emitAfter(update.timedFrame.delayMillis) {
+                        update.timedFrame.frame
+                    }
+
+                    is PintViewUpdate.BeginTransition -> {
+                        val transition = ActiveGraphicalTransition(
+                            update.completed,
+                            AtomicReference(update.steady),
+                        )
+                        activeTransition.set(transition)
+                        try {
+                            update.transientFrames.forEach { timedFrame ->
+                                emitAfter(timedFrame.delayMillis) { timedFrame.frame }
+                            }
+                            emitAfter(update.steadyDelayMillis) {
+                                activeTransition.compareAndSet(transition, null)
+                                transition.steady.get()
+                            }
+                        } finally {
+                            activeTransition.compareAndSet(transition, null)
+                        }
+                    }
+
+                    is PintViewUpdate.RefreshTransition -> emitAfter(0) { update.steady }
                 }
             }
     }
@@ -249,6 +299,11 @@ internal class PintDataFieldRuntime(
         const val VIEW_UPDATE_INTERVAL_MILLIS = 1_000L
     }
 }
+
+private data class ActiveGraphicalTransition(
+    val completed: Int,
+    val steady: AtomicReference<PintFrame.Steady>,
+)
 
 internal fun KarooSystemService.streamDataFlow(dataTypeId: String): Flow<StreamState> =
     streamDataFlow(
