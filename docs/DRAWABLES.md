@@ -42,6 +42,9 @@ those resources change, even when mug geometry does not.
   dominant. Body bubbles use stable positions and appear only after the beer reaches them.
 - Add foam pockets from 80% fill. Keep unavailable progress plain.
 - Use semantic resources from `values/colors.xml` and `values-night/colors.xml`.
+- Keep field-fill beer and foam on their Pints Fill-specific semantic resources so dark-mode changes
+  do not change the mug palette. Keep the fill-count halo transparent in light mode and dark in
+  night mode.
 - Validate contrast and geometry for regular, compact, and icon variants.
 
 ## Visual QA

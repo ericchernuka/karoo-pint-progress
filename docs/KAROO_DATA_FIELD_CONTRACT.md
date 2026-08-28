@@ -75,6 +75,10 @@ calorie target, and requests `showHeader = false`.
 - The exact completed-pint count is vertically centered and uses Karoo's left, center, or right
   alignment. Karoo's `textSize` is the upper bound. Narrow and short fields reduce the condensed
   count size to fit the complete field without replacing large values with a `+` suffix.
+- Light mode uses the shared mug beer and foam palette. Dark mode uses `#A85F00` beer and `#E2D5B8`
+  foam without changing the mug palette. The existing light foreground stays legible across empty,
+  filled, completion, and draining states with a dark text halo. The halo is transparent in light
+  mode, and there is no backing plate.
 - Each update uses a fresh `RemoteViews`. Detaching the field cancels its stream, preview, and pending
   transition frames.
 
