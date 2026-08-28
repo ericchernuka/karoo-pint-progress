@@ -58,7 +58,9 @@ calorie target, and requests `showHeader = false`.
 - Twenty generated steady assets fill the field from bottom to top in 5% steps. Separate generated
   full-foam and draining assets show the completion transition.
 - Every nonzero fill has a foam cap. The cap becomes deeper from the 80% bucket.
-- Available progress shows the exact completed-pint count, including `0`, without a suffix.
+- Available progress shows the exact completed-pint count, including `0`, without a suffix. The
+  count uses the normal condensed system face so its weight stays close to Karoo's native numeric
+  treatment.
 - Unavailable progress uses the neutral surface and an em dash.
 - One observed increase in completed pints shows full foam for one second and draining for one second
   before the current steady state. The completed-pint number increases on the full frame and stays

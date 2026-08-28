@@ -166,6 +166,8 @@ assert.equal(attribute(fill, "pint_fill_image", "android:layout_width"), "match_
 assert.equal(attribute(fill, "pint_fill_image", "android:layout_height"), "match_parent");
 assert.equal(attribute(fill, "pint_fill_image", "android:scaleType"), "fitXY");
 assert.equal(attribute(fill, "pint_fill_count", "android:gravity"), "center");
+assert.equal(attribute(fill, "pint_fill_count", "android:fontFamily"), "sans-serif-condensed");
+assert.equal(attribute(fill, "pint_fill_count", "android:textStyle"), "normal");
 assert.equal(attribute(fill, "pint_fill_count", "android:text"), "—");
 
 const mappings = fs.readFileSync("pint/src/main/kotlin/io/ericchernuka/pintprogress/PintAssetDrawables.kt", "utf8");
