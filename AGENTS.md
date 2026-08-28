@@ -37,6 +37,22 @@ Start at [`docs/README.md`](docs/README.md).
 | Build system comparison | [`docs/BUILD_SYSTEM_COMPARISON.md`](docs/BUILD_SYSTEM_COMPARISON.md) |
 | Installation and runtime failures | [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) |
 
+## Agent skills
+
+### Issue tracker
+
+Issues and specs are tracked in this repository's GitHub Issues. See
+[`docs/agents/issue-tracker.md`](docs/agents/issue-tracker.md).
+
+### Triage labels
+
+Use the five canonical triage labels defined for this repository. See
+[`docs/agents/triage-labels.md`](docs/agents/triage-labels.md).
+
+### Domain docs
+
+This is a single-context repository. See [`docs/agents/domain.md`](docs/agents/domain.md).
+
 ## Non-negotiable invariants
 
 - Preserve all six `ViewConfig` semantics and the one-Hz update limit.

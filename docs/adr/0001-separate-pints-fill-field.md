@@ -1,0 +1,3 @@
+# Give Pints Fill its own Karoo data type
+
+Pints Fill is a separate graphical field that shares pint progress and the global calorie target with Pints and Pints Count. Karoo does not provide a per-tile appearance setting for extension fields, so a separate data type lets each tile select its presentation independently. We accept a third picker entry and a durable type identity instead of a global mode that would change every Pints tile together.
