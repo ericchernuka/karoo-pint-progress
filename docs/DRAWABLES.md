@@ -39,9 +39,13 @@ those resources change, even when mug geometry does not.
 - The field-fill completion frame reaches 100% with a deep foam cap. The draining frame uses the
   same 55% transition level as the mug presentation and keeps a thin foam cap.
 - Keep field-fill bubbles and highlights outside the central half so the completed-pint number stays
-  dominant. Body bubbles use stable positions and appear only after the beer reaches them.
+  dominant. Mirror the complete fill artwork behind a left-aligned count so the highlights stay on
+  the opposite side. Body bubbles use stable positions and appear only after the beer reaches them.
 - Add foam pockets from 80% fill. Keep unavailable progress plain.
 - Use semantic resources from `values/colors.xml` and `values-night/colors.xml`.
+- Keep field-fill beer, foam, and bubbles on their Pints Fill-specific semantic resources so
+  dark-mode changes do not change the mug palette. Dark-mode bubbles must not use the light count
+  color. Keep the fill-count halo transparent in light mode and dark in night mode.
 - Validate contrast and geometry for regular, compact, and icon variants.
 
 ## Visual QA

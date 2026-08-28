@@ -8,13 +8,13 @@
         android:fillColor="@color/pint_surface"
         android:pathData="M0,0 L100,0 L100,100 L0,100 Z" />
     <path
-        android:fillColor="@color/pint_amber"
+        android:fillColor="@color/pint_fill_amber"
         android:pathData="M0,85 L100,85 L100,100 L0,100 Z" />
     <path
-        android:fillColor="@color/pint_bubble"
+        android:fillColor="@color/pint_fill_bubble"
         android:pathData="M6.5,91 C6.5,88.5 11.5,88.5 11.5,91 C11.5,93.5 6.5,93.5 6.5,91 Z"
         android:fillAlpha="0.72" />
     <path
-        android:fillColor="@color/pint_foam"
+        android:fillColor="@color/pint_fill_foam"
         android:pathData="M0,83 L100,83 L100,87 C90,86 82,88 72,87 C61,88 52,86 42,87 C31,86 20,88 0,87 Z" />
 </vector>

@@ -25,13 +25,22 @@ const contrast = (left, right) => {
   const [bright, dark] = [luminance(left), luminance(right)].sort((a, b) => b - a);
   return (bright + 0.05) / (dark + 0.05);
 };
+const composite = (foreground, background, alpha) => `#${[1, 3, 5].map((offset) => {
+  const front = Number.parseInt(foreground.slice(offset, offset + 2), 16);
+  const back = Number.parseInt(background.slice(offset, offset + 2), 16);
+  return Math.round(front * alpha + back * (1 - alpha)).toString(16).padStart(2, "0");
+}).join("")}`;
 
-const pathsForColor = (xml, colorName) => {
-  const paths = [...xml.matchAll(/<path\s+([\s\S]*?)\s*\/>/g)].map(([, attributes]) => attributes);
-  return paths
-    .filter((attributes) => attributes.includes(`android:fillColor="@color/${colorName}"`))
+const attributesForColor = (xml, colorName) =>
+  [...xml.matchAll(/<path\s+([\s\S]*?)\s*\/>/g)]
+    .map(([, attributes]) => attributes)
+    .filter((attributes) => attributes.includes(`android:fillColor="@color/${colorName}"`));
+const pathsForColor = (xml, colorName) =>
+  attributesForColor(xml, colorName)
     .map((attributes) => attributes.match(/android:pathData="([^"]+)"/)?.[1]);
-};
+const alphasForColor = (xml, colorName) =>
+  attributesForColor(xml, colorName)
+    .map((attributes) => Number(attributes.match(/android:fillAlpha="([^"]+)"/)?.[1] ?? "1"));
 const pathForColor = (xml, colorName) => {
   const path = pathsForColor(xml, colorName)[0];
   assert.ok(path, `Expected a ${colorName} path`);
@@ -95,6 +104,21 @@ for (const name of ["pint_full_bubbles", "pint_full_bubbles_compact", "pint_full
 
 const light = colors();
 const night = colors("values-night");
+assert.equal(light.pint_fill_amber, light.pint_amber, "Light Pints Fill must keep the mug beer color");
+assert.equal(light.pint_fill_foam, light.pint_foam, "Light Pints Fill must keep the mug foam color");
+assert.equal(light.pint_fill_bubble, light.pint_bubble, "Light Pints Fill must keep the mug bubble color");
+assert.equal(light.pint_fill_count_shadow, "#00000000", "Light Pints Fill halo must be invisible");
+assert.equal(night.pint_fill_amber, "#A85F00", "Night Pints Fill must use restrained beer");
+assert.equal(night.pint_fill_foam, "#E2D5B8", "Night Pints Fill must use restrained foam");
+assert.ok(night.pint_fill_bubble, "Night Pints Fill must define its own bubble color");
+assert.notEqual(night.pint_fill_bubble, night.pint_foreground, "Night Pints Fill bubbles must not blend into the count");
+for (const alpha of new Set(alphasForColor(drawable("pint_fill_full_foam"), "pint_fill_bubble"))) {
+  assert.ok(
+    contrast(composite(night.pint_fill_bubble, night.pint_fill_amber, alpha), night.pint_fill_amber) >= 1.4,
+    `Night Pints Fill bubbles at ${alpha} alpha must remain distinct from the beer body`,
+  );
+}
+assert.equal(night.pint_fill_count_shadow, night.pint_surface, "Night Pints Fill halo must use the dark surface");
 const assertContrast = (palette, against, minimum, mode, surface) => assert.ok(
   contrast(palette.pint_foam, palette[`pint_${against}`]) >= minimum,
   `${mode} foam must remain visibly distinct from the ${surface}`,
@@ -173,6 +197,11 @@ for (const [alignment, gravity] of [
   assert.equal(attribute(fill, "pint_fill_image", "android:layout_width"), "match_parent");
   assert.equal(attribute(fill, "pint_fill_image", "android:layout_height"), "match_parent");
   assert.equal(attribute(fill, "pint_fill_image", "android:scaleType"), "fitXY");
+  assert.equal(attribute(fill, "pint_fill_image", "android:scaleX"), alignment === "left" ? "-1" : undefined);
+  assert.ok(
+    fill.indexOf("@+id/pint_fill_image") < fill.indexOf("@+id/pint_fill_count"),
+    `${alignment} Pints Fill count must render above every fill state`,
+  );
   assert.equal(attribute(fill, "pint_fill_count", "android:layout_width"), "wrap_content");
   assert.equal(attribute(fill, "pint_fill_count", "android:layout_height"), "match_parent");
   assert.equal(attribute(fill, "pint_fill_count", "android:layout_gravity"), gravity);
@@ -181,6 +210,9 @@ for (const [alignment, gravity] of [
   assert.equal(attribute(fill, "pint_fill_count", "android:includeFontPadding"), "false");
   assert.equal(attribute(fill, "pint_fill_count", "android:singleLine"), "true");
   assert.equal(attribute(fill, "pint_fill_count", "android:text"), "—");
+  assert.equal(attribute(fill, "pint_fill_count", "android:textColor"), "@color/pint_foreground");
+  assert.equal(attribute(fill, "pint_fill_count", "android:shadowColor"), "@color/pint_fill_count_shadow");
+  assert.equal(attribute(fill, "pint_fill_count", "android:shadowRadius"), "3");
   assert.equal(attribute(fill, "pint_fill_count", "android:textScaleX"), "1");
   assert.equal(attribute(fill, "pint_fill_count", "android:textSize"), "1sp");
   assert.equal(attribute(fill, "pint_fill_count", "android:textStyle"), "normal");
@@ -225,13 +257,13 @@ for (let bucket = 0; bucket < 20; bucket += 1) {
   assert.match(mappings, new RegExp(`PintFillAsset\\.FILL_${percent} -> R\\.drawable\\.pint_fill_${percent}`));
   assert.match(xml, /android:fillColor="@color\/pint_surface"/);
   if (bucket === 0) {
-    assert.doesNotMatch(xml, /android:fillColor="@color\/pint_amber"/);
-    assert.doesNotMatch(xml, /android:fillColor="@color\/pint_foam"/);
+    assert.doesNotMatch(xml, /android:fillColor="@color\/pint_fill_amber"/);
+    assert.doesNotMatch(xml, /android:fillColor="@color\/pint_fill_foam"/);
   } else {
-    assert.match(xml, /android:fillColor="@color\/pint_amber"/);
-    assert.match(xml, /android:fillColor="@color\/pint_foam"/);
-    const amber = bounds(pathForColor(xml, "pint_amber"));
-    const foam = bounds(pathForColor(xml, "pint_foam"));
+    assert.match(xml, /android:fillColor="@color\/pint_fill_amber"/);
+    assert.match(xml, /android:fillColor="@color\/pint_fill_foam"/);
+    const amber = bounds(pathForColor(xml, "pint_fill_amber"));
+    const foam = bounds(pathForColor(xml, "pint_fill_foam"));
     assert.equal(amber.minY, 100 - bucket * 5);
     assert.equal(amber.maxY, 100);
     assert.equal(foam.maxY - foam.minY, bucket >= 16 ? 9 : 5);
@@ -259,10 +291,10 @@ for (const [name, expectedBubbles, expectedFoamPockets] of [
   ["pint_fill_draining", 7, 0],
 ]) {
   const xml = drawable(name);
-  const bubbles = pathsForColor(xml, "pint_bubble");
+  const bubbles = pathsForColor(xml, "pint_fill_bubble");
   const highlights = pathsForColor(xml, "pint_beer_highlight");
-  const amber = pathsForColor(xml, "pint_amber");
-  assert.match(pathForColor(xml, "pint_foam"), /C/, `${name}: foam boundary must be irregular`);
+  const amber = pathsForColor(xml, "pint_fill_amber");
+  assert.match(pathForColor(xml, "pint_fill_foam"), /C/, `${name}: foam boundary must be irregular`);
   assert.equal(bubbles.length, expectedBubbles, `${name}: stable body bubble field`);
   assert.equal(highlights.length, 2, `${name}: two restrained side highlights`);
   assert.equal(amber.length - 1, expectedFoamPockets, `${name}: foam pocket count`);
@@ -272,7 +304,7 @@ for (const [name, expectedBubbles, expectedFoamPockets] of [
     assert.ok(verticalCapDepth(path) >= 5, `${name}: highlight end caps must stay soft after fitXY`);
   });
 }
-assert.equal(pathsForColor(drawable("pint_fill_00"), "pint_bubble").length, 0);
+assert.equal(pathsForColor(drawable("pint_fill_00"), "pint_fill_bubble").length, 0);
 assert.equal(pathsForColor(drawable("pint_fill_00"), "pint_beer_highlight").length, 0);
 for (const [name, amberTop, foamTop, foamBottom] of [
   ["pint_fill_full_foam", 0, 0, 11],
@@ -281,10 +313,10 @@ for (const [name, amberTop, foamTop, foamBottom] of [
   const xml = drawable(name);
   const assetName = name.slice("pint_".length).toUpperCase();
   assert.match(mappings, new RegExp(`PintFillAsset\\.${assetName} -> R\\.drawable\\.${name}`));
-  assert.deepEqual(bounds(pathForColor(xml, "pint_amber")), {
+  assert.deepEqual(bounds(pathForColor(xml, "pint_fill_amber")), {
     minX: 0, maxX: 100, minY: amberTop, maxY: 100,
   });
-  assert.deepEqual(bounds(pathForColor(xml, "pint_foam")), {
+  assert.deepEqual(bounds(pathForColor(xml, "pint_fill_foam")), {
     minX: 0, maxX: 100, minY: foamTop, maxY: foamBottom,
   });
 }
