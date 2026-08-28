@@ -2,7 +2,10 @@
 
 Copy this file for one release candidate. Replace every placeholder with evidence from the
 candidate. Keep failed and waived rows in the completed record. Do not put private keys, passwords,
-tokens, keystores, or other signing secrets in this file.
+tokens, keystores, or other signing secrets in this file. For a pre-release candidate, paste the
+completed record into the pull request description or a dedicated PR comment. Upload supporting
+photos, recordings, and logs as PR attachments and link them from the record. Do not commit the
+completed record or its attachments unless a maintainer explicitly requests repository storage.
 
 ## Result definitions
 

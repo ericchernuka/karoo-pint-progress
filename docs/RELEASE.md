@@ -23,8 +23,10 @@ short-lived artifact explicitly marked `UNSAFE-DEBUG`.
 6. Choose a unique increasing `versionCode` and the intended `versionName`.
 7. Build from the audited commit, sign outside the repository, and verify the final APK.
 8. Complete a copy of the [release evidence template](RELEASE_EVIDENCE_TEMPLATE.md). Keep every
-   failed and waived row visible. For a pre-release candidate, store the completed record in the
-   pull request or another stable review record before moving the candidate to `main`.
+   failed and waived row visible. For a pre-release candidate, paste the completed record into the
+   pull request description or a dedicated PR comment before moving the candidate to `main`.
+   Upload photos, recordings, and logs as PR attachments and link them from the record. Do not
+   commit candidate evidence or captures unless a maintainer explicitly requests it.
 
 ## Automated signed release
 
@@ -57,6 +59,10 @@ evidence file. Record together:
 The template is the record format. Keep failed and waived rows visible, with the reason and
 approver. If the APK bytes, candidate commit, or signing identity changes after evidence
 collection, the record is invalid and the relevant checks must run again.
+
+Keep pre-release evidence with its pull request. Do not add completed candidate records, photos,
+recordings, or logs to the source tree unless a maintainer explicitly requests repository storage.
+Published-release evidence belongs in the GitHub Release notes or release attachments.
 
 Useful verification commands:
 
