@@ -23,6 +23,10 @@ service-account*.json
 google-services.json
 /docs/*
 !/docs/*.md
+!/docs/adr/
+!/docs/adr/*.md
+!/docs/agents/
+!/docs/agents/*.md
 !/docs/images/
 !/docs/images/pint-progress-preview.svg
 !/docs/images/pint-progress-preview.png
