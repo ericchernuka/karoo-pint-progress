@@ -74,11 +74,13 @@ calorie target, and requests `showHeader = false`.
   insets, so the artwork stays edge to edge with boundaries disabled or enabled.
 - The exact completed-pint count is vertically centered and uses Karoo's left, center, or right
   alignment. Karoo's `textSize` is the upper bound. Narrow and short fields reduce the condensed
-  count size to fit the complete field without replacing large values with a `+` suffix.
+  count size to fit the complete field without replacing large values with a `+` suffix. The left
+  layout mirrors the complete fill artwork while the count stays unchanged, so its highlights stay
+  away from the left-aligned count.
 - Light mode uses the shared mug beer and foam palette. Dark mode uses `#A85F00` beer and `#E2D5B8`
-  foam without changing the mug palette. The existing light foreground stays legible across empty,
-  filled, completion, and draining states with a dark text halo. The halo is transparent in light
-  mode, and there is no backing plate.
+  foam with darker amber bubbles, without changing the mug palette. The existing light foreground
+  stays legible across empty, filled, completion, and draining states with a dark text halo. The
+  halo is transparent in light mode, and there is no backing plate.
 - Each update uses a fresh `RemoteViews`. Detaching the field cancels its stream, preview, and pending
   transition frames.
 
