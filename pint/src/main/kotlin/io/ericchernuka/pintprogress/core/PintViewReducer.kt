@@ -3,17 +3,15 @@ package io.ericchernuka.pintprogress.core
 import io.hammerhead.karooext.models.StreamState
 
 sealed interface PintViewUpdate {
-    data class Render(val timedFrame: TimedFrame) : PintViewUpdate
+    data class Render(val frame: PintFrame) : PintViewUpdate
 
     data class BeginTransition(
-        val completed: Int,
         val transientFrames: List<TimedFrame>,
         val steadyDelayMillis: Long,
         val steady: PintFrame.Steady,
     ) : PintViewUpdate
 
     data class RefreshTransition(
-        val completed: Int,
         val steady: PintFrame.Steady,
     ) : PintViewUpdate
 }
@@ -47,7 +45,6 @@ class PintViewReducer {
         if (plan.size > 1) {
             val steady = plan.last().frame as PintFrame.Steady
             return PintViewUpdate.BeginTransition(
-                completed = steady.progress.completed,
                 transientFrames = plan.dropLast(1),
                 steadyDelayMillis = plan.last().delayMillis,
                 steady = steady,
@@ -61,9 +58,9 @@ class PintViewReducer {
             activeTransitionCompleted != null &&
             steady?.progress?.completed == activeTransitionCompleted
         ) {
-            PintViewUpdate.RefreshTransition(activeTransitionCompleted, steady)
+            PintViewUpdate.RefreshTransition(steady)
         } else {
-            PintViewUpdate.Render(timedFrame)
+            PintViewUpdate.Render(timedFrame.frame)
         }
     }
 }

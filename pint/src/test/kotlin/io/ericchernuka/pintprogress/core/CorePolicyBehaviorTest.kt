@@ -170,7 +170,6 @@ class CorePolicyBehaviorTest {
         assertEquals(animation(1), activeReducer.accept(calories(150.0)))
         assertEquals(
             PintViewUpdate.RefreshTransition(
-                completed = 1,
                 steady = PintFrame.Steady(PintProgress(1, 1)),
             ),
             activeReducer.accept(calories(158.0), activeTransitionCompleted = 1),
@@ -453,7 +452,6 @@ class CorePolicyBehaviorTest {
         PintFrame.Steady(PintProgress(completed, bucket)),
     )
     private fun animation(completed: Int) = PintViewUpdate.BeginTransition(
-        completed = completed,
         transientFrames = listOf(
             TimedFrame(0, PintFrame.FullBubbles(completed)),
             TimedFrame(PintProgressReducer.ANIMATION_STEP_MILLIS, PintFrame.Draining(completed)),
@@ -461,7 +459,7 @@ class CorePolicyBehaviorTest {
         steadyDelayMillis = PintProgressReducer.ANIMATION_STEP_MILLIS,
         steady = PintFrame.Steady(PintProgress(completed, 0)),
     )
-    private fun render(frame: PintFrame) = PintViewUpdate.Render(TimedFrame(0, frame))
+    private fun render(frame: PintFrame) = PintViewUpdate.Render(frame)
     private fun calories(value: Double): StreamState = StreamState.Streaming(DataPoint(
         dataTypeId = "TYPE_CALORIES_ID",
         values = mapOf("FIELD_CALORIES_ID" to value),
@@ -477,6 +475,6 @@ class CorePolicyBehaviorTest {
         val idle = StreamState.Idle
         val unavailableState = StreamState.NotAvailable
         val searching = StreamState.Searching
-        val unavailable = PintViewUpdate.Render(TimedFrame(0, PintFrame.Unavailable))
+        val unavailable = PintViewUpdate.Render(PintFrame.Unavailable)
     }
 }

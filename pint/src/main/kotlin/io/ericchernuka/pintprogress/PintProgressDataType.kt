@@ -7,7 +7,6 @@ import io.ericchernuka.pintprogress.core.PintFrame
 import io.ericchernuka.pintprogress.core.PintFieldLayout
 import io.ericchernuka.pintprogress.core.PintViewReducer
 import io.ericchernuka.pintprogress.core.PintViewUpdate
-import io.ericchernuka.pintprogress.core.TimedFrame
 import io.ericchernuka.pintprogress.core.displayFor
 import io.ericchernuka.pintprogress.core.fillDisplayFor
 import io.ericchernuka.pintprogress.core.fillPreviewFrames
@@ -235,16 +234,15 @@ internal class PintDataFieldRuntime(
             .combine(caloriesPerBeer) { state, target -> state to target }
             .conflate()
             .mapNotNull { (state, target) ->
-                reducer.accept(state, target, activeTransition.get()?.completed)
-            }
-            .mapNotNull { update ->
+                val update = reducer.accept(state, target, activeTransition.get()?.completed)
+                    ?: return@mapNotNull null
                 if (update is PintViewUpdate.RefreshTransition) {
                     val transition = activeTransition.get()
-                    if (transition?.completed == update.completed) {
+                    if (transition?.completed == update.steady.progress.completed) {
                         transition.steady.set(update.steady)
                         null
                     } else {
-                        PintViewUpdate.Render(TimedFrame(0, update.steady))
+                        PintViewUpdate.Render(update.steady)
                     }
                 } else {
                     update
@@ -252,13 +250,11 @@ internal class PintDataFieldRuntime(
             }
             .collectLatest { update ->
                 when (update) {
-                    is PintViewUpdate.Render -> emitAfter(update.timedFrame.delayMillis) {
-                        update.timedFrame.frame
-                    }
+                    is PintViewUpdate.Render -> emitAfter(0) { update.frame }
 
                     is PintViewUpdate.BeginTransition -> {
                         val transition = ActiveGraphicalTransition(
-                            update.completed,
+                            update.steady.progress.completed,
                             AtomicReference(update.steady),
                         )
                         activeTransition.set(transition)
