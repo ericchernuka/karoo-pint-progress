@@ -266,6 +266,33 @@ class CorePolicyBehaviorTest {
         }
         assertNull(resolveTypography(PintFieldLayout.PICKER, 110, 2, 1f, 240))
         assertNull(resolveTypography(PintFieldLayout.ICON_ONLY, 68, 2, 1f, 240))
+
+        fun checkFillTypography(
+            expected: Float,
+            textSize: Int,
+            fontScale: Float,
+            width: Int,
+            height: Int,
+            textWidthPerSize: Float = 1f,
+            lineHeightPerSize: Float = 1.2f,
+        ) = assertEquals(
+            expected,
+            resolveFillTextSize(
+                karooTextSizeSp = textSize,
+                fontScale = fontScale,
+                contentWidthDp = width,
+                contentHeightDp = height,
+                measuredTextWidthPerTextSize = textWidthPerSize,
+                lineHeightPerTextSize = lineHeightPerSize,
+            ),
+            0.001f,
+        )
+        checkFillTypography(96f, textSize = 96, fontScale = 1f, width = 300, height = 200)
+        checkFillTypography(40f, textSize = 96, fontScale = 1f, width = 40, height = 100)
+        checkFillTypography(20f, textSize = 96, fontScale = 1f, width = 300, height = 24)
+        checkFillTypography(83.333f, textSize = 96, fontScale = 2f, width = 300, height = 200)
+        checkFillTypography(50f, textSize = 0, fontScale = 1f, width = 50, height = 100)
+        checkFillTypography(0.833f, textSize = 0, fontScale = 1f, width = 0, height = -1)
     }
 
     @Test
@@ -283,6 +310,12 @@ class CorePolicyBehaviorTest {
         assertEquals(
             listOf("", "1", "99", "100"),
             listOf(0, 1, 99, 100).map { displayFor(PintFrame.Steady(PintProgress(it, 10))).second },
+        )
+        assertEquals(
+            listOf("0", "1", "99", "100", Int.MAX_VALUE.toString()),
+            listOf(0, 1, 99, 100, Int.MAX_VALUE).map {
+                fillDisplayFor(PintFrame.Steady(PintProgress(it, 10))).second
+            },
         )
         assertEquals("100", PintFieldLayout.REGULAR.visibleCount("100"))
         assertEquals("100", PintFieldLayout.COMPACT.visibleCount("100"))

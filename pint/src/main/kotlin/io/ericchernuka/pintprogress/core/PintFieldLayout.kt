@@ -110,6 +110,20 @@ internal fun resolveTypography(
     return countTextSizeSp to (countTextSizeSp * layout.suffixToCountRatio).roundToInt().toFloat()
 }
 
+/** Fit an exact Pints Fill count within the content rectangle reported by Karoo */
+internal fun resolveFillTextSize(
+    karooTextSizeSp: Int,
+    fontScale: Float,
+    contentWidthDp: Int,
+    contentHeightDp: Int,
+    measuredTextWidthPerTextSize: Float,
+    lineHeightPerTextSize: Float,
+): Float = minOf(
+    karooTextSizeSp.takeIf { it > 0 }?.toFloat() ?: Float.MAX_VALUE,
+    contentWidthDp.coerceAtLeast(1) / measuredTextWidthPerTextSize / fontScale,
+    contentHeightDp.coerceAtLeast(1) / lineHeightPerTextSize / fontScale,
+)
+
 /**
  * Chooses a complete, readable visual treatment for the size supplied by Karoo
  *

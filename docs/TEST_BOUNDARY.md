@@ -27,7 +27,8 @@ node tools/validate-drawables.mjs
 - first-attach, reset, skipped-threshold, full, bubbles, drain, and steady-state transitions;
 - stream-state conversion, visible-state coalescing, timed-frame plans, and preview behavior;
 - mug and fill drawable selection, exact fill counts, unavailable text, counter visibility,
-  small-viewport count sizing, and deterministic picker previews;
+  small-viewport count sizing, Pints Fill width and height fitting, and deterministic picker
+  previews;
 - count-field 0.1-pint flooring, preview messages, native stream-state propagation, and custom data-point identity.
 
 The following files are outside the core JaCoCo ratio. Android and Karoo adapters are compile- and
@@ -46,9 +47,10 @@ device-verified, while the embedded runtime scheduling policy has focused JVM co
 - `PintRemoteViews.kt` serializes the covered mug or fill asset and count display into Android
   `RemoteViews`, maps assets to compile-time `R.drawable` IDs, and applies each presentation's
   static layout contract.
-  The resource validator checks every static alignment wrapper, responsive mug bounds, initial
-  visibility, the `pint_count_suffix` static `+` contract, field labels, extension metadata, and
-  the representative generated drawable mapping. Core tests cover the shared count-and-mug scale
+  The resource validator checks every static mug and field-fill alignment layout, edge-to-edge fill
+  rendering, responsive image bounds, initial visibility and text state, the `pint_count_suffix`
+  static `+` contract, field labels, extension metadata, and generated drawable mappings. Core
+  tests cover the shared count-and-mug scale
   for the observed roomy `96sp` text input and the bounded 128 × 68 dp narrow input at `46sp`.
   RemoteViews application and physical fit remain device checks.
   Core tests also require Android 12+ roomy scaling and the normal-scale fallback used on older

@@ -70,6 +70,11 @@ calorie target, and requests `showHeader = false`.
   jumps of two or more completed pints render the current state directly.
 - The picker preview loops at one Hz through 50% with `0`, 80% with `0`, full foam with `1`, and
   draining with `1`. It does not collect ride calories.
+- The fill image covers the complete field rectangle. Pints Fill does not apply app-side boundary
+  insets, so the artwork stays edge to edge with boundaries disabled or enabled.
+- The exact completed-pint count is vertically centered and uses Karoo's left, center, or right
+  alignment. Karoo's `textSize` is the upper bound. Narrow and short fields reduce the condensed
+  count size to fit the complete field without replacing large values with a `+` suffix.
 - Each update uses a fresh `RemoteViews`. Detaching the field cancels its stream, preview, and pending
   transition frames.
 
@@ -140,6 +145,8 @@ Local tests cannot reproduce Karoo's host process or page editor. Before moving 
   graphical tile, with boundaries off and on;
 - left, center, and right alignment;
 - boundaries off and on;
+- Pints Fill in narrow, wide, short, tall, preview, and active-ride fields; verify exact `0`, `1`,
+  `99`, `100`, and `999` counts with all alignments and both boundary settings;
 - no completed mug, `1+`, `99+`, and `100+`;
 - light and dark system themes;
 - unavailable calories, normal fill, 80% foam, bubbles, and drain;

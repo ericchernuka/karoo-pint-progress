@@ -8,16 +8,22 @@
         android:id="@+id/pint_fill_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:contentDescription="@null"
         android:scaleType="fitXY" />
 
     <TextView
         android:id="@+id/pint_fill_count"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_gravity="center"
         android:fontFamily="sans-serif-condensed"
-        android:gravity="center"
+        android:gravity="center_vertical"
         android:includeFontPadding="false"
+        android:singleLine="true"
         android:text="—"
         android:textColor="@color/pint_foreground"
-        android:textStyle="normal" />
+        android:textScaleX="1"
+        android:textSize="1sp"
+        android:textStyle="normal"
+        android:visibility="visible" />
 </FrameLayout>
