@@ -10,6 +10,7 @@ import io.ericchernuka.pintprogress.core.displayFor
 import io.ericchernuka.pintprogress.core.graphicalPreviewFrames
 import io.ericchernuka.pintprogress.core.numericPreviewMessages
 import io.ericchernuka.pintprogress.core.numericStateFrom
+import io.ericchernuka.pintprogress.core.previewLayoutFor
 import io.ericchernuka.pintprogress.core.resolveFieldSize
 import io.hammerhead.karooext.KarooSystemService
 import io.hammerhead.karooext.extension.DataTypeImpl
@@ -45,7 +46,7 @@ class PintProgressDataType internal constructor(
     override fun startStream(emitter: Emitter<StreamState>) {
         if (style != PintFieldStyle.TEXT) return
 
-        emitter.launchCancellable {
+        emitter.launchCancellable(style.cancellationLabel(preview = false)) {
             runtime().runNumericStream(
                 calorieStates = karooSystem.streamDataFlow(DataType.Type.CALORIES),
                 caloriesPerBeer = beerCalories,
@@ -59,7 +60,7 @@ class PintProgressDataType internal constructor(
         if (style == PintFieldStyle.TEXT) {
             emitter.onNext(UpdateNumericConfig(formatDataTypeId = DataType.Type.VARIABILITY_INDEX))
             if (config.preview) {
-                emitter.launchCancellable {
+                emitter.launchCancellable(style.cancellationLabel(preview = true)) {
                     runtime().numericPreview().collect { message ->
                         emitter.onNext(ShowCustomStreamState(message = message, color = null))
                     }
@@ -77,7 +78,7 @@ class PintProgressDataType internal constructor(
             screenSize = displayMetrics.widthPixels to displayMetrics.heightPixels,
             density = displayMetrics.density,
         )
-        val layout = PintFieldLayout.forSize(
+        val baseLayout = PintFieldLayout.forSize(
             preview = config.preview,
             widthDp = fieldWidthDp,
             heightDp = fieldHeightDp,
@@ -88,14 +89,28 @@ class PintProgressDataType internal constructor(
             displayDensity = displayMetrics.density,
             scaledDensity = displayMetrics.scaledDensity,
         )
-        fun render(frame: PintFrame) = renderer.render(
-            display = displayFor(frame),
-            layout = layout,
-            alignment = config.alignment,
-            textSizeSp = config.textSize,
-            boundariesEnabled = config.boundariesEnabled,
-            fieldWidthDp = fieldWidthDp,
-        )
+        fun render(frame: PintFrame): android.widget.RemoteViews {
+            val display = displayFor(frame)
+            val renderLayout = if (config.preview) {
+                previewLayoutFor(
+                    hasCompletedCount = display.second.isNotEmpty(),
+                    widthDp = fieldWidthDp,
+                    heightDp = fieldHeightDp,
+                    boundariesEnabled = config.boundariesEnabled,
+                )
+            } else {
+                baseLayout
+            }
+            return renderer.render(
+                display = display,
+                layout = renderLayout,
+                alignment = config.alignment,
+                textSizeSp = config.textSize,
+                boundariesEnabled = config.boundariesEnabled,
+                fieldWidthDp = fieldWidthDp,
+                fieldHeightDp = fieldHeightDp,
+            )
+        }
         if (BuildConfig.DEBUG) {
             Log.d(
                 TAG,
@@ -104,11 +119,11 @@ class PintProgressDataType internal constructor(
                     "alignment=${config.alignment} boundaries=${config.boundariesEnabled} " +
                     "preview=${config.preview} density=${displayMetrics.density} " +
                     "scaledDensity=${displayMetrics.scaledDensity} style=$style " +
-                    "treatment=$layout",
+                    "baseTreatment=$baseLayout",
             )
         }
         if (config.preview) {
-            emitter.launchCancellable {
+            emitter.launchCancellable(style.cancellationLabel(preview = true)) {
                 runtime().graphicalPreview().collect { frame ->
                     emitter.updateView(render(frame))
                 }
@@ -116,7 +131,7 @@ class PintProgressDataType internal constructor(
             return
         }
 
-        emitter.launchCancellable {
+        emitter.launchCancellable(style.cancellationLabel(preview = false)) {
             runtime().runGraphicalStream(
                 calorieStates = karooSystem.streamDataFlow(DataType.Type.CALORIES),
                 caloriesPerBeer = beerCalories,
@@ -134,9 +149,15 @@ class PintProgressDataType internal constructor(
     }
 }
 
-private fun Emitter<*>.launchCancellable(block: suspend CoroutineScope.() -> Unit) {
+internal fun Emitter<*>.launchCancellable(
+    label: String,
+    block: suspend CoroutineScope.() -> Unit,
+) {
     val job = CoroutineScope(Dispatchers.Default).launch(block = block)
-    setCancellable(job::cancel)
+    setCancellable {
+        job.cancel()
+        if (BuildConfig.DEBUG) Log.d("PintProgressField", "cancellation label=$label")
+    }
 }
 
 internal enum class PintFieldStyle(
@@ -144,6 +165,11 @@ internal enum class PintFieldStyle(
 ) {
     MUG("pint-progress"),
     TEXT("pint-progress-text"),
+}
+
+internal fun PintFieldStyle.cancellationLabel(preview: Boolean): String = when (this) {
+    PintFieldStyle.TEXT -> if (preview) "numeric-preview" else "numeric-live"
+    PintFieldStyle.MUG -> if (preview) "graphical-preview" else "graphical-live"
 }
 
 /** Runs the deterministic scheduling policy used by the Android data-field adapter */

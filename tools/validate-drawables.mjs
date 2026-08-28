@@ -100,12 +100,15 @@ for (const treatment of ["regular", "compact", "adaptive"]) {
     const wrapper = resource("layout", `pint_progress_${treatment}_${alignment}_view`);
     assert.match(wrapper, /android:id="@\+id\/pint_root"/);
     assert.match(wrapper, new RegExp(`android:gravity="${gravity.replace("|", "\\|")}"`));
+    if (treatment !== "adaptive") {
+      assert.equal(attribute(wrapper, "pint_root", "android:baselineAligned"), "false");
+    }
     assert.match(wrapper, new RegExp(`layout="@layout/pint_progress_${treatment}_content"`));
   }
 }
-for (const [treatment, width, height, translation, margin] of [
-  ["regular", "66dp", "89dp", "2dp", "2dp"],
-  ["compact", "48dp", "65dp", undefined, "1dp"],
+for (const [treatment, width, height, suffixSize] of [
+  ["regular", "66dp", "89dp", "52sp"],
+  ["compact", "48dp", "65dp", "52sp"],
 ]) {
   const content = resource("layout", `pint_progress_${treatment}_content`);
   assert.equal(attribute(content, "pint_image", "android:maxWidth"), width);
@@ -114,8 +117,31 @@ for (const [treatment, width, height, translation, margin] of [
   assert.equal(attribute(content, "pint_image", "android:layout_height"), "wrap_content");
   assert.equal(attribute(content, "pint_image", "android:adjustViewBounds"), "true");
   assert.equal(attribute(content, "pint_image", "android:scaleType"), "fitCenter");
-  assert.equal(attribute(content, "pint_count", "android:translationY"), translation);
-  assert.equal(attribute(content, "pint_count_suffix", "android:layout_marginEnd"), margin);
+  const textHeight = treatment === "regular" ? "wrap_content" : "match_parent";
+  assert.equal(attribute(content, "pint_count", "android:layout_height"), textHeight);
+  assert.equal(attribute(content, "pint_count_suffix", "android:layout_height"), textHeight);
+  assert.equal(attribute(content, "pint_count", "android:includeFontPadding"), "false");
+  assert.equal(attribute(content, "pint_count_suffix", "android:includeFontPadding"), "false");
+  assert.equal(attribute(content, "pint_count", "android:paddingTop"), undefined);
+  assert.equal(
+    attribute(content, "pint_count", "android:paddingBottom"),
+    treatment === "regular" ? "8dp" : undefined,
+  );
+  assert.equal(attribute(content, "pint_count", "android:paddingStart"), "6dp");
+  assert.equal(attribute(content, "pint_count", "android:paddingEnd"), "2dp");
+  assert.equal(attribute(content, "pint_count", "android:letterSpacing"), undefined);
+  assert.equal(attribute(content, "pint_count_suffix", "android:paddingTop"), undefined);
+  assert.equal(
+    attribute(content, "pint_count_suffix", "android:paddingBottom"),
+    undefined,
+  );
+  assert.equal(attribute(content, "pint_count", "android:translationY"), undefined);
+  assert.equal(attribute(content, "pint_count_suffix", "android:translationY"), undefined);
+  assert.equal(attribute(content, "pint_count_suffix", "android:layout_marginStart"), "2dp");
+  assert.equal(attribute(content, "pint_count_suffix", "android:layout_marginEnd"), "2dp");
+  assert.equal(attribute(content, "pint_count_suffix", "android:textSize"), suffixSize);
+  assert.equal(attribute(content, "pint_count", "android:gravity"), "center_vertical");
+  assert.equal(attribute(content, "pint_count_suffix", "android:text"), "@string/pint_count_suffix");
   assert.equal(attribute(content, "pint_count", "android:visibility"), "gone");
   assert.equal(attribute(content, "pint_count_suffix", "android:visibility"), "gone");
 }
@@ -125,6 +151,7 @@ assert.equal(attribute(adaptive, "pint_image", "android:layout_height"), "match_
 assert.equal(attribute(adaptive, "pint_image", "android:adjustViewBounds"), "true");
 assert.equal(attribute(adaptive, "pint_image", "android:scaleType"), "fitCenter");
 assert.match(resource("values", "strings"), /name="pint_progress">Pints<.*name="pint_progress_text">Pints Count</s);
+assert.match(resource("values", "strings"), /name="pint_count_suffix">\+</);
 assert.deepEqual([...resource("xml", "extension_info").matchAll(/<DataType[^>]*graphical="false"[^>]*typeId="pint-progress-text"/g)].length, 1);
 assert.match(fs.readFileSync("pint/src/main/kotlin/io/ericchernuka/pintprogress/PintAssetDrawables.kt", "utf8"), /PintAsset\.PINT_50 -> R\.drawable\.pint_50_compact/);
 

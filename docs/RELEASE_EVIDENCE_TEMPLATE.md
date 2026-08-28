@@ -42,16 +42,27 @@ tokens, keystores, or other signing secrets in this file.
 
 Run every row against the candidate. The normative source is [the Required device matrix](KAROO_DATA_FIELD_CONTRACT.md#required-device-matrix).
 
+The cancellation rows marked **debug diagnostic** use a debug APK and are not release-candidate
+evidence. Record the matching visible behavior separately against the signed candidate.
+
 | Device check | Result (`PASS`, `FAIL`, or `WAIVED`) | Evidence | Notes |
 | --- | --- | --- | --- |
 | Preview and in-ride modes | `<PASS, FAIL, or WAIVED>` | `<photo, recording, or test record>` | `<notes>` |
-| Large, medium, short, and narrow tiles | `<PASS, FAIL, or WAIVED>` | `<photo, recording, or test record>` | `<notes>` |
+| Live graphical count and mug share a readable physical scale in large, medium, short, narrow, and small tiles, boundaries off and on; visible digit curves have clear edge space | `<PASS, FAIL, or WAIVED>` | `<unobscured photo, recording, ViewConfig values, or test record>` | `<count raster, suffix baseline, mug balance, and fit notes>` |
 | Left, center, and right alignment | `<PASS, FAIL, or WAIVED>` | `<photo, recording, or test record>` | `<notes>` |
 | Boundaries off and on | `<PASS, FAIL, or WAIVED>` | `<photo, recording, or test record>` | `<notes>` |
 | No completed mug, `1+`, `99+`, and `100+` | `<PASS, FAIL, or WAIVED>` | `<photo, recording, or test record>` | `<notes>` |
 | Light and dark system themes | `<PASS, FAIL, or WAIVED>` | `<photo, recording, or test record>` | `<notes>` |
 | Unavailable calories, normal fill, 80% foam, bubbles, and drain | `<PASS, FAIL, or WAIVED>` | `<photo, recording, or test record>` | `<notes>` |
 | Count preview sequence; live `0.00`, `0.10`, `0.90`, and `1.00`; and a three-digit total in narrow and roomy tiles | `<PASS, FAIL, or WAIVED>` | `<photo, recording, or test record>` | `<notes>` |
+| Graphical picker preview in named narrow layout: no count, `1+`, `99+`, and `100+` | `<PASS, FAIL, or WAIVED>` | `<recording plus ViewConfig values>` | `<notes>` |
+| Graphical picker preview in named roomy layout: no count, `1+`, `99+`, and `100+` | `<PASS, FAIL, or WAIVED>` | `<recording plus ViewConfig values>` | `<notes>` |
+| Numeric page-editor host placeholder: record the observed value with exact device and KOS evidence | `<PASS, FAIL, or WAIVED>` | `<recording or photo plus device/KOS evidence>` | `<host-owned value; not extension output>` |
+| Numeric preview extension messages: `0.5`, `0.9`, `1`, `1.1` at one Hz | `<PASS, FAIL, or WAIVED>` | `<recording or log evidence>` | `<emitted-message evidence only; separate from host placeholder row>` |
+| Graphical preview detach **debug diagnostic**: `cancellation label=graphical-preview` | `<PASS, FAIL, or WAIVED>` | `<debug logcat>` | `<direct callback evidence>` |
+| Numeric preview detach **debug diagnostic**: `cancellation label=numeric-preview` | `<PASS, FAIL, or WAIVED>` | `<debug logcat>` | `<direct callback evidence>` |
+| Graphical preview detach **signed candidate**: no later frame and clean re-entry | `<PASS, FAIL, or WAIVED>` | `<recording>` | `<visible post-detach and re-entry observation>` |
+| Numeric preview detach **signed candidate**: no later frame and clean re-entry | `<PASS, FAIL, or WAIVED>` | `<recording>` | `<visible post-detach and re-entry observation>` |
 | Default, minimum, maximum, and mid-ride calories-per-beer changes | `<PASS, FAIL, or WAIVED>` | `<photo, recording, or test record>` | `<notes>` |
 | Install over the previous signed build without uninstalling | `<PASS, FAIL, or WAIVED>` | `<install output or test record>` | `<notes>` |
 

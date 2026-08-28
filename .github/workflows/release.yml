@@ -51,6 +51,7 @@ jobs:
           -PpintVersionCode="${GITHUB_RUN_NUMBER}"
           -PpintVersionName="${GITHUB_REF_NAME#v}"
           :lib:testDebugUnitTest
+          :pint:testReleaseUnitTest
           :pint:lintDebug
           :pint:assembleRelease
           :pint:jacocoBehaviorTestCoverageVerification
