@@ -8,9 +8,9 @@
         android:fillColor="@color/pint_surface"
         android:pathData="M0,0 L100,0 L100,100 L0,100 Z" />
     <path
-        android:fillColor="@color/pint_fill_amber"
+        android:fillColor="@color/pint_amber"
         android:pathData="M0,5 L100,5 L100,100 L0,100 Z" />
     <path
-        android:fillColor="@color/pint_fill_foam"
+        android:fillColor="@color/pint_foam"
         android:pathData="M0,1 L100,1 L100,9 L0,9 Z" />
 </vector>

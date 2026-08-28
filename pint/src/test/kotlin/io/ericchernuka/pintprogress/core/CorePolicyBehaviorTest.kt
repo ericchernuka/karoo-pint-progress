@@ -73,7 +73,7 @@ class CorePolicyBehaviorTest {
             fillDisplayFor(PintFrame.Steady(PintProgress(0, 0))),
         )
         assertEquals(
-            PintFillAsset.FILL_95 to "1",
+            PintFillAsset.FILL_00 to "1",
             fillDisplayFor(PintFrame.FullBubbles(1)),
         )
         assertEquals(

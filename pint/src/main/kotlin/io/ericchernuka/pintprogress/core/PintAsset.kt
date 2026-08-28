@@ -62,7 +62,7 @@ fun displayFor(frame: PintFrame): Pair<PintAsset, String> = when (frame) {
 fun fillDisplayFor(frame: PintFrame): Pair<PintFillAsset, String> = when (frame) {
     PintFrame.Unavailable -> PintFillAsset.FILL_UNAVAILABLE to "—"
     is PintFrame.Steady -> PintFillAsset.entries[frame.progress.fillBucket] to frame.progress.completed.toString()
-    is PintFrame.FullBubbles -> PintFillAsset.FILL_95 to frame.completed.toString()
+    is PintFrame.FullBubbles -> PintFillAsset.FILL_00 to frame.completed.toString()
     is PintFrame.Draining -> PintFillAsset.FILL_00 to frame.completed.toString()
 }
 

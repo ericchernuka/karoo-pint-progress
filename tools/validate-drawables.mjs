@@ -49,6 +49,7 @@ const bounds = (pathData) => {
 
 const foamDrawables = fs.readdirSync("pint/src/main/res/drawable")
   .filter((name) => name.endsWith(".xml"))
+  .filter((name) => !name.startsWith("pint_fill_"))
   .filter((name) => drawable(name.slice(0, -4)).includes("@color/pint_foam"));
 const fullFoamDrawables = new Set([
   "pint_full_bubbles",
@@ -162,13 +163,13 @@ for (let bucket = 0; bucket < 20; bucket += 1) {
   const xml = drawable(`pint_fill_${percent}`);
   assert.match(xml, /android:fillColor="@color\/pint_surface"/);
   if (bucket === 0) {
-    assert.doesNotMatch(xml, /android:fillColor="@color\/pint_fill_amber"/);
-    assert.doesNotMatch(xml, /android:fillColor="@color\/pint_fill_foam"/);
+    assert.doesNotMatch(xml, /android:fillColor="@color\/pint_amber"/);
+    assert.doesNotMatch(xml, /android:fillColor="@color\/pint_foam"/);
   } else {
-    assert.match(xml, /android:fillColor="@color\/pint_fill_amber"/);
-    assert.match(xml, /android:fillColor="@color\/pint_fill_foam"/);
-    const amber = bounds(pathForColor(xml, "pint_fill_amber"));
-    const foam = bounds(pathForColor(xml, "pint_fill_foam"));
+    assert.match(xml, /android:fillColor="@color\/pint_amber"/);
+    assert.match(xml, /android:fillColor="@color\/pint_foam"/);
+    const amber = bounds(pathForColor(xml, "pint_amber"));
+    const foam = bounds(pathForColor(xml, "pint_foam"));
     assert.equal(amber.minY, 100 - bucket * 5);
     assert.equal(amber.maxY, 100);
     assert.equal(foam.maxY - foam.minY, bucket >= 16 ? 8 : 4);
