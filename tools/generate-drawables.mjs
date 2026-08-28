@@ -56,7 +56,8 @@ const fillXml = (paths) => `<?xml version="1.0" encoding="utf-8"?>
     android:viewportHeight="100">
 ${paths.map((entry) => `    <path
         android:fillColor="${entry.color}"
-        android:pathData="${entry.path}" />`).join("\n")}
+        android:pathData="${entry.path}"${entry.alpha ? `
+        android:fillAlpha="${entry.alpha}"` : ""} />`).join("\n")}
 </vector>
 `;
 
@@ -194,15 +195,84 @@ writeMugVariants("pint_unavailable", [
 
 write("ic_pint", mugPaths(80, foamPath(contentTop(80), 5)), vectorSizes.extensionIcon);
 
+const fieldBubbleSpecs = [
+  [9, 91, "circle"],
+  [18, 82, "pill"],
+  [8, 69, "pill"],
+  [20, 55, "circle"],
+  [91, 88, "pill"],
+  [81, 76, "circle"],
+  [92, 61, "circle"],
+  [80, 46, "pill"],
+];
+
+const circlePath = (x, y, radius) =>
+  `M${x - radius},${y} ` +
+  `C${x - radius},${y - radius} ${x + radius},${y - radius} ${x + radius},${y} ` +
+  `C${x + radius},${y + radius} ${x - radius},${y + radius} ${x - radius},${y} Z`;
+
+const fieldFoamPath = (top, depth) => {
+  const upper = Math.max(0, top - depth / 2);
+  const middle = Math.min(100, top + depth / 2);
+  return `M0,${upper} L100,${upper} L100,${middle} ` +
+    `C90,${middle - 1} 82,${middle + 1} 72,${middle} ` +
+    `C61,${middle + 1} 52,${middle - 1} 42,${middle} ` +
+    `C31,${middle - 1} 20,${middle + 1} 0,${middle} Z`;
+};
+
+const verticalCapsule = (x, top, bottom, capDepth) => {
+  if (bottom - top < capDepth * 2) return null;
+  const middle = x + 2;
+  const right = x + 4;
+  return `M${middle},${top.toFixed(2)} ` +
+    `C${right},${top.toFixed(2)} ${right},${(top + capDepth).toFixed(2)} ${right},${(top + capDepth).toFixed(2)} ` +
+    `L${right},${(bottom - capDepth).toFixed(2)} ` +
+    `C${right},${bottom.toFixed(2)} ${x},${bottom.toFixed(2)} ${x},${(bottom - capDepth).toFixed(2)} ` +
+    `L${x},${(top + capDepth).toFixed(2)} ` +
+    `C${x},${top.toFixed(2)} ${x},${top.toFixed(2)} ${middle},${top.toFixed(2)} Z`;
+};
+
+const fieldHighlights = (top) => {
+  const start = Math.max(top + 9, 24);
+  return [
+    verticalCapsule(14, start, 92, 6),
+    verticalCapsule(21, start + 10, 84, 5),
+  ].filter(Boolean).map((path, index) => ({
+    color: color("beer_highlight"),
+    alpha: index === 0 ? "0.42" : "0.28",
+    path,
+  }));
+};
+
+const fieldBubbles = (top) => fieldBubbleSpecs
+  .filter(([, y]) => y > top + 4)
+  .map(([x, y, bubbleShape], index) => ({
+    color: color("bubble"),
+    alpha: index % 2 === 0 ? "0.72" : "0.5",
+    path: bubbleShape === "pill"
+      ? roundedPill(x, y - 4, y + 4)
+      : circlePath(x, y, index % 3 === 0 ? 2.5 : 1.9),
+  }));
+
+const fieldFoamPockets = (percent, top, foamDepth) => {
+  if (percent < 80) return [];
+  const center = percent === 100 ? Math.min(8, foamDepth / 2) : top;
+  return [
+    circlePath(12, center, 2.5),
+    roundedPill(85, center - 3, center + 3),
+    circlePath(20, center + 2, 2),
+  ].map((path) => ({ color: color("amber"), alpha: "0.86", path }));
+};
+
 const fieldFillPaths = (percent, foamDepth) => {
   const top = 100 - percent;
   const paths = [{ color: color("surface"), path: "M0,0 L100,0 L100,100 L0,100 Z" }];
   if (percent > 0) {
     paths.push({ color: color("amber"), path: `M0,${top} L100,${top} L100,100 L0,100 Z` });
-    paths.push({
-      color: color("foam"),
-      path: `M0,${Math.max(0, top - foamDepth / 2)} L100,${Math.max(0, top - foamDepth / 2)} L100,${Math.min(100, top + foamDepth / 2)} L0,${Math.min(100, top + foamDepth / 2)} Z`,
-    });
+    paths.push(...fieldHighlights(top));
+    paths.push(...fieldBubbles(top));
+    paths.push({ color: color("foam"), path: fieldFoamPath(top, foamDepth) });
+    paths.push(...fieldFoamPockets(percent, top, foamDepth));
   }
   return paths;
 };

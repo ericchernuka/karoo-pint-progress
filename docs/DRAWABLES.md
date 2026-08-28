@@ -8,7 +8,8 @@ mapping directly.
 
 Mug states include 0% through 95% in 5% steps, full bubbles, draining, and unavailable. Each mug
 state has regular, compact, and icon variants. Field-fill states include 0% through 95% in 5% steps,
-full foam, draining, and unavailable. `ic_pint.xml` is the shared extension icon.
+full foam, draining, and unavailable. Available field-fill states use a static beer texture with
+scalloped foam, side bubbles, and rounded highlights. `ic_pint.xml` is the shared extension icon.
 
 ## Change workflow
 
@@ -37,6 +38,9 @@ change, even when mug geometry does not.
   `fitXY` because its purpose is to cover the host content rectangle.
 - The field-fill completion frame reaches 100% with a deep foam cap. The draining frame uses the
   same 55% transition level as the mug presentation and keeps a thin foam cap.
+- Keep field-fill bubbles and highlights outside the central half so the completed-pint number stays
+  dominant. Body bubbles use stable positions and appear only after the beer reaches them.
+- Add foam pockets from 80% fill. Keep unavailable progress plain.
 - Use semantic resources from `values/colors.xml` and `values-night/colors.xml`.
 - Validate contrast and geometry for regular, compact, and icon variants.
 
@@ -50,6 +54,8 @@ Inspect at native size and enlarged scale in both themes. Check:
 - full foam rises slightly above the rim without hiding the outline;
 - thin strokes survive the 32 x 43 icon treatment;
 - unavailable state remains distinct from empty.
+- field-fill texture stays legible without obscuring `0`, `1`, or `100` in short, compact, and tall
+  fields.
 
 The README image is a separate, resource-accurate product illustration under `docs/images/`. Update
 both SVG and PNG when its represented output changes. Do not label it an emulator screenshot unless
