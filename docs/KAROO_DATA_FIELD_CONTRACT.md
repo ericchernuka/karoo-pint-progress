@@ -43,7 +43,7 @@ SDK 1.1.9 and Android's `RemoteViews` and app-update requirements.
    `setGravity` are not a reliable cross-process contract on Karoo.
 7. Graphical view and native numeric stream updates are spaced at least one second apart. Cancellation
    stops collection and pending animation frames when Karoo detaches the field.
-8. `showHeader = true` asks Karoo to render the standard data-type icon and compact `Pints` label.
+8. `showHeader = true` asks Karoo to render the standard data-type icon and compact `Pint Mug` label.
    Pint Progress does not duplicate that chrome inside its `RemoteViews` or ask Karoo to render its
    numeric value through `formatDataTypeId`.
 9. The full-with-bubbles frame may extend its foam crown slightly above the mug rim. The crown stays
@@ -51,9 +51,9 @@ SDK 1.1.9 and Android's `RemoteViews` and app-update requirements.
 
 ## Pints Fill field
 
-`Pints Fill` is a separate graphical data type with type ID `pint-progress-fill`. It appears between
-`Pints` and `Pints Count`, uses the existing pint icon, shares the graphical runtime and global
-calorie target, and requests `showHeader = false`.
+`Pints Fill` is a separate graphical data type with type ID `pint-progress-fill`. It is the first
+entry in the data-field picker, before `Pint Mug` and `Pints Count`. It uses the existing pint icon,
+shares the graphical runtime and global calorie target, and requests `showHeader = false`.
 
 - Twenty generated steady assets fill the field from bottom to top in 5% steps. Separate generated
   full-foam and draining assets show the completion transition.
@@ -84,9 +84,16 @@ calorie target, and requests `showHeader = false`.
 - Each update uses a fresh `RemoteViews`. Detaching the field cancels its stream, preview, and pending
   transition frames.
 
+## Pint Mug field
+
+`Pint Mug` is the second graphical data type with type ID `pint-progress`. It uses the existing pint
+icon, shares the graphical runtime and global calorie target, and requests `showHeader = true` so
+Karoo supplies the standard header. Its mug-only and count-and-mug treatments follow the rendering
+rules above.
+
 ## Native count field
 
-`Pints Count` is a standard numeric data type, selected independently from `Pints` in Karoo's
+`Pints Count` is a standard numeric data type, selected independently from `Pint Mug` in Karoo's
 data-field picker. The choice is per tile and per ride profile, not a global appearance preference.
 Both types consume the same calorie stream and calories-per-beer setting.
 
@@ -195,7 +202,7 @@ The pure layout decision and preview cadence are covered by `CorePolicyBehaviorT
 host container. On a supported Karoo, install the candidate and create two named page-editor
 layouts: one narrow and one roomy. For each layout, record the actual `ViewConfig` values supplied
 by Karoo, including `viewSize` dimensions, `gridSize`, `textSize`, alignment, and
-`boundariesEnabled`. Open the page editor with `preview=true`, add **Pints**, and record a screen
+`boundariesEnabled`. Open the page editor with `preview=true`, add **Pint Mug**, and record a screen
 capture for at least six seconds. The debug line from `PintProgressField` includes these values and
 is suitable evidence when the host does not expose them in its UI. Do not use live calories to reach
 the count states. The expected sequence in both named layouts is:

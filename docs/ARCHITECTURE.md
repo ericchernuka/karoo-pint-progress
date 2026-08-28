@@ -19,8 +19,8 @@ private calorie setting -+                                         v
 ```
 
 `PintProgressExtension` owns the Karoo service connection and exposes three `PintProgressDataType`
-instances: the original mug field, the graphical fill field, and the native count field. They share
-the calorie source, lifecycle, one-Hz update cap, and global calorie target. The graphical paths use
+instances: the graphical fill field, the Pint Mug field, and the native count field. They share the
+calorie source, lifecycle, one-Hz update cap, and global calorie target. The graphical paths use
 the same reducer and scheduler, then select their own generated asset family and preview frames. The
 count path publishes a numeric stream and lets Karoo own its viewport and formatting. Every path
 cancels its work on detach.

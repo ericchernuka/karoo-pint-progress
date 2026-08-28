@@ -321,12 +321,12 @@ for (const [name, amberTop, foamTop, foamBottom] of [
   });
 }
 assert.match(drawable("pint_fill_unavailable"), /android:fillColor="@color\/pint_unavailable_surface"/);
-assert.match(resource("values", "strings"), /name="pint_progress">Pints<.*name="pint_progress_fill">Pints Fill<.*name="pint_progress_text">Pints Count</s);
+assert.match(resource("values", "strings"), /name="pint_progress_fill">Pints Fill<.*name="pint_progress">Pint Mug<.*name="pint_progress_text">Pints Count</s);
 assert.match(resource("values", "strings"), /name="pint_count_suffix">\+</);
 assert.deepEqual([...resource("xml", "extension_info").matchAll(/<DataType[^>]*graphical="false"[^>]*typeId="pint-progress-text"/g)].length, 1);
 assert.match(
   resource("xml", "extension_info"),
-  /typeId="pint-progress" \/><DataType[^>]*graphical="true"[^>]*typeId="pint-progress-fill" \/><DataType[^>]*graphical="false"[^>]*typeId="pint-progress-text" \/>/,
+  /typeId="pint-progress-fill" \/><DataType[^>]*graphical="true"[^>]*typeId="pint-progress" \/><DataType[^>]*graphical="false"[^>]*typeId="pint-progress-text" \/>/,
 );
 assert.match(mappings, /PintAsset\.PINT_50 -> R\.drawable\.pint_50_compact/);
 

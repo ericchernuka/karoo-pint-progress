@@ -179,8 +179,8 @@ internal fun Emitter<*>.launchCancellable(
 internal enum class PintFieldStyle(
     val typeId: String,
 ) {
-    MUG("pint-progress"),
     FILL("pint-progress-fill"),
+    MUG("pint-progress"),
     TEXT("pint-progress-text"),
 }
 
