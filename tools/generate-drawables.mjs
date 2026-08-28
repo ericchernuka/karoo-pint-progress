@@ -247,7 +247,7 @@ const fieldHighlights = (top) => {
 const fieldBubbles = (top) => fieldBubbleSpecs
   .filter(([, y]) => y > top + 4)
   .map(([x, y, bubbleShape], index) => ({
-    color: color("bubble"),
+    color: color("fill_bubble"),
     alpha: index % 2 === 0 ? "0.72" : "0.5",
     path: bubbleShape === "pill"
       ? roundedPill(x, y - 4, y + 4)

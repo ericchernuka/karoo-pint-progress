@@ -11,7 +11,7 @@
         android:fillColor="@color/pint_fill_amber"
         android:pathData="M0,85 L100,85 L100,100 L0,100 Z" />
     <path
-        android:fillColor="@color/pint_bubble"
+        android:fillColor="@color/pint_fill_bubble"
         android:pathData="M6.5,91 C6.5,88.5 11.5,88.5 11.5,91 C11.5,93.5 6.5,93.5 6.5,91 Z"
         android:fillAlpha="0.72" />
     <path
