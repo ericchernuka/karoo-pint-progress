@@ -133,11 +133,7 @@ class PintProgressDataType internal constructor(
         }
         if (config.preview) {
             emitter.launchCancellable(style.cancellationLabel(preview = true)) {
-                val frames = if (style == PintFieldStyle.FILL) {
-                    fillPreviewFrames()
-                } else {
-                    graphicalPreviewFrames()
-                }
+                val frames = if (style == PintFieldStyle.FILL) fillPreviewFrames() else graphicalPreviewFrames()
                 runtime().graphicalPreview(frames).collect { frame ->
                     emitter.updateView(render(frame))
                 }
@@ -234,9 +230,7 @@ internal class PintDataFieldRuntime(
             }
     }
 
-    fun graphicalPreview(
-        frames: List<PintFrame> = graphicalPreviewFrames(),
-    ): Flow<PintFrame> = preview(frames)
+    fun graphicalPreview(frames: List<PintFrame>): Flow<PintFrame> = preview(frames)
 
     private fun <T> preview(values: List<T>): Flow<T> = flow {
         while (true) {

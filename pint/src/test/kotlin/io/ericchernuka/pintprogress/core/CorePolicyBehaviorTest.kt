@@ -72,14 +72,9 @@ class CorePolicyBehaviorTest {
             PintFillAsset.FILL_00 to "0",
             fillDisplayFor(PintFrame.Steady(PintProgress(0, 0))),
         )
-        assertEquals(
-            PintFillAsset.FILL_00 to "1",
-            fillDisplayFor(PintFrame.FullBubbles(1)),
-        )
-        assertEquals(
-            PintFillAsset.FILL_00 to "1",
-            fillDisplayFor(PintFrame.Draining(1)),
-        )
+        listOf(PintFrame.FullBubbles(1), PintFrame.Draining(1)).forEach { frame ->
+            assertEquals(PintFillAsset.FILL_00 to "1", fillDisplayFor(frame))
+        }
         assertEquals(
             listOf(PintFrame.Steady(PintProgress(completed = 0, fillBucket = 10))),
             fillPreviewFrames(),

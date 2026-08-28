@@ -3,6 +3,7 @@ package io.ericchernuka.pintprogress
 import io.ericchernuka.pintprogress.core.PintFrame
 import io.ericchernuka.pintprogress.core.PintProgress
 import io.ericchernuka.pintprogress.core.fillPreviewFrames
+import io.ericchernuka.pintprogress.core.graphicalPreviewFrames
 import io.hammerhead.karooext.models.DataPoint
 import io.hammerhead.karooext.models.DataType
 import io.hammerhead.karooext.models.StreamState
@@ -135,7 +136,7 @@ class PintDataFieldRuntimeTest {
                 PintFrame.Steady(PintProgress(100, 10)),
                 PintFrame.Steady(PintProgress(0, 10)),
             ),
-            capturePreview(runtime().graphicalPreview(), 7),
+            capturePreview(runtime().graphicalPreview(graphicalPreviewFrames()), 7),
         )
         assertEquals(
             listOf(
@@ -147,7 +148,7 @@ class PintDataFieldRuntimeTest {
 
         val cancelled = mutableListOf<PintFrame>()
         val cancelledJob = backgroundScope.launch {
-            runtime().graphicalPreview().collect { cancelled += it }
+            runtime().graphicalPreview(graphicalPreviewFrames()).collect { cancelled += it }
         }
         runCurrent()
         assertEquals(1, cancelled.size)

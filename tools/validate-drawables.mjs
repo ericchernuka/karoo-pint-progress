@@ -158,9 +158,11 @@ assert.equal(attribute(fill, "pint_fill_image", "android:scaleType"), "fitXY");
 assert.equal(attribute(fill, "pint_fill_count", "android:gravity"), "center");
 assert.equal(attribute(fill, "pint_fill_count", "android:text"), "—");
 
+const mappings = fs.readFileSync("pint/src/main/kotlin/io/ericchernuka/pintprogress/PintAssetDrawables.kt", "utf8");
 for (let bucket = 0; bucket < 20; bucket += 1) {
   const percent = String(bucket * 5).padStart(2, "0");
   const xml = drawable(`pint_fill_${percent}`);
+  assert.match(mappings, new RegExp(`PintFillAsset\\.FILL_${percent} -> R\\.drawable\\.pint_fill_${percent}`));
   assert.match(xml, /android:fillColor="@color\/pint_surface"/);
   if (bucket === 0) {
     assert.doesNotMatch(xml, /android:fillColor="@color\/pint_amber"/);
@@ -183,11 +185,6 @@ assert.match(
   resource("xml", "extension_info"),
   /typeId="pint-progress" \/><DataType[^>]*graphical="true"[^>]*typeId="pint-progress-fill" \/><DataType[^>]*graphical="false"[^>]*typeId="pint-progress-text" \/>/,
 );
-assert.match(fs.readFileSync("pint/src/main/kotlin/io/ericchernuka/pintprogress/PintAssetDrawables.kt", "utf8"), /PintAsset\.PINT_50 -> R\.drawable\.pint_50_compact/);
-const mappings = fs.readFileSync("pint/src/main/kotlin/io/ericchernuka/pintprogress/PintAssetDrawables.kt", "utf8");
-for (let bucket = 0; bucket < 20; bucket += 1) {
-  const percent = String(bucket * 5).padStart(2, "0");
-  assert.match(mappings, new RegExp(`PintFillAsset\\.FILL_${percent} -> R\\.drawable\\.pint_fill_${percent}`));
-}
+assert.match(mappings, /PintAsset\.PINT_50 -> R\.drawable\.pint_50_compact/);
 
 console.log("Drawable visual contracts passed");
