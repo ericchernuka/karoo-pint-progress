@@ -14,6 +14,7 @@ import io.ericchernuka.pintprogress.core.countRasterUpwardBiasDp
 import io.ericchernuka.pintprogress.core.edgeInsetDp
 import io.ericchernuka.pintprogress.core.opticalCenterOffset
 import io.ericchernuka.pintprogress.core.opticalTranslationY
+import io.ericchernuka.pintprogress.core.resolveFillTextSize
 import io.ericchernuka.pintprogress.core.resolveTypography
 import io.hammerhead.karooext.models.ViewConfig
 import kotlin.math.roundToInt
@@ -35,6 +36,13 @@ internal class PintRemoteViews(
     private val countLineHeightPerTextSize = countPaint.fontMetrics.run { (bottom - top) / countPaint.textSize }
     private val unpaddedCountOpticalOffsetPerTextSize = countPaint.opticalOffsetPerTextSize("100")
     private val suffixOpticalOffsetPerTextSize = countPaint.opticalOffsetPerTextSize("+")
+    private val fillCountPaint = Paint(countPaint).apply {
+        typeface = Typeface.create("sans-serif-condensed", Typeface.NORMAL)
+        textScaleX = 1f
+    }
+    private val fillCountLineHeightPerTextSize = fillCountPaint.fontMetrics.run {
+        (bottom - top) / fillCountPaint.textSize
+    }
 
     fun render(
         display: Pair<PintAsset, String>,
@@ -126,11 +134,26 @@ internal class PintRemoteViews(
 
     fun renderFill(
         display: Pair<PintFillAsset, String>,
+        alignment: ViewConfig.Alignment,
         textSizeSp: Int,
-    ): RemoteViews = RemoteViews(packageName, R.layout.pint_progress_fill_view).apply {
+        fieldWidthDp: Int,
+        fieldHeightDp: Int,
+    ): RemoteViews = RemoteViews(packageName, alignment.fillRemoteViewsLayout()).apply {
         setImageViewResource(R.id.pint_fill_image, display.first.drawableRes())
         setTextViewText(R.id.pint_fill_count, display.second)
-        if (textSizeSp > 0) setTextSizeSp(R.id.pint_fill_count, textSizeSp.toFloat())
+        setTextSizeSp(
+            R.id.pint_fill_count,
+            resolveFillTextSize(
+                karooTextSizeSp = textSizeSp,
+                fontScale = fontScale,
+                contentWidthDp = fieldWidthDp,
+                contentHeightDp = fieldHeightDp,
+                measuredTextWidthPerTextSize = fillCountPaint.measureText(display.second) /
+                    fillCountPaint.textSize,
+                lineHeightPerTextSize = fillCountLineHeightPerTextSize,
+            ),
+        )
+        setViewVisibility(R.id.pint_fill_count, View.VISIBLE)
     }
 
 }
@@ -166,6 +189,12 @@ internal fun PintFieldLayout.remoteViewsLayout(alignment: ViewConfig.Alignment):
         ViewConfig.Alignment.CENTER -> R.layout.pint_progress_adaptive_center_view
         ViewConfig.Alignment.RIGHT -> R.layout.pint_progress_adaptive_right_view
     }
+}
+
+internal fun ViewConfig.Alignment.fillRemoteViewsLayout(): Int = when (this) {
+    ViewConfig.Alignment.LEFT -> R.layout.pint_progress_fill_left_view
+    ViewConfig.Alignment.CENTER -> R.layout.pint_progress_fill_center_view
+    ViewConfig.Alignment.RIGHT -> R.layout.pint_progress_fill_right_view
 }
 
 private fun RemoteViews.setTextSizeSp(viewId: Int, size: Float) =

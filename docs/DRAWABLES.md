@@ -24,9 +24,9 @@ XML and both mappings in `PintAssetDrawables.kt`; local review must also confirm
 `core/PintAsset.kt` matches the generator.
 
 The validator also owns static resource contracts that support the generated assets. It checks all
-alignment wrappers, responsive mug bounds, initial count visibility, field labels, extension
-metadata, and a representative generated drawable mapping. Run it when any of those resources
-change, even when mug geometry does not.
+mug and field-fill alignment layouts, edge-to-edge fill rendering, responsive image bounds, initial
+count state, field labels, extension metadata, and generated drawable mappings. Run it when any of
+those resources change, even when mug geometry does not.
 
 ## Visual contracts
 
