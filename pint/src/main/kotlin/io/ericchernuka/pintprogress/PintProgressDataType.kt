@@ -100,7 +100,6 @@ class PintProgressDataType internal constructor(
                 return renderer.renderFill(
                     display = fillDisplayFor(frame),
                     textSizeSp = config.textSize,
-                    boundariesEnabled = config.boundariesEnabled,
                 )
             }
             val display = displayFor(frame)

@@ -170,6 +170,15 @@ assert.equal(attribute(fill, "pint_fill_count", "android:fontFamily"), "sans-ser
 assert.equal(attribute(fill, "pint_fill_count", "android:textStyle"), "normal");
 assert.equal(attribute(fill, "pint_fill_count", "android:text"), "—");
 
+const remoteViews = fs.readFileSync(
+  "pint/src/main/kotlin/io/ericchernuka/pintprogress/PintRemoteViews.kt",
+  "utf8",
+);
+const renderFillStart = remoteViews.indexOf("fun renderFill(");
+const renderFillEnd = remoteViews.indexOf("\n\n}", renderFillStart);
+const renderFill = remoteViews.slice(renderFillStart, renderFillEnd);
+assert.doesNotMatch(renderFill, /setViewPadding/, "Pints Fill must render edge to edge");
+
 const mappings = fs.readFileSync("pint/src/main/kotlin/io/ericchernuka/pintprogress/PintAssetDrawables.kt", "utf8");
 for (let bucket = 0; bucket < 20; bucket += 1) {
   const percent = String(bucket * 5).padStart(2, "0");

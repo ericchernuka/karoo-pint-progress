@@ -127,10 +127,7 @@ internal class PintRemoteViews(
     fun renderFill(
         display: Pair<PintFillAsset, String>,
         textSizeSp: Int,
-        boundariesEnabled: Boolean,
     ): RemoteViews = RemoteViews(packageName, R.layout.pint_progress_fill_view).apply {
-        val edgeInsetPx = (edgeInsetDp(boundariesEnabled) * displayDensity).roundToInt()
-        setViewPadding(R.id.pint_fill_root, edgeInsetPx, edgeInsetPx, edgeInsetPx, edgeInsetPx)
         setImageViewResource(R.id.pint_fill_image, display.first.drawableRes())
         setTextViewText(R.id.pint_fill_count, display.second)
         if (textSizeSp > 0) setTextSizeSp(R.id.pint_fill_count, textSizeSp.toFloat())

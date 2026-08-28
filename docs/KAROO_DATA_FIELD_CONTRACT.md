@@ -11,7 +11,7 @@ SDK 1.1.9 and Android's `RemoteViews` and app-update requirements.
 | `viewSize` | Current configured view size in physical pixels | Takes precedence, converts to dp, and bounds the complete layout | `CorePolicyBehaviorTest`, on-device size matrix |
 | `textSize` | Standard numeric field size for this grid size in sp | Supplies the graphical normal-scale reference; roomy Android 12+ fields can expand the complete count-and-mug group to 2×; Karoo applies it directly to the native count field | `CorePolicyBehaviorTest`, on-device text matrix |
 | `alignment` | User-selected in-ride alignment | Selects a left, center, or right XML layout for the complete group | resource validator, `assembleDebug`, on-device alignment matrix |
-| `boundariesEnabled` | Whether the user enabled field boundaries | Adds a larger inset before fitting or rendering content | `CorePolicyBehaviorTest` |
+| `boundariesEnabled` | Whether the user enabled field boundaries | Adds a larger inset before fitting or rendering the mug treatment; Pints Fill stays edge to edge | `CorePolicyBehaviorTest`, resource validator |
 | `preview` | Page editing rather than an active ride | Cycles representative mug frames or native count messages without using ride calories | `PintDataFieldRuntimeTest`, on-device page editor |
 
 ## Rendering rules
@@ -57,6 +57,7 @@ calorie target, and requests `showHeader = false`.
 
 - Twenty generated steady assets fill the field from bottom to top in 5% steps. Separate generated
   full-foam and draining assets show the completion transition.
+- The beer artwork renders edge to edge with or without Karoo field boundaries.
 - Every nonzero fill has a foam cap. The cap becomes deeper from the 80% bucket.
 - Available progress shows the exact completed-pint count, including `0`, without a suffix. The
   count uses the normal condensed system face so its weight stays close to Karoo's native numeric
