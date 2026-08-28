@@ -99,7 +99,10 @@ class PintProgressDataType internal constructor(
             if (style == PintFieldStyle.FILL) {
                 return renderer.renderFill(
                     display = fillDisplayFor(frame),
+                    alignment = config.alignment,
                     textSizeSp = config.textSize,
+                    fieldWidthDp = fieldWidthDp,
+                    fieldHeightDp = fieldHeightDp,
                 )
             }
             val display = displayFor(frame)

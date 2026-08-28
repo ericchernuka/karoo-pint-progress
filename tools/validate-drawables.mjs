@@ -161,19 +161,58 @@ assert.equal(attribute(adaptive, "pint_image", "android:layout_width"), "wrap_co
 assert.equal(attribute(adaptive, "pint_image", "android:layout_height"), "match_parent");
 assert.equal(attribute(adaptive, "pint_image", "android:adjustViewBounds"), "true");
 assert.equal(attribute(adaptive, "pint_image", "android:scaleType"), "fitCenter");
-const fill = resource("layout", "pint_progress_fill_view");
-assert.equal(attribute(fill, "pint_fill_image", "android:layout_width"), "match_parent");
-assert.equal(attribute(fill, "pint_fill_image", "android:layout_height"), "match_parent");
-assert.equal(attribute(fill, "pint_fill_image", "android:scaleType"), "fitXY");
-assert.equal(attribute(fill, "pint_fill_count", "android:gravity"), "center");
-assert.equal(attribute(fill, "pint_fill_count", "android:fontFamily"), "sans-serif-condensed");
-assert.equal(attribute(fill, "pint_fill_count", "android:textStyle"), "normal");
-assert.equal(attribute(fill, "pint_fill_count", "android:text"), "—");
+for (const [alignment, gravity] of [
+  ["left", "left|center_vertical"],
+  ["center", "center"],
+  ["right", "right|center_vertical"],
+]) {
+  const fill = resource("layout", `pint_progress_fill_${alignment}_view`);
+  assert.match(fill, /android:id="@\+id\/pint_fill_root"/);
+  assert.equal(attribute(fill, "pint_fill_root", "android:layout_width"), "match_parent");
+  assert.equal(attribute(fill, "pint_fill_root", "android:layout_height"), "match_parent");
+  assert.equal(attribute(fill, "pint_fill_image", "android:layout_width"), "match_parent");
+  assert.equal(attribute(fill, "pint_fill_image", "android:layout_height"), "match_parent");
+  assert.equal(attribute(fill, "pint_fill_image", "android:scaleType"), "fitXY");
+  assert.equal(attribute(fill, "pint_fill_count", "android:layout_width"), "wrap_content");
+  assert.equal(attribute(fill, "pint_fill_count", "android:layout_height"), "match_parent");
+  assert.equal(attribute(fill, "pint_fill_count", "android:layout_gravity"), gravity);
+  assert.equal(attribute(fill, "pint_fill_count", "android:gravity"), "center_vertical");
+  assert.equal(attribute(fill, "pint_fill_count", "android:fontFamily"), "sans-serif-condensed");
+  assert.equal(attribute(fill, "pint_fill_count", "android:includeFontPadding"), "false");
+  assert.equal(attribute(fill, "pint_fill_count", "android:singleLine"), "true");
+  assert.equal(attribute(fill, "pint_fill_count", "android:text"), "—");
+  assert.equal(attribute(fill, "pint_fill_count", "android:textScaleX"), "1");
+  assert.equal(attribute(fill, "pint_fill_count", "android:textSize"), "1sp");
+  assert.equal(attribute(fill, "pint_fill_count", "android:textStyle"), "normal");
+  assert.equal(attribute(fill, "pint_fill_count", "android:visibility"), "visible");
+  assert.doesNotMatch(fill, /pint_count_suffix/);
+}
 
+const layoutPolicy = fs.readFileSync(
+  "pint/src/main/kotlin/io/ericchernuka/pintprogress/core/PintFieldLayout.kt",
+  "utf8",
+);
+assert.match(layoutPolicy, /if \(boundariesEnabled\) 6 else 2/);
+const dataType = fs.readFileSync(
+  "pint/src/main/kotlin/io/ericchernuka/pintprogress/PintProgressDataType.kt",
+  "utf8",
+);
+assert.match(dataType, /UpdateGraphicConfig\(showHeader = style != PintFieldStyle\.FILL\)/);
 const remoteViews = fs.readFileSync(
   "pint/src/main/kotlin/io/ericchernuka/pintprogress/PintRemoteViews.kt",
   "utf8",
 );
+for (const [alignment, resourceName] of [
+  ["LEFT", "left"],
+  ["CENTER", "center"],
+  ["RIGHT", "right"],
+]) {
+  assert.match(
+    remoteViews,
+    new RegExp(`ViewConfig\\.Alignment\\.${alignment} -> R\\.layout\\.pint_progress_fill_${resourceName}_view`),
+  );
+}
+
 const renderFillStart = remoteViews.indexOf("fun renderFill(");
 const renderFillEnd = remoteViews.indexOf("\n\n}", renderFillStart);
 const renderFill = remoteViews.slice(renderFillStart, renderFillEnd);
