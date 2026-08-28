@@ -8,7 +8,7 @@
         android:fillColor="@color/pint_surface"
         android:pathData="M0,0 L100,0 L100,100 L0,100 Z" />
     <path
-        android:fillColor="@color/pint_amber"
+        android:fillColor="@color/pint_fill_amber"
         android:pathData="M0,5 L100,5 L100,100 L0,100 Z" />
     <path
         android:fillColor="@color/pint_beer_highlight"
@@ -51,18 +51,18 @@
         android:pathData="M82,42.00 C84,42.00 84,44.00 84,44.00 L84,48.00 C84,50.00 80,50.00 80,48.00 L80,44.00 C80,44.00 80,42.00 82,42.00 Z"
         android:fillAlpha="0.5" />
     <path
-        android:fillColor="@color/pint_foam"
+        android:fillColor="@color/pint_fill_foam"
         android:pathData="M0,1 L100,1 L100,9 C90,8 82,10 72,9 C61,10 52,8 42,9 C31,8 20,10 0,9 Z" />
     <path
-        android:fillColor="@color/pint_amber"
+        android:fillColor="@color/pint_fill_amber"
         android:pathData="M9.5,5 C9.5,2.5 14.5,2.5 14.5,5 C14.5,7.5 9.5,7.5 9.5,5 Z"
         android:fillAlpha="0.86" />
     <path
-        android:fillColor="@color/pint_amber"
+        android:fillColor="@color/pint_fill_amber"
         android:pathData="M87,2.00 C89,2.00 89,4.00 89,4.00 L89,6.00 C89,8.00 85,8.00 85,6.00 L85,4.00 C85,4.00 85,2.00 87,2.00 Z"
         android:fillAlpha="0.86" />
     <path
-        android:fillColor="@color/pint_amber"
+        android:fillColor="@color/pint_fill_amber"
         android:pathData="M18,7 C18,5 22,5 22,7 C22,9 18,9 18,7 Z"
         android:fillAlpha="0.86" />
 </vector>

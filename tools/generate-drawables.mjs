@@ -261,17 +261,17 @@ const fieldFoamPockets = (percent, top, foamDepth) => {
     circlePath(12, center, 2.5),
     roundedPill(85, center - 3, center + 3),
     circlePath(20, center + 2, 2),
-  ].map((path) => ({ color: color("amber"), alpha: "0.86", path }));
+  ].map((path) => ({ color: color("fill_amber"), alpha: "0.86", path }));
 };
 
 const fieldFillPaths = (percent, foamDepth) => {
   const top = 100 - percent;
   const paths = [{ color: color("surface"), path: "M0,0 L100,0 L100,100 L0,100 Z" }];
   if (percent > 0) {
-    paths.push({ color: color("amber"), path: `M0,${top} L100,${top} L100,100 L0,100 Z` });
+    paths.push({ color: color("fill_amber"), path: `M0,${top} L100,${top} L100,100 L0,100 Z` });
     paths.push(...fieldHighlights(top));
     paths.push(...fieldBubbles(top));
-    paths.push({ color: color("foam"), path: fieldFoamPath(top, foamDepth) });
+    paths.push({ color: color("fill_foam"), path: fieldFoamPath(top, foamDepth) });
     paths.push(...fieldFoamPockets(percent, top, foamDepth));
   }
   return paths;
