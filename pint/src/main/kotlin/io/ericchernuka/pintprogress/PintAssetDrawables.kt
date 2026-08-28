@@ -4,6 +4,7 @@ package io.ericchernuka.pintprogress
 
 import io.ericchernuka.pintprogress.core.PintAsset
 import io.ericchernuka.pintprogress.core.PintFieldLayout
+import io.ericchernuka.pintprogress.core.PintFillAsset
 
 /** Compile-time drawable mappings generated alongside the drawable vectors. */
 internal fun PintAsset.drawableRes(layout: PintFieldLayout): Int = when (layout) {
@@ -107,4 +108,28 @@ internal fun PintAsset.drawableRes(layout: PintFieldLayout): Int = when (layout)
         PintAsset.DRAINING -> R.drawable.pint_draining_icon
         PintAsset.UNAVAILABLE -> R.drawable.pint_unavailable_icon
     }
+}
+
+internal fun PintFillAsset.drawableRes(): Int = when (this) {
+    PintFillAsset.FILL_00 -> R.drawable.pint_fill_00
+    PintFillAsset.FILL_05 -> R.drawable.pint_fill_05
+    PintFillAsset.FILL_10 -> R.drawable.pint_fill_10
+    PintFillAsset.FILL_15 -> R.drawable.pint_fill_15
+    PintFillAsset.FILL_20 -> R.drawable.pint_fill_20
+    PintFillAsset.FILL_25 -> R.drawable.pint_fill_25
+    PintFillAsset.FILL_30 -> R.drawable.pint_fill_30
+    PintFillAsset.FILL_35 -> R.drawable.pint_fill_35
+    PintFillAsset.FILL_40 -> R.drawable.pint_fill_40
+    PintFillAsset.FILL_45 -> R.drawable.pint_fill_45
+    PintFillAsset.FILL_50 -> R.drawable.pint_fill_50
+    PintFillAsset.FILL_55 -> R.drawable.pint_fill_55
+    PintFillAsset.FILL_60 -> R.drawable.pint_fill_60
+    PintFillAsset.FILL_65 -> R.drawable.pint_fill_65
+    PintFillAsset.FILL_70 -> R.drawable.pint_fill_70
+    PintFillAsset.FILL_75 -> R.drawable.pint_fill_75
+    PintFillAsset.FILL_80 -> R.drawable.pint_fill_80
+    PintFillAsset.FILL_85 -> R.drawable.pint_fill_85
+    PintFillAsset.FILL_90 -> R.drawable.pint_fill_90
+    PintFillAsset.FILL_95 -> R.drawable.pint_fill_95
+    PintFillAsset.FILL_UNAVAILABLE -> R.drawable.pint_fill_unavailable
 }

@@ -49,6 +49,7 @@ const bounds = (pathData) => {
 
 const foamDrawables = fs.readdirSync("pint/src/main/res/drawable")
   .filter((name) => name.endsWith(".xml"))
+  .filter((name) => !name.startsWith("pint_fill_"))
   .filter((name) => drawable(name.slice(0, -4)).includes("@color/pint_foam"));
 const fullFoamDrawables = new Set([
   "pint_full_bubbles",
@@ -150,9 +151,40 @@ assert.equal(attribute(adaptive, "pint_image", "android:layout_width"), "wrap_co
 assert.equal(attribute(adaptive, "pint_image", "android:layout_height"), "match_parent");
 assert.equal(attribute(adaptive, "pint_image", "android:adjustViewBounds"), "true");
 assert.equal(attribute(adaptive, "pint_image", "android:scaleType"), "fitCenter");
-assert.match(resource("values", "strings"), /name="pint_progress">Pints<.*name="pint_progress_text">Pints Count</s);
+const fill = resource("layout", "pint_progress_fill_view");
+assert.equal(attribute(fill, "pint_fill_image", "android:layout_width"), "match_parent");
+assert.equal(attribute(fill, "pint_fill_image", "android:layout_height"), "match_parent");
+assert.equal(attribute(fill, "pint_fill_image", "android:scaleType"), "fitXY");
+assert.equal(attribute(fill, "pint_fill_count", "android:gravity"), "center");
+assert.equal(attribute(fill, "pint_fill_count", "android:text"), "—");
+
+const mappings = fs.readFileSync("pint/src/main/kotlin/io/ericchernuka/pintprogress/PintAssetDrawables.kt", "utf8");
+for (let bucket = 0; bucket < 20; bucket += 1) {
+  const percent = String(bucket * 5).padStart(2, "0");
+  const xml = drawable(`pint_fill_${percent}`);
+  assert.match(mappings, new RegExp(`PintFillAsset\\.FILL_${percent} -> R\\.drawable\\.pint_fill_${percent}`));
+  assert.match(xml, /android:fillColor="@color\/pint_surface"/);
+  if (bucket === 0) {
+    assert.doesNotMatch(xml, /android:fillColor="@color\/pint_amber"/);
+    assert.doesNotMatch(xml, /android:fillColor="@color\/pint_foam"/);
+  } else {
+    assert.match(xml, /android:fillColor="@color\/pint_amber"/);
+    assert.match(xml, /android:fillColor="@color\/pint_foam"/);
+    const amber = bounds(pathForColor(xml, "pint_amber"));
+    const foam = bounds(pathForColor(xml, "pint_foam"));
+    assert.equal(amber.minY, 100 - bucket * 5);
+    assert.equal(amber.maxY, 100);
+    assert.equal(foam.maxY - foam.minY, bucket >= 16 ? 8 : 4);
+  }
+}
+assert.match(drawable("pint_fill_unavailable"), /android:fillColor="@color\/pint_unavailable_surface"/);
+assert.match(resource("values", "strings"), /name="pint_progress">Pints<.*name="pint_progress_fill">Pints Fill<.*name="pint_progress_text">Pints Count</s);
 assert.match(resource("values", "strings"), /name="pint_count_suffix">\+</);
 assert.deepEqual([...resource("xml", "extension_info").matchAll(/<DataType[^>]*graphical="false"[^>]*typeId="pint-progress-text"/g)].length, 1);
-assert.match(fs.readFileSync("pint/src/main/kotlin/io/ericchernuka/pintprogress/PintAssetDrawables.kt", "utf8"), /PintAsset\.PINT_50 -> R\.drawable\.pint_50_compact/);
+assert.match(
+  resource("xml", "extension_info"),
+  /typeId="pint-progress" \/><DataType[^>]*graphical="true"[^>]*typeId="pint-progress-fill" \/><DataType[^>]*graphical="false"[^>]*typeId="pint-progress-text" \/>/,
+);
+assert.match(mappings, /PintAsset\.PINT_50 -> R\.drawable\.pint_50_compact/);
 
 console.log("Drawable visual contracts passed");

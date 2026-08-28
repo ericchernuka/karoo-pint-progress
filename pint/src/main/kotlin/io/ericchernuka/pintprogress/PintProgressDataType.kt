@@ -7,6 +7,8 @@ import io.ericchernuka.pintprogress.core.PintFrame
 import io.ericchernuka.pintprogress.core.PintFieldLayout
 import io.ericchernuka.pintprogress.core.PintViewReducer
 import io.ericchernuka.pintprogress.core.displayFor
+import io.ericchernuka.pintprogress.core.fillDisplayFor
+import io.ericchernuka.pintprogress.core.fillPreviewFrames
 import io.ericchernuka.pintprogress.core.graphicalPreviewFrames
 import io.ericchernuka.pintprogress.core.numericPreviewMessages
 import io.ericchernuka.pintprogress.core.numericStateFrom
@@ -69,7 +71,7 @@ class PintProgressDataType internal constructor(
             return
         }
 
-        emitter.onNext(UpdateGraphicConfig(showHeader = true))
+        emitter.onNext(UpdateGraphicConfig(showHeader = style != PintFieldStyle.FILL))
 
         val displayMetrics = context.resources.displayMetrics
         val (fieldWidthDp, fieldHeightDp) = resolveFieldSize(
@@ -90,6 +92,13 @@ class PintProgressDataType internal constructor(
             scaledDensity = displayMetrics.scaledDensity,
         )
         fun render(frame: PintFrame): android.widget.RemoteViews {
+            if (style == PintFieldStyle.FILL) {
+                return renderer.renderFill(
+                    display = fillDisplayFor(frame),
+                    textSizeSp = config.textSize,
+                    boundariesEnabled = config.boundariesEnabled,
+                )
+            }
             val display = displayFor(frame)
             val renderLayout = if (config.preview) {
                 previewLayoutFor(
@@ -124,7 +133,8 @@ class PintProgressDataType internal constructor(
         }
         if (config.preview) {
             emitter.launchCancellable(style.cancellationLabel(preview = true)) {
-                runtime().graphicalPreview().collect { frame ->
+                val frames = if (style == PintFieldStyle.FILL) fillPreviewFrames() else graphicalPreviewFrames()
+                runtime().graphicalPreview(frames).collect { frame ->
                     emitter.updateView(render(frame))
                 }
             }
@@ -164,12 +174,14 @@ internal enum class PintFieldStyle(
     val typeId: String,
 ) {
     MUG("pint-progress"),
+    FILL("pint-progress-fill"),
     TEXT("pint-progress-text"),
 }
 
 internal fun PintFieldStyle.cancellationLabel(preview: Boolean): String = when (this) {
     PintFieldStyle.TEXT -> if (preview) "numeric-preview" else "numeric-live"
     PintFieldStyle.MUG -> if (preview) "graphical-preview" else "graphical-live"
+    PintFieldStyle.FILL -> if (preview) "fill-preview" else "fill-live"
 }
 
 /** Runs the deterministic scheduling policy used by the Android data-field adapter */
@@ -218,7 +230,7 @@ internal class PintDataFieldRuntime(
             }
     }
 
-    fun graphicalPreview(): Flow<PintFrame> = preview(graphicalPreviewFrames())
+    fun graphicalPreview(frames: List<PintFrame>): Flow<PintFrame> = preview(frames)
 
     private fun <T> preview(values: List<T>): Flow<T> = flow {
         while (true) {

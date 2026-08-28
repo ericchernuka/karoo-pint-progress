@@ -26,8 +26,8 @@ node tools/validate-drawables.mjs
 - caller-package authorization for the Karoo Binder boundary;
 - first-attach, reset, skipped-threshold, full, bubbles, drain, and steady-state transitions;
 - stream-state conversion, visible-state coalescing, timed-frame plans, and preview behavior;
-- drawable frame selection, counter visibility, small-viewport count sizing, and deterministic picker
-  count-state previews;
+- mug and fill drawable selection, exact fill counts, unavailable text, counter visibility,
+  small-viewport count sizing, and deterministic picker previews;
 - count-field 0.1-pint flooring, preview messages, native stream-state propagation, and custom data-point identity.
 
 The following files are outside the core JaCoCo ratio. Android and Karoo adapters are compile- and
@@ -42,9 +42,9 @@ device-verified, while the embedded runtime scheduling policy has focused JVM co
   terminal callbacks, synchronous terminal callbacks, and idempotent cleanup. Coroutine state
   machines contain generated normal-completion instructions that prevent this adapter from joining
   the core ratio. These tests verify callback order and waits, not Binder or `RemoteViews` delivery.
-- `PintRemoteViews.kt` serializes the covered asset and count display into Android `RemoteViews`,
-  maps assets to compile-time `R.drawable` IDs, selects a static alignment layout, and applies the
-  core count scale to the mug's remote maximum bounds.
+- `PintRemoteViews.kt` serializes the covered mug or fill asset and count display into Android
+  `RemoteViews`, maps assets to compile-time `R.drawable` IDs, and applies each presentation's
+  static layout contract.
   The resource validator checks every static alignment wrapper, responsive mug bounds, initial
   visibility, the `pint_count_suffix` static `+` contract, field labels, extension metadata, and
   the representative generated drawable mapping. Core tests cover the shared count-and-mug scale

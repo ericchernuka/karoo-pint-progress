@@ -2,12 +2,13 @@
 
 ## Source of truth
 
-`tools/generate-drawables.mjs` owns all mug vector variants and
+`tools/generate-drawables.mjs` owns all mug and field-fill vector variants and
 `PintAssetDrawables.kt` and `core/PintAsset.kt`. Never edit generated drawable XML or either Kotlin
 mapping directly.
 
-Generated states include 0% through 95% in 5% steps, full bubbles, draining, and unavailable. Each
-state has regular, compact, and icon variants. `ic_pint.xml` is the extension icon.
+Mug states include 0% through 95% in 5% steps, full bubbles, draining, and unavailable. Each mug
+state has regular, compact, and icon variants. Field-fill states include 0% through 95% in 5% steps
+and unavailable. `ic_pint.xml` is the shared extension icon.
 
 ## Change workflow
 
@@ -18,8 +19,8 @@ git diff --check
 ```
 
 Commit the generator and every generated output together. CI regenerates and compares the drawable
-XML and `PintAssetDrawables.kt`; local review must also confirm that generated `core/PintAsset.kt`
-matches the generator.
+XML and both mappings in `PintAssetDrawables.kt`; local review must also confirm that generated
+`core/PintAsset.kt` matches the generator.
 
 The validator also owns static resource contracts that support the generated assets. It checks all
 alignment wrappers, responsive mug bounds, initial count visibility, field labels, extension
@@ -32,7 +33,8 @@ change, even when mug geometry does not.
 - Keep handle joins behind the opaque mug body to prevent antialiasing seams.
 - Keep normal amber and foam inside the inner glass.
 - Only `pint_full_bubbles` may crown the rim. It must remain inside the viewport and mug width.
-- Preserve aspect ratio in every layout. Sizing belongs to layout policy, not vector distortion.
+- Preserve the mug aspect ratio in every mug layout. The normalized field-fill rectangle uses
+  `fitXY` because its purpose is to cover the host content rectangle.
 - Use semantic resources from `values/colors.xml` and `values-night/colors.xml`.
 - Validate contrast and geometry for regular, compact, and icon variants.
 

@@ -43,6 +43,10 @@ class CorePolicyBehaviorTest {
             val display = displayFor(PintFrame.Steady(PintProgress(2, bucket)))
             assertEquals(PintAsset.entries[bucket], display.first)
             assertEquals("2", display.second)
+
+            val fillDisplay = fillDisplayFor(PintFrame.Steady(PintProgress(2, bucket)))
+            assertEquals(PintFillAsset.entries[bucket], fillDisplay.first)
+            assertEquals("2", fillDisplay.second)
         }
         assertEquals(
             PintAsset.UNAVAILABLE to "",
@@ -60,6 +64,21 @@ class CorePolicyBehaviorTest {
             val display = displayFor(PintFrame.Steady(PintProgress(completed, 0)))
             assertEquals(expected, display.second)
         }
+        assertEquals(
+            PintFillAsset.FILL_UNAVAILABLE to "—",
+            fillDisplayFor(PintFrame.Unavailable),
+        )
+        assertEquals(
+            PintFillAsset.FILL_00 to "0",
+            fillDisplayFor(PintFrame.Steady(PintProgress(0, 0))),
+        )
+        listOf(PintFrame.FullBubbles(1), PintFrame.Draining(1)).forEach { frame ->
+            assertEquals(PintFillAsset.FILL_00 to "1", fillDisplayFor(frame))
+        }
+        assertEquals(
+            listOf(PintFrame.Steady(PintProgress(completed = 0, fillBucket = 10))),
+            fillPreviewFrames(),
+        )
         assertNull(PintProgressReducer.progressFor(null))
         assertNull(PintProgressReducer.progressFor(Double.NaN))
         assertNull(PintProgressReducer.progressFor(Double.POSITIVE_INFINITY))

@@ -49,6 +49,20 @@ SDK 1.1.9 and Android's `RemoteViews` and app-update requirements.
 9. The full-with-bubbles frame may extend its foam crown slightly above the mug rim. The crown stays
    within the vector viewport and mug width, while every normal fill state remains inside the glass.
 
+## Pints Fill field
+
+`Pints Fill` is a separate graphical data type with type ID `pint-progress-fill`. It appears between
+`Pints` and `Pints Count`, uses the existing pint icon, shares the graphical runtime and global
+calorie target, and requests `showHeader = false`.
+
+- Twenty generated steady assets fill the field from bottom to top in 5% steps.
+- Every nonzero fill has a foam cap. The cap becomes deeper from the 80% bucket.
+- Available progress shows the exact completed-pint count, including `0`, without a suffix.
+- Unavailable progress uses the neutral surface and an em dash.
+- The initial picker preview repeats the 50% steady frame with `0` at one Hz without using ride
+  calories. The complete transition and preview sequence are owned by issue 16.
+- Each update uses a fresh `RemoteViews`, and detaching the field cancels its shared runtime job.
+
 ## Native count field
 
 `Pints Count` is a standard numeric data type, selected independently from `Pints` in Karoo's

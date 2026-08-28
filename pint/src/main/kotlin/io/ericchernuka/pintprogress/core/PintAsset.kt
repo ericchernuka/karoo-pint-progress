@@ -28,11 +28,42 @@ enum class PintAsset {
     UNAVAILABLE
 }
 
-fun displayFor(frame: PintFrame): Pair<PintAsset, String> = when (frame) {
-    PintFrame.Unavailable -> PintAsset.UNAVAILABLE to ""
-    is PintFrame.Steady -> PintAsset.entries[frame.progress.fillBucket] to frame.progress.completed.completedText()
-    is PintFrame.FullBubbles -> PintAsset.FULL_BUBBLES to frame.completed.completedText()
-    is PintFrame.Draining -> PintAsset.DRAINING to frame.completed.completedText()
+enum class PintFillAsset {
+    FILL_00,
+    FILL_05,
+    FILL_10,
+    FILL_15,
+    FILL_20,
+    FILL_25,
+    FILL_30,
+    FILL_35,
+    FILL_40,
+    FILL_45,
+    FILL_50,
+    FILL_55,
+    FILL_60,
+    FILL_65,
+    FILL_70,
+    FILL_75,
+    FILL_80,
+    FILL_85,
+    FILL_90,
+    FILL_95,
+    FILL_UNAVAILABLE
 }
 
-private fun Int.completedText() = if (this == 0) "" else toString()
+fun displayFor(frame: PintFrame): Pair<PintAsset, String> = when (frame) {
+    PintFrame.Unavailable -> PintAsset.UNAVAILABLE to ""
+    is PintFrame.Steady -> PintAsset.entries[frame.progress.fillBucket] to frame.progress.completed.mugText()
+    is PintFrame.FullBubbles -> PintAsset.FULL_BUBBLES to frame.completed.mugText()
+    is PintFrame.Draining -> PintAsset.DRAINING to frame.completed.mugText()
+}
+
+fun fillDisplayFor(frame: PintFrame): Pair<PintFillAsset, String> = when (frame) {
+    PintFrame.Unavailable -> PintFillAsset.FILL_UNAVAILABLE to "—"
+    is PintFrame.Steady -> PintFillAsset.entries[frame.progress.fillBucket] to frame.progress.completed.toString()
+    is PintFrame.FullBubbles -> PintFillAsset.FILL_00 to frame.completed.toString()
+    is PintFrame.Draining -> PintFillAsset.FILL_00 to frame.completed.toString()
+}
+
+private fun Int.mugText() = if (this == 0) "" else toString()
