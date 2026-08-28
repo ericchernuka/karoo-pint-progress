@@ -21,8 +21,6 @@
         android:includeFontPadding="false"
         android:singleLine="true"
         android:shadowColor="@color/pint_fill_count_shadow"
-        android:shadowDx="0"
-        android:shadowDy="0"
         android:shadowRadius="3"
         android:text="—"
         android:textColor="@color/pint_foreground"

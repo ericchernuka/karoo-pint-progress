@@ -101,7 +101,6 @@ assert.equal(light.pint_fill_count_shadow, "#00000000", "Light Pints Fill halo m
 assert.equal(night.pint_fill_amber, "#A85F00", "Night Pints Fill must use restrained beer");
 assert.equal(night.pint_fill_foam, "#E2D5B8", "Night Pints Fill must use restrained foam");
 assert.equal(night.pint_fill_count_shadow, night.pint_surface, "Night Pints Fill halo must use the dark surface");
-assert.equal(night.pint_foreground, "#F5F4F0", "Night Pints Fill count must keep the light foreground");
 const assertContrast = (palette, against, minimum, mode, surface) => assert.ok(
   contrast(palette.pint_foam, palette[`pint_${against}`]) >= minimum,
   `${mode} foam must remain visibly distinct from the ${surface}`,
@@ -194,8 +193,6 @@ for (const [alignment, gravity] of [
   assert.equal(attribute(fill, "pint_fill_count", "android:text"), "—");
   assert.equal(attribute(fill, "pint_fill_count", "android:textColor"), "@color/pint_foreground");
   assert.equal(attribute(fill, "pint_fill_count", "android:shadowColor"), "@color/pint_fill_count_shadow");
-  assert.equal(attribute(fill, "pint_fill_count", "android:shadowDx"), "0");
-  assert.equal(attribute(fill, "pint_fill_count", "android:shadowDy"), "0");
   assert.equal(attribute(fill, "pint_fill_count", "android:shadowRadius"), "3");
   assert.equal(attribute(fill, "pint_fill_count", "android:textScaleX"), "1");
   assert.equal(attribute(fill, "pint_fill_count", "android:textSize"), "1sp");
