@@ -40,6 +40,10 @@ fun graphicalPreviewFrames(): List<PintFrame> = listOf(
     PintFrame.Steady(PintProgress(completed = 100, fillBucket = 10)),
 )
 
+fun fillPreviewFrames(): List<PintFrame> = listOf(
+    PintFrame.Steady(PintProgress(completed = 0, fillBucket = 10)),
+)
+
 private fun progressFrom(state: StreamState, caloriesPerBeer: Int): PintProgress? = when (state) {
     is StreamState.Streaming -> PintProgressReducer.progressFor(
         state.dataPoint.singleValue,

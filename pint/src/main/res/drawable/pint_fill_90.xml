@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <path
+        android:fillColor="@color/pint_surface"
+        android:pathData="M0,0 L100,0 L100,100 L0,100 Z" />
+    <path
+        android:fillColor="@color/pint_fill_amber"
+        android:pathData="M0,10 L100,10 L100,100 L0,100 Z" />
+    <path
+        android:fillColor="@color/pint_fill_foam"
+        android:pathData="M0,6 L100,6 L100,14 L0,14 Z" />
+</vector>

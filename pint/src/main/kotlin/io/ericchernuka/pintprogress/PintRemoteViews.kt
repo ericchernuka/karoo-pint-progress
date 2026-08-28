@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.RemoteViews
 import io.ericchernuka.pintprogress.core.PintAsset
 import io.ericchernuka.pintprogress.core.PintFieldLayout
+import io.ericchernuka.pintprogress.core.PintFillAsset
 import io.ericchernuka.pintprogress.core.countRasterUpwardBiasDp
 import io.ericchernuka.pintprogress.core.edgeInsetDp
 import io.ericchernuka.pintprogress.core.opticalCenterOffset
@@ -121,6 +122,18 @@ internal class PintRemoteViews(
             setViewVisibility(R.id.pint_count, countVisibility)
             setViewVisibility(R.id.pint_count_suffix, countVisibility)
         }
+    }
+
+    fun renderFill(
+        display: Pair<PintFillAsset, String>,
+        textSizeSp: Int,
+        boundariesEnabled: Boolean,
+    ): RemoteViews = RemoteViews(packageName, R.layout.pint_progress_fill_view).apply {
+        val edgeInsetPx = (edgeInsetDp(boundariesEnabled) * displayDensity).roundToInt()
+        setViewPadding(R.id.pint_fill_root, edgeInsetPx, edgeInsetPx, edgeInsetPx, edgeInsetPx)
+        setImageViewResource(R.id.pint_fill_image, display.first.drawableRes())
+        setTextViewText(R.id.pint_fill_count, display.second)
+        if (textSizeSp > 0) setTextSizeSp(R.id.pint_fill_count, textSizeSp.toFloat())
     }
 
 }

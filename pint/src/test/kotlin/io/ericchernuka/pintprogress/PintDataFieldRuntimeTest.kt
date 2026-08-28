@@ -2,6 +2,7 @@ package io.ericchernuka.pintprogress
 
 import io.ericchernuka.pintprogress.core.PintFrame
 import io.ericchernuka.pintprogress.core.PintProgress
+import io.ericchernuka.pintprogress.core.fillPreviewFrames
 import io.hammerhead.karooext.models.DataPoint
 import io.hammerhead.karooext.models.DataType
 import io.hammerhead.karooext.models.StreamState
@@ -30,10 +31,16 @@ import org.junit.Test
 class PintDataFieldRuntimeTest {
     @Test
     fun `style and preview state select each cancellation route`() {
+        assertEquals(
+            listOf("pint-progress", "pint-progress-fill", "pint-progress-text"),
+            PintFieldStyle.entries.map(PintFieldStyle::typeId),
+        )
         assertEquals("numeric-live", PintFieldStyle.TEXT.cancellationLabel(preview = false))
         assertEquals("numeric-preview", PintFieldStyle.TEXT.cancellationLabel(preview = true))
         assertEquals("graphical-live", PintFieldStyle.MUG.cancellationLabel(preview = false))
         assertEquals("graphical-preview", PintFieldStyle.MUG.cancellationLabel(preview = true))
+        assertEquals("fill-live", PintFieldStyle.FILL.cancellationLabel(preview = false))
+        assertEquals("fill-preview", PintFieldStyle.FILL.cancellationLabel(preview = true))
     }
 
     @Test
@@ -129,6 +136,13 @@ class PintDataFieldRuntimeTest {
                 PintFrame.Steady(PintProgress(0, 10)),
             ),
             capturePreview(runtime().graphicalPreview(), 7),
+        )
+        assertEquals(
+            listOf(
+                PintFrame.Steady(PintProgress(0, 10)),
+                PintFrame.Steady(PintProgress(0, 10)),
+            ),
+            capturePreview(runtime().graphicalPreview(fillPreviewFrames()), 2),
         )
 
         val cancelled = mutableListOf<PintFrame>()

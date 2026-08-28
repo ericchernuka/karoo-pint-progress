@@ -18,12 +18,12 @@ private calorie setting -+                                         v
                          +--> numericStateFrom ---------------------------> StreamEmitter
 ```
 
-`PintProgressExtension` owns the Karoo service connection and exposes two `PintProgressDataType`
-instances: the original mug field and the native count field. They share the calorie source, lifecycle,
-one-Hz update cap, and global calorie target. The mug path resolves the viewport and cycles through
-representative graphical preview frames. The count path publishes a numeric stream and lets Karoo
-own its viewport and formatting. Its page-editor view sends representative messages through Karoo's
-standard stream container. Both paths cancel their work on detach.
+`PintProgressExtension` owns the Karoo service connection and exposes three `PintProgressDataType`
+instances: the original mug field, the graphical fill field, and the native count field. They share
+the calorie source, lifecycle, one-Hz update cap, and global calorie target. The graphical paths use
+the same reducer and scheduler, then select their own generated asset family and preview frames. The
+count path publishes a numeric stream and lets Karoo own its viewport and formatting. Every path
+cancels its work on detach.
 
 ## Ownership map
 
@@ -32,7 +32,7 @@ standard stream container. Both paths cancel their work on detach.
 | Calorie target bounds and slider mapping | `core/BeerCaloriesPolicy.kt` |
 | Calories to completed mugs and 5% bucket | `core/PintProgressReducer.kt` |
 | Stream-state coalescing and animation plan | `core/PintViewReducer.kt` |
-| Frame to asset and count | generated `core/PintAsset.kt` |
+| Frame to mug or fill asset and count | generated `core/PintAsset.kt` |
 | Calorie stream to decimal pint total | `core/PintTextStreamState.kt` |
 | Viewport and treatment selection | `core/PintFieldLayout.kt` |
 | Text fitting and boundary inset | `core/PintFieldLayout.kt` |
@@ -41,7 +41,7 @@ standard stream container. Both paths cancel their work on detach.
 | One-Hz pacing and Karoo subscription | `PintProgressDataType.kt` |
 | Private preference adapter and UI | `BeerCaloriesStore.kt`, `PintSettingsActivity.kt` |
 | Caller authorization | `core/KarooCallerPolicy.kt`, `PintProgressExtension.kt` |
-| Mug assets | `tools/generate-drawables.mjs` |
+| Mug and fill assets | `tools/generate-drawables.mjs` |
 
 ## State and transitions
 
