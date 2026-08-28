@@ -3,9 +3,10 @@
 > Modified by Eric Chernuka for Pint Progress. See [NOTICE](NOTICE) for attribution.
 
 Pint Progress provides three data fields for Hammerhead Karoo cycling computers. Each field turns
-Karoo's native **Calories from Power** ride total into pints: **Pints** is a graphical filling beer
-mug, **Pints Fill** fills the field area behind the completed-pint count, and **Pints Count** is a
-native numeric total rendered by Karoo.
+Karoo's native **Calories from Power** ride total into pints: **Pints Fill** fills the field area
+behind the completed-pint count, **Pint Mug** is a graphical filling beer mug, and **Pints Count**
+is a native numeric total rendered by Karoo. The data-field picker lists them in that same order:
+**Pints Fill**, **Pint Mug**, then **Pints Count**.
 
 One full mug corresponds to **150 kcal** by default, approximately a 12 fl oz / 355 ml 5% ABV beer. The "pint" name is branding, not a volume measurement. The mug fills in 5% steps, adds foam from 80%, crowns the rim with foam when full, shows bubbles when it observes a completion, drains, and starts the next mug. Until the first completed beer, the field shows only the filling mug. Afterwards it shows a compact `N+` count beside the mug.
 
@@ -17,9 +18,9 @@ One full mug corresponds to **150 kcal** by default, approximately a 12 fl oz / 
 
 <table>
   <tr>
-    <td><img src="docs/images/karoo-preview-1.png" alt="Karoo page-editor preview showing 1+ beside the Pints mug" width="220"></td>
-    <td><img src="docs/images/karoo-preview-99.png" alt="Karoo page-editor preview showing 99+ beside the Pints mug" width="220"></td>
-    <td><img src="docs/images/karoo-preview-100.png" alt="Karoo page-editor preview showing 100+ beside the Pints mug" width="220"></td>
+    <td><img src="docs/images/karoo-preview-1.png" alt="Karoo page-editor preview showing 1+ beside the Pint Mug" width="220"></td>
+    <td><img src="docs/images/karoo-preview-99.png" alt="Karoo page-editor preview showing 99+ beside the Pint Mug" width="220"></td>
+    <td><img src="docs/images/karoo-preview-100.png" alt="Karoo page-editor preview showing 100+ beside the Pint Mug" width="220"></td>
   </tr>
   <tr>
     <td align="center"><code>1+</code></td>
@@ -44,7 +45,7 @@ Pint Progress gives every Karoo `ViewConfig` input explicit behavior. It convert
 - The graphical mug preview loops through 50%, 80%, and full-with-bubbles frames at the same one-second cadence.
 - The graphical mug preview then shows `1+`, `99+`, and `100+` at one-second intervals so picker
   sizing for count transitions is directly observable.
-- **Pints Fill** uses the same graphical runtime and global calorie target. Its basic preview shows
+- **Pints Fill** is the first picker entry. It uses the same graphical runtime and global calorie target. Its basic preview shows
   50% next-pint progress and `0`, and its live field hides the Karoo header.
 - **Pints Count** publishes a floored decimal total. Karoo displays values such as `0.00`, `0.70`,
   `1.00`, and `12.30` through its native formatter. Its page-editor preview cycles through `0.5`,
@@ -69,7 +70,7 @@ This command produces a local debug APK and an intentionally unsigned release AP
 
 1. Enable developer mode and USB debugging on the Karoo.
 2. Install the debug APK with `adb install -r pint/build/outputs/apk/debug/pint-debug.apk`.
-3. Add **Pints**, **Pints Fill**, or **Pints Count** under **Pint Progress** to a ride page from the Karoo data-field picker.
+3. Add **Pints Fill**, **Pint Mug**, or **Pints Count** under **Pint Progress** to a ride page from the Karoo data-field picker.
 4. Start a ride with power-based calories available.
 
 The debug APK is for local development only. Do not attach it to a public release. The verification workflow does not publish debug APKs on normal pushes; a manually dispatched run can produce an explicitly marked, short-lived `UNSAFE-DEBUG` artifact. Its default debug key is ephemeral, so it may require uninstalling a debug APK from a different run. An actual update must use the same project-owned signing key as the installed app. The release build is deliberately unsigned unless the tag-only release workflow receives the protected signing secrets: any distributable release must be rebuilt from an audited commit, signed with that private key, and published with its version, commit, and SHA-256 recorded.

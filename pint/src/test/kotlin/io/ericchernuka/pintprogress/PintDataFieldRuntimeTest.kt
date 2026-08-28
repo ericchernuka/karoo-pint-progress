@@ -33,7 +33,7 @@ class PintDataFieldRuntimeTest {
     @Test
     fun `style and preview state select each cancellation route`() {
         assertEquals(
-            listOf("pint-progress", "pint-progress-fill", "pint-progress-text"),
+            listOf("pint-progress-fill", "pint-progress", "pint-progress-text"),
             PintFieldStyle.entries.map(PintFieldStyle::typeId),
         )
         assertEquals("numeric-live", PintFieldStyle.TEXT.cancellationLabel(preview = false))

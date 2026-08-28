@@ -29,7 +29,7 @@ adb uninstall io.ericchernuka.pintprogress
 ## App or settings screen is missing
 
 The settings screen is the launcher activity named Pint Progress. The data field itself appears in
-Karoo's data-field picker under Pint Progress as `Pints`. These are separate surfaces.
+Karoo's data-field picker under Pint Progress as `Pint Mug`. These are separate surfaces.
 
 Verify the package, then launch it directly:
 
