@@ -5,9 +5,9 @@ Use this index to load only the context needed for a task.
 | Document | Use it for |
 | --- | --- |
 | [Architecture](ARCHITECTURE.md) | Data flow, module boundaries, state ownership, settings |
-| [Karoo data-field contract](KAROO_DATA_FIELD_CONTRACT.md) | `ViewConfig`, adaptive sizing, alignment, cadence, device matrix |
+| [Karoo data-field contract](KAROO_DATA_FIELD_CONTRACT.md) | `ViewConfig`, fill sizing, alignment, cadence, device matrix |
 | [Test boundary](TEST_BOUNDARY.md) | Test layers, coverage policy, Android and Karoo boundary |
-| [Drawables](DRAWABLES.md) | Mug generation, semantic colors, geometry checks, README artwork |
+| [Drawables](DRAWABLES.md) | Shared icon and field-fill generation, semantic colors, geometry checks |
 | [Security](SECURITY.md) | Trust boundaries, prohibited capabilities, audit checklist |
 | [Release](RELEASE.md) | Versioning, signing, CI artifacts, release evidence ([template](RELEASE_EVIDENCE_TEMPLATE.md)) |
 | [Build system comparison](BUILD_SYSTEM_COMPARISON.md) | Karoo Reminder comparison and release-design decisions |

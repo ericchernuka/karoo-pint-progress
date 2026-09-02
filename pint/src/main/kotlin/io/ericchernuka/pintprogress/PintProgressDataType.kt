@@ -4,16 +4,12 @@ import android.content.Context
 import android.os.SystemClock
 import android.util.Log
 import io.ericchernuka.pintprogress.core.PintFrame
-import io.ericchernuka.pintprogress.core.PintFieldLayout
 import io.ericchernuka.pintprogress.core.PintViewReducer
 import io.ericchernuka.pintprogress.core.PintViewUpdate
-import io.ericchernuka.pintprogress.core.displayFor
 import io.ericchernuka.pintprogress.core.fillDisplayFor
 import io.ericchernuka.pintprogress.core.fillPreviewFrames
-import io.ericchernuka.pintprogress.core.graphicalPreviewFrames
 import io.ericchernuka.pintprogress.core.numericPreviewMessages
 import io.ericchernuka.pintprogress.core.numericStateFrom
-import io.ericchernuka.pintprogress.core.previewLayoutFor
 import io.ericchernuka.pintprogress.core.resolveFieldSize
 import io.hammerhead.karooext.KarooSystemService
 import io.hammerhead.karooext.extension.DataTypeImpl
@@ -75,7 +71,7 @@ class PintProgressDataType internal constructor(
             return
         }
 
-        emitter.onNext(UpdateGraphicConfig(showHeader = style != PintFieldStyle.FILL))
+        emitter.onNext(UpdateGraphicConfig(showHeader = false))
 
         val displayMetrics = context.resources.displayMetrics
         val (fieldWidthDp, fieldHeightDp) = resolveFieldSize(
@@ -84,48 +80,18 @@ class PintProgressDataType internal constructor(
             screenSize = displayMetrics.widthPixels to displayMetrics.heightPixels,
             density = displayMetrics.density,
         )
-        val baseLayout = PintFieldLayout.forSize(
-            preview = config.preview,
-            widthDp = fieldWidthDp,
-            heightDp = fieldHeightDp,
-            boundariesEnabled = config.boundariesEnabled,
-        )
         val renderer = PintRemoteViews(
             packageName = context.packageName,
-            displayDensity = displayMetrics.density,
             scaledDensity = displayMetrics.scaledDensity,
+            density = displayMetrics.density,
         )
-        fun render(frame: PintFrame): android.widget.RemoteViews {
-            if (style == PintFieldStyle.FILL) {
-                return renderer.renderFill(
-                    display = fillDisplayFor(frame),
-                    alignment = config.alignment,
-                    textSizeSp = config.textSize,
-                    fieldWidthDp = fieldWidthDp,
-                    fieldHeightDp = fieldHeightDp,
-                )
-            }
-            val display = displayFor(frame)
-            val renderLayout = if (config.preview) {
-                previewLayoutFor(
-                    hasCompletedCount = display.second.isNotEmpty(),
-                    widthDp = fieldWidthDp,
-                    heightDp = fieldHeightDp,
-                    boundariesEnabled = config.boundariesEnabled,
-                )
-            } else {
-                baseLayout
-            }
-            return renderer.render(
-                display = display,
-                layout = renderLayout,
-                alignment = config.alignment,
-                textSizeSp = config.textSize,
-                boundariesEnabled = config.boundariesEnabled,
-                fieldWidthDp = fieldWidthDp,
-                fieldHeightDp = fieldHeightDp,
-            )
-        }
+        fun render(frame: PintFrame) = renderer.renderFill(
+            display = fillDisplayFor(frame),
+            alignment = config.alignment,
+            textSizeSp = config.textSize,
+            fieldWidthDp = fieldWidthDp,
+            fieldHeightDp = fieldHeightDp,
+        )
         if (BuildConfig.DEBUG) {
             Log.d(
                 TAG,
@@ -133,14 +99,12 @@ class PintProgressDataType internal constructor(
                     "${fieldWidthDp}x${fieldHeightDp} textSp=${config.textSize} " +
                     "alignment=${config.alignment} boundaries=${config.boundariesEnabled} " +
                     "preview=${config.preview} density=${displayMetrics.density} " +
-                    "scaledDensity=${displayMetrics.scaledDensity} style=$style " +
-                    "baseTreatment=$baseLayout",
+                    "scaledDensity=${displayMetrics.scaledDensity} style=$style",
             )
         }
         if (config.preview) {
             emitter.launchCancellable(style.cancellationLabel(preview = true)) {
-                val frames = if (style == PintFieldStyle.FILL) fillPreviewFrames() else graphicalPreviewFrames()
-                runtime().graphicalPreview(frames).collect { frame ->
+                runtime().graphicalPreview(fillPreviewFrames()).collect { frame ->
                     emitter.updateView(render(frame))
                 }
             }
@@ -180,13 +144,11 @@ internal enum class PintFieldStyle(
     val typeId: String,
 ) {
     FILL("pint-progress-fill"),
-    MUG("pint-progress"),
     TEXT("pint-progress-text"),
 }
 
 internal fun PintFieldStyle.cancellationLabel(preview: Boolean): String = when (this) {
     PintFieldStyle.TEXT -> if (preview) "numeric-preview" else "numeric-live"
-    PintFieldStyle.MUG -> if (preview) "graphical-preview" else "graphical-live"
     PintFieldStyle.FILL -> if (preview) "fill-preview" else "fill-live"
 }
 

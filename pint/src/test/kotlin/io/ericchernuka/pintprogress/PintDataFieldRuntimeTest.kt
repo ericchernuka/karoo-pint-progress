@@ -3,7 +3,6 @@ package io.ericchernuka.pintprogress
 import io.ericchernuka.pintprogress.core.PintFrame
 import io.ericchernuka.pintprogress.core.PintProgress
 import io.ericchernuka.pintprogress.core.fillPreviewFrames
-import io.ericchernuka.pintprogress.core.graphicalPreviewFrames
 import io.hammerhead.karooext.models.DataPoint
 import io.hammerhead.karooext.models.DataType
 import io.hammerhead.karooext.models.StreamState
@@ -33,13 +32,11 @@ class PintDataFieldRuntimeTest {
     @Test
     fun `style and preview state select each cancellation route`() {
         assertEquals(
-            listOf("pint-progress-fill", "pint-progress", "pint-progress-text"),
+            listOf("pint-progress-fill", "pint-progress-text"),
             PintFieldStyle.entries.map(PintFieldStyle::typeId),
         )
         assertEquals("numeric-live", PintFieldStyle.TEXT.cancellationLabel(preview = false))
         assertEquals("numeric-preview", PintFieldStyle.TEXT.cancellationLabel(preview = true))
-        assertEquals("graphical-live", PintFieldStyle.MUG.cancellationLabel(preview = false))
-        assertEquals("graphical-preview", PintFieldStyle.MUG.cancellationLabel(preview = true))
         assertEquals("fill-live", PintFieldStyle.FILL.cancellationLabel(preview = false))
         assertEquals("fill-preview", PintFieldStyle.FILL.cancellationLabel(preview = true))
     }
@@ -126,18 +123,6 @@ class PintDataFieldRuntimeTest {
             output,
         )
         assertEquals((0L..7_000L step 1_000L).toList(), times)
-        assertEquals(
-            listOf(
-                PintFrame.Steady(PintProgress(0, 10)),
-                PintFrame.Steady(PintProgress(0, 16)),
-                PintFrame.FullBubbles(0),
-                PintFrame.Steady(PintProgress(1, 10)),
-                PintFrame.Steady(PintProgress(99, 10)),
-                PintFrame.Steady(PintProgress(100, 10)),
-                PintFrame.Steady(PintProgress(0, 10)),
-            ),
-            capturePreview(runtime().graphicalPreview(graphicalPreviewFrames()), 7),
-        )
         assertEquals(
             listOf(
                 PintFrame.Steady(PintProgress(0, 10)),

@@ -24,6 +24,10 @@ _Avoid_: Mode, style
 A field variation in which next-pint progress fills the field while completed pints remain visible over it.
 _Avoid_: Fill variation, fill mode, full-tile mode
 
+**Pints Count**:
+A field variation that shows total pint progress, including partial pints, through Karoo's native numeric presentation.
+_Avoid_: Number, completed pints
+
 **Beer texture**:
 Static bubbles, highlights, and an irregular foam boundary that make Pints Fill read as beer while keeping completed pints legible.
 _Avoid_: Realistic fill, beer effect
