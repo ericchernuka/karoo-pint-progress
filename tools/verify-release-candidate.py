@@ -49,7 +49,7 @@ def verify(record, approval, measured, run, artifact, jobs, expected, archive_di
     require(run['id'] == record['run_id'] and run['run_attempt'] == record['run_attempt']
             and run['head_sha'] == record['commit'] and run['event'] == 'workflow_dispatch'
             and run['status'] == 'completed' and run['conclusion'] == 'success'
-            and run['path'] == '.github/workflows/release.yml', 'Not a successful candidate preparation run')
+            and run['path'].split('@', 1)[0] == '.github/workflows/release.yml', 'Not a successful candidate preparation run')
     prepare = [job for job in jobs['jobs'] if job['name'] == 'prepare']
     publish = [job for job in jobs['jobs'] if job['name'] == 'publish']
     require(len(prepare) == 1 and prepare[0]['conclusion'] == 'success'

@@ -215,3 +215,5 @@ configuration work for the maintainer. No workflow dispatch, tag, publication, o
 change occurred.
 
 Review correction: tag lookup uses the explicit tags/ ref namespace, so a same-name branch cannot satisfy the candidate tag check.
+
+Sol Medium review found the documented GitHub workflow path ref suffix was rejected. Realistic @main and @refs/heads/ec/candidate fixtures failed before the correction; comparing the path before its @ suffix passes both while rejecting a wrong workflow with a suffix. The complete release checker suite passes after the fix.

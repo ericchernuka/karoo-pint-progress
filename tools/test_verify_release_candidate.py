@@ -24,7 +24,7 @@ class CandidateTest(unittest.TestCase):
                              checks=[dict(name=n, result='PASS', evidence='https://example.com/check')
                                      for n in candidate.required_checks()])
         self.run = dict(id=42, run_attempt=2, head_sha='a' * 40, event='workflow_dispatch',
-                        status='completed', conclusion='success', path='.github/workflows/release.yml')
+                        status='completed', conclusion='success', path='.github/workflows/release.yml@main')
         self.artifact = dict(id=71, name='pint-candidate-42-2', expired=False, digest='sha256:' + 'd' * 64,
                              workflow_run=dict(id=42, head_sha='a' * 40))
         self.jobs = dict(jobs=[dict(name='prepare', conclusion='success'), dict(name='publish', conclusion='skipped')])
@@ -37,13 +37,15 @@ class CandidateTest(unittest.TestCase):
 
     def test_identity_and_provenance(self):
         self.check()
+        self.run['path'] = '.github/workflows/release.yml@refs/heads/ec/candidate'
+        self.check()
         for field in self.identity:
             old = self.approval['identity'][field]
             self.approval['identity'][field] = 9 if isinstance(old, int) else 'wrong'
             with self.subTest(field=field), self.assertRaises(ValueError): self.check()
             self.approval['identity'][field] = old
         for target, field, bad in [(self.run, 'run_attempt', 1), (self.run, 'event', 'push'),
-                                   (self.run, 'path', 'other.yml'), (self.run, 'conclusion', 'failure'),
+                                   (self.run, 'path', '.github/workflows/other.yml@main'), (self.run, 'conclusion', 'failure'),
                                    (self.artifact, 'id', 72), (self.artifact, 'expired', True),
                                    (self.artifact, 'digest', 'sha256:' + 'e' * 64),
                                    (self.artifact, 'name', 'pint-candidate-42-1'),
