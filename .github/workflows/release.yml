@@ -39,7 +39,10 @@ jobs:
             fi
           done
       - name: Verify generated drawables
-        run: node tools/generate-drawables.mjs && node tools/validate-drawables.mjs && git diff --exit-code -- pint/src/main/res/drawable pint/src/main/kotlin/io/ericchernuka/pintprogress/PintAssetDrawables.kt
+        run: |
+          node tools/generate-drawables.mjs
+          node tools/validate-drawables.mjs
+          test -z "$(git status --porcelain=v1)"
       - name: Build signed release
         env:
           PINT_KEY_ALIAS: ${{ secrets.PINT_KEY_ALIAS }}

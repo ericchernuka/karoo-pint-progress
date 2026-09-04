@@ -27,7 +27,10 @@ jobs:
       - uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
       - run: sdkmanager "platforms;android-34" "build-tools;34.0.0" "build-tools;35.0.0"
       - name: Verify generated drawables
-        run: node tools/generate-drawables.mjs && node tools/validate-drawables.mjs && git diff --exit-code -- pint/src/main/res/drawable pint/src/main/kotlin/io/ericchernuka/pintprogress/PintAssetDrawables.kt
+        run: |
+          node tools/generate-drawables.mjs
+          node tools/validate-drawables.mjs
+          test -z "$(git status --porcelain=v1)"
       - name: Verify Dokka output
         run: |
           set -euo pipefail
