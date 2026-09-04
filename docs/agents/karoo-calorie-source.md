@@ -31,8 +31,14 @@ The source package is `io.ericchernuka.pintprogress.caloriesource`. The extensio
 1. Open Karoo Settings and confirm `Pint QA Calorie Driver` is installed under Extensions.
 2. Open Sensors and start a search. Select the extension-source filter, shown as a puzzle-piece icon.
 3. Pair `Pint QA Calorie Driver` and confirm that its details show `CONNECTED`.
-4. Start a ride and add the candidate Pint Progress field that needs verification.
-5. Select `50%: 90` and confirm that Pint Count reaches and stays at `0.50`. Stop if it does not.
+4. Open the driver and select `Pause output` before starting a fresh ride. Fresh installations start
+   paused; existing installations retain their saved output choice.
+5. Set the candidate Pint Progress target to 180 Calories. Start a fresh ride and add the candidate
+   field that needs verification.
+6. Select `50%: 90` and confirm that Pint Count reaches and stays at `0.50`. Stop if it does not.
+
+If ride Calories exceed 90 before calibration, restart the test ride. Lowering the driver target
+cannot reduce cumulative Calories.
 
 Stop if the candidate remains in `Searching...` or KOS Calories do not increase. A target visible
 only in the driver app does not prove that Pint Progress received it.

@@ -8,7 +8,7 @@ class CalorieOutputStore(context: Context) {
     fun read(): CalorieOutputState {
         return CalorieOutputState(
             targetCalories = preferences.getFloat(TARGET_VALUE, DEFAULT_TARGET).toDouble(),
-            isEmitting = preferences.getBoolean(IS_EMITTING, true),
+            isEmitting = preferences.getBoolean(IS_EMITTING, false),
         )
     }
 

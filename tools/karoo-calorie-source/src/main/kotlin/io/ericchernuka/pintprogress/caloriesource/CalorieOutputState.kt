@@ -12,7 +12,7 @@ enum class CaloriePreset(val calories: Double) {
 
 data class CalorieOutputState(
     val targetCalories: Double = CaloriePreset.NINETY_FIVE_PERCENT.calories,
-    val isEmitting: Boolean = true,
+    val isEmitting: Boolean = false,
 ) {
     fun select(calories: Double) = CalorieOutputState(calories, isEmitting = true)
 
