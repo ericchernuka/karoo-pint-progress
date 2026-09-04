@@ -80,3 +80,14 @@ sha256sum app.apk
 - Never rebuild after evidence collection.
 - Keep package name `io.ericchernuka.pintprogress` and the signing identity stable for upgrades.
 - If using a Karoo delivery manifest, ensure its URL, `latestVersionCode`, APK, and checksum agree.
+
+## Approved signer configuration
+
+A maintainer must set the repository variable `PINT_SIGNER_SHA256` to the public 64-hex SHA-256
+certificate fingerprint from a maintainer-approved prior release record. Do not derive the expected
+fingerprint from the candidate under test. Missing or malformed configuration blocks publication.
+The checker accepts one matching certificate and rejects extra signers. Certificate rotation needs
+an explicit policy change. This setting does not change unsigned local builds.
+
+The approved release fingerprint has not been supplied in this checkout. Configuration and an
+authorized remote verification run remain pending; no private key is needed to set this public value.

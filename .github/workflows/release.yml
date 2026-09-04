@@ -60,11 +60,14 @@ jobs:
           :pint:jacocoBehaviorTestCoverageVerification
           --no-daemon
       - name: Verify release APK
+        env:
+          PINT_SIGNER_SHA256: ${{ vars.PINT_SIGNER_SHA256 }}
         run: |
           APK=pint/build/outputs/apk/release/pint-release.apk
           test "$(apkanalyzer manifest version-code "$APK")" = "${GITHUB_RUN_NUMBER}"
           test "$(apkanalyzer manifest version-name "$APK")" = "${GITHUB_REF_NAME#v}"
-          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose --print-certs "$APK"
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose --print-certs "$APK" > "$RUNNER_TEMP/signer.txt"
+          python3 tools/verify-release-signer.py "$RUNNER_TEMP/signer.txt" "$PINT_SIGNER_SHA256"
           sha256sum "$APK" > "$APK.sha256"
       - name: Publish GitHub release
         env:
