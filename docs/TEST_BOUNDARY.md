@@ -13,6 +13,9 @@
 ./gradlew :lib:dokkaGeneratePublicationHtml
 python3 tools/verify-dokka-output.py
 
+# Release identity and approval checks
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools -p "test_verify_release_*.py"
+
 # Full repository gate
 ./gradlew :lib:testDebugUnitTest :pint:testReleaseUnitTest :pint:lintDebug :pint:assembleDebug :pint:assembleRelease :pint:jacocoBehaviorTestCoverageVerification :calorie-source:testDebugUnitTest :calorie-source:lintDebug :calorie-source:assembleDebug
 

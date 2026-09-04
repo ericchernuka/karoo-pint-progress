@@ -37,6 +37,10 @@ jobs:
           ./gradlew :lib:dokkaGeneratePublicationHtml --rerun-tasks
           python3 tools/verify-dokka-output.py
           test -z "$(git status --porcelain=v1)"
+      - name: Verify release checkers
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: python3 -m unittest discover -s tools -p 'test_verify_release_*.py'
       - name: Verify and build
         run: >-
           ./gradlew
