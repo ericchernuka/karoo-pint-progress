@@ -22,6 +22,7 @@ import io.hammerhead.karooext.models.StreamState
 import io.hammerhead.karooext.models.UpdateGraphicConfig
 import io.hammerhead.karooext.models.UpdateNumericConfig
 import io.hammerhead.karooext.models.ViewConfig
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -133,11 +134,12 @@ internal fun Emitter<*>.launchCancellable(
     label: String,
     block: suspend CoroutineScope.() -> Unit,
 ) {
-    val job = CoroutineScope(Dispatchers.Default).launch(block = block)
+    val job = CoroutineScope(Dispatchers.Default).launch(start = CoroutineStart.LAZY, block = block)
     setCancellable {
         job.cancel()
         if (BuildConfig.DEBUG) Log.d("PintProgressField", "cancellation label=$label")
     }
+    job.start()
 }
 
 internal enum class PintFieldStyle(
