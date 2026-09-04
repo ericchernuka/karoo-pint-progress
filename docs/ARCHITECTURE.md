@@ -10,7 +10,7 @@
 ## Runtime flow
 
 ```text
-Karoo calorie stream ----+--> PintViewReducer --> RenderPlan --> displayFor
+Karoo calorie stream ----+--> PintViewReducer --> RenderPlan --> fillDisplayFor
                          |                                         |
 private calorie setting -+                                         v
                          |                               PintRemoteViews --> ViewEmitter
@@ -18,42 +18,40 @@ private calorie setting -+                                         v
                          +--> numericStateFrom ---------------------------> StreamEmitter
 ```
 
-`PintProgressExtension` owns the Karoo service connection and exposes three `PintProgressDataType`
-instances: the graphical fill field, the Pint Mug field, and the native count field. They share the
-calorie source, lifecycle, one-Hz update cap, and global calorie target. The graphical paths use
-the same reducer and scheduler, then select their own generated asset family and preview frames. The
-count path publishes a numeric stream and lets Karoo own its viewport and formatting. Every path
-cancels its work on detach.
+`PintProgressExtension` owns the Karoo service connection and exposes two `PintProgressDataType`
+instances: the graphical fill field and the native count field. They share the calorie source,
+lifecycle, one-Hz update cap, and global calorie target. The fill path uses the reducer, scheduler,
+and generated field-fill assets. The count path publishes a numeric stream and lets Karoo own its
+viewport and formatting. Both paths cancel their work on detach.
 
 ## Ownership map
 
 | Concern | Owner |
 | --- | --- |
 | Calorie target bounds and slider mapping | `core/BeerCaloriesPolicy.kt` |
-| Calories to completed mugs and 5% bucket | `core/PintProgressReducer.kt` |
+| Calories to completed pints and 5% bucket | `core/PintProgressReducer.kt` |
 | Stream-state coalescing and animation plan | `core/PintViewReducer.kt` |
-| Frame to mug or fill asset and count | generated `core/PintAsset.kt` |
+| Frame to fill asset and count | generated `core/PintAsset.kt` |
 | Calorie stream to decimal pint total | `core/PintTextStreamState.kt` |
-| Viewport and treatment selection | `core/PintFieldLayout.kt` |
-| Text fitting and boundary inset | `core/PintFieldLayout.kt` |
-| Karoo alignment layout selection | `PintRemoteViews.kt`, static `res/layout/pint_progress_*_view.xml` |
+| Viewport conversion and fill text fitting | `core/PintFieldSizing.kt` |
+| Karoo alignment layout selection | `PintRemoteViews.kt`, static `res/layout/pint_progress_fill_*_view.xml` |
 | Android `RemoteViews` serialization | `PintRemoteViews.kt` |
 | One-Hz pacing and Karoo subscription | `PintProgressDataType.kt` |
 | Private preference adapter and UI | `BeerCaloriesStore.kt`, `PintSettingsActivity.kt` |
 | Caller authorization | `core/KarooCallerPolicy.kt`, `PintProgressExtension.kt` |
-| Mug and fill assets | `tools/generate-drawables.mjs` |
+| Shared icon and fill assets | `tools/generate-drawables.mjs` |
 
 ## State and transitions
 
 The calorie stream is cumulative for the active ride. Progress has two derived values:
 
 - `completed`: whole calorie targets reached
-- `fillBucket`: one of 20 states for the next mug
+- `fillBucket`: one of 20 states for the next pint
 
 Only an observed single completion crossing animates `FULL_BUBBLES -> DRAINING -> steady`. Initial
 attachment, reset, skipped thresholds, unavailable data, and target changes render a steady state.
 A target change updates the baseline immediately so historical calories never trigger a false
-celebration. The mug and field-fill renderers map the shared frames to their own generated assets.
+celebration. The field-fill renderer maps the shared frames to generated assets.
 
 ## Settings scope
 

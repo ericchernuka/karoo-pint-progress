@@ -28,8 +28,8 @@ adb uninstall io.ericchernuka.pintprogress
 
 ## App or settings screen is missing
 
-The settings screen is the launcher activity named Pint Progress. The data field itself appears in
-Karoo's data-field picker under Pint Progress as `Pint Mug`. These are separate surfaces.
+The settings screen is the launcher activity named Pint Progress. `Pints Fill` and `Pints Count`
+appear separately in Karoo's data-field picker under Pint Progress.
 
 Verify the package, then launch it directly:
 
@@ -57,36 +57,15 @@ Do not patch a layout from one screenshot. Capture:
 - completed count length;
 - screenshot and Karoo software version.
 
-Reproduce the case in the pure size and typography tests and the resource validator. Fix derived
-policy first, then verify large, medium, short, narrow, and small treatments on device. A completed
-count must remain visible in every live graphical treatment.
+Reproduce the case in the pure size and fill-text tests and the resource validator. Fix derived
+policy first, then verify large, medium, short, narrow, and small fields on device. The completed
+count must remain visible in every live Pints Fill field.
 Include a navigation toast or reroute resize because Karoo can reduce the host container without
 calling `startView` again.
 
-The issue #11 device study found three important limits:
-
-- Treat the visible glyph raster, the `TextView` bounds, and the mug bounds as separate geometry.
-  A centered `TextView` can still place a digit curve too close to its lower raster edge.
-- Use fixed `1+`, `99+`, and `100+` diagnostic states through the production rendering path when
-  investigating geometry. Add colored root, count, suffix, and mug outlines only in a disposable
-  local debug build. Remove these fields and outlines before review.
-- Validate in the live ride view. Page-editor navigation can cover the bottom row and cannot prove
-  whether the underlying `RemoteViews` clips.
-
-The verified fix keeps count and mug scaling linked, applies a measured optical offset, and reserves
-8 dp of vertical glyph clearance in constrained regular fields. Do not replace that clearance with
-another baseline translation. A translation changes position but does not reduce an oversized glyph.
-
-Reference vectors captured on a Hammerhead k24 running KOS 1.650.2509 were:
-
-| Layout | `gridSize` | `viewSize` | Resolved dp | `textSize` | Boundaries | Treatment |
-| --- | --- | --- | --- | ---: | --- | --- |
-| Full-width constrained | 60 × 25 | 478 × 243 px | 255 × 130 dp | 96 sp | on | regular |
-| Half-width compact | 30 × 15 | 238 × 148 px | 127 × 79 dp | 50 sp | on | compact |
-| Full-width roomy | 60 × 60 | 478 × 642 px | 255 × 342 dp | 96 sp | on | regular |
-
-These values are evidence from one host version, not new layout thresholds. Always record the actual
-`ViewConfig` for the candidate under test.
+Validate Pints Fill in the live ride view. Page-editor navigation can cover the bottom row and
+cannot prove whether the underlying `RemoteViews` clips. Always record the actual `ViewConfig` for
+the candidate under test.
 
 ## Settings do not appear to apply
 
@@ -124,5 +103,5 @@ adb logcat -s PintProgressField
 adb logcat | rg 'pintprogress|KarooExtension|PackageManager'
 ```
 
-Debug logs include resolved `ViewConfig`, dp dimensions, density, and chosen layout. Do not add
+Debug logs include resolved `ViewConfig`, dp dimensions, density, and field style. Do not add
 production telemetry to replace focused debugging.

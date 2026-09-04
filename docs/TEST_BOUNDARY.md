@@ -29,9 +29,8 @@ node tools/validate-drawables.mjs
 - caller-package authorization for the Karoo Binder boundary;
 - first-attach, reset, skipped-threshold, full, bubbles, drain, and steady-state transitions;
 - stream-state conversion, visible-state coalescing, timed-frame plans, and preview behavior;
-- mug and fill drawable selection, exact fill counts, unavailable text, counter visibility,
-  small-viewport count sizing, Pints Fill width and height fitting, and deterministic picker
-  previews;
+- fill drawable selection, exact completed counts, unavailable text, Pints Fill width and height
+  fitting, and deterministic picker previews;
 - count-field 0.1-pint flooring, preview messages, native stream-state propagation, and custom data-point identity.
 
 The following files are outside the core JaCoCo ratio. Android and Karoo adapters are compile- and
@@ -47,21 +46,20 @@ device-verified, while the embedded runtime scheduling policy has focused JVM co
   terminal callbacks, synchronous terminal callbacks, and idempotent cleanup. Coroutine state
   machines contain generated normal-completion instructions that prevent this adapter from joining
   the core ratio. These tests verify callback order and waits, not Binder or `RemoteViews` delivery.
-- `PintRemoteViews.kt` serializes the covered mug or fill asset and count display into Android
-  `RemoteViews`, maps assets to compile-time `R.drawable` IDs, and applies each presentation's
-  static layout contract.
-  The resource validator checks every static mug and field-fill alignment layout, edge-to-edge fill
-  rendering, responsive image bounds, initial visibility and text state, the `pint_count_suffix`
-  static `+` contract, field labels, extension metadata, and generated drawable mappings. Core
-  tests cover the shared count-and-mug scale
-  for the observed roomy `96sp` text input and the bounded 128 × 68 dp narrow input at `46sp`.
-  RemoteViews application and physical fit remain device checks.
-  Core tests also require Android 12+ roomy scaling and the normal-scale fallback used on older
-  hosts where `RemoteViews` cannot assign larger image layout dimensions.
+- `PintRemoteViews.kt` serializes the covered field-fill asset and completed count into Android
+  `RemoteViews`, maps assets to compile-time `R.drawable` IDs, and applies the three static physical
+  alignment layouts. The resource validator checks edge-to-edge fill rendering, initial text state,
+  field labels, extension metadata, generated mappings, and the shared icon. Core tests cover fill
+  count fitting. RemoteViews application and physical fit remain device checks.
 - `PintSettingsActivity.kt` and `BeerCaloriesStore.kt` adapt the covered target policy to Android's
   `SeekBar` and app-private preferences.
 
-Those adapters are compile-verified by `:pint:assembleDebug`, which validates the manifest, service declaration, extension metadata, layouts, vector assets, and SDK calls. They still require an on-device Karoo smoke test because local JVM tests cannot bind the Karoo System service or receive its Binder-backed `ViewEmitter`. The device methods for the host-owned native count placeholder, the graphical no-count, `1+`, `99+`, `100+` sequence, and preview detach evidence are documented in [the Karoo data-field contract](KAROO_DATA_FIELD_CONTRACT.md#device-verification-method). Record the observed placeholder value with the exact device and KOS evidence, and keep that row separate from the emitted-message row.
+Those adapters are compile-verified by `:pint:assembleDebug`, which validates the manifest, service
+declaration, extension metadata, layouts, vector assets, and SDK calls. They still require an
+on-device Karoo smoke test because local JVM tests cannot bind the Karoo System service or receive
+its Binder-backed `ViewEmitter`. The device methods for the Pints Fill preview, the host-owned
+numeric placeholder, and preview detach evidence are documented in [the Karoo data-field contract](KAROO_DATA_FIELD_CONTRACT.md#device-verification-method).
+Record the placeholder with exact device and KOS evidence, separate from the emitted-message row.
 
 The separate QA calorie-source APK drives KOS native Calories through supported Power and Speed
 sensor types without changing the candidate APK. Use it for threshold, count, multi-pint,

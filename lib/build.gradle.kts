@@ -30,7 +30,6 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
     compileOptions {
@@ -88,5 +87,4 @@ dependencies {
     dokkaPlugin(libs.jetbrains.dokka.android)
 
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
 }

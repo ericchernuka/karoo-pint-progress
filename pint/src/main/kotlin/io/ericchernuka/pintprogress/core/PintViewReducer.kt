@@ -65,15 +65,6 @@ class PintViewReducer {
     }
 }
 
-fun graphicalPreviewFrames(): List<PintFrame> = listOf(
-    PintFrame.Steady(PintProgress(completed = 0, fillBucket = 10)),
-    PintFrame.Steady(PintProgress(completed = 0, fillBucket = 16)),
-    PintFrame.FullBubbles(completed = 0),
-    PintFrame.Steady(PintProgress(completed = 1, fillBucket = 10)),
-    PintFrame.Steady(PintProgress(completed = 99, fillBucket = 10)),
-    PintFrame.Steady(PintProgress(completed = 100, fillBucket = 10)),
-)
-
 fun fillPreviewFrames(): List<PintFrame> = listOf(
     PintFrame.Steady(PintProgress(completed = 0, fillBucket = 10)),
     PintFrame.Steady(PintProgress(completed = 0, fillBucket = 16)),

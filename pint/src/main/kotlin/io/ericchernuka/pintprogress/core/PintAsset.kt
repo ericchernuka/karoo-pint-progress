@@ -2,32 +2,6 @@
 package io.ericchernuka.pintprogress.core
 
 /** Static drawable frames generated with the vector assets. */
-enum class PintAsset {
-    PINT_00,
-    PINT_05,
-    PINT_10,
-    PINT_15,
-    PINT_20,
-    PINT_25,
-    PINT_30,
-    PINT_35,
-    PINT_40,
-    PINT_45,
-    PINT_50,
-    PINT_55,
-    PINT_60,
-    PINT_65,
-    PINT_70,
-    PINT_75,
-    PINT_80,
-    PINT_85,
-    PINT_90,
-    PINT_95,
-    FULL_BUBBLES,
-    DRAINING,
-    UNAVAILABLE
-}
-
 enum class PintFillAsset {
     FILL_00,
     FILL_05,
@@ -54,18 +28,9 @@ enum class PintFillAsset {
     FILL_UNAVAILABLE
 }
 
-fun displayFor(frame: PintFrame): Pair<PintAsset, String> = when (frame) {
-    PintFrame.Unavailable -> PintAsset.UNAVAILABLE to ""
-    is PintFrame.Steady -> PintAsset.entries[frame.progress.fillBucket] to frame.progress.completed.mugText()
-    is PintFrame.FullBubbles -> PintAsset.FULL_BUBBLES to frame.completed.mugText()
-    is PintFrame.Draining -> PintAsset.DRAINING to frame.completed.mugText()
-}
-
 fun fillDisplayFor(frame: PintFrame): Pair<PintFillAsset, String> = when (frame) {
     PintFrame.Unavailable -> PintFillAsset.FILL_UNAVAILABLE to "—"
     is PintFrame.Steady -> PintFillAsset.entries[frame.progress.fillBucket] to frame.progress.completed.toString()
     is PintFrame.FullBubbles -> PintFillAsset.FILL_FULL_FOAM to frame.completed.toString()
     is PintFrame.Draining -> PintFillAsset.FILL_DRAINING to frame.completed.toString()
 }
-
-private fun Int.mugText() = if (this == 0) "" else toString()

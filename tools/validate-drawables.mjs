@@ -66,47 +66,21 @@ const verticalCapDepth = (pathData) => {
   return Number(match[2]) - Number(match[1]);
 };
 
-const foamDrawables = fs.readdirSync("pint/src/main/res/drawable")
-  .filter((name) => name.endsWith(".xml"))
-  .filter((name) => !name.startsWith("pint_fill_"))
-  .filter((name) => drawable(name.slice(0, -4)).includes("@color/pint_foam"));
-const fullFoamDrawables = new Set([
-  "pint_full_bubbles",
-  "pint_full_bubbles_compact",
-  "pint_full_bubbles_icon",
-]);
-
-for (const fileName of foamDrawables) {
-  const name = fileName.slice(0, -4);
-  const xml = drawable(name);
-  const foam = bounds(pathForColor(xml, "pint_foam"));
-  const amber = bounds(pathForColor(xml, "pint_amber"));
-  const [foamTop, foamBottom, foamMessage] = fullFoamDrawables.has(name)
-    ? [3, 23, "celebration foam must stay within the mug envelope and vector viewport"]
-    : [13, 99, "foam must remain inside the inner glass"];
-  assert.ok(foam.minX >= 21 && foam.maxX <= 64 && foam.minY >= foamTop && foam.maxY <= foamBottom,
-    `${name}: ${foamMessage}`);
-  assert.ok(amber.minX >= 21 && amber.maxX <= 64 && amber.minY >= 21 && amber.maxY <= 99,
-    `${name}: amber must remain inside the straight section of the inner glass`);
-  assert.ok(foam.maxY >= amber.minY,
-    `${name}: foam must overlap the amber body so the fill has no visual gap`);
-}
-
-// Check full-pint amber and foam in all layout variants because Karoo can select any variant
-for (const name of ["pint_full_bubbles", "pint_full_bubbles_compact", "pint_full_bubbles_icon"]) {
-  const xml = drawable(name);
-  const foam = bounds(pathForColor(xml, "pint_foam"));
-  const amber = bounds(pathForColor(xml, "pint_amber"));
-  assert.equal(amber.minY, 21, `${name}: full amber must reach the cap boundary`);
-  assert.deepEqual(foam, { minX: 21, maxX: 64, minY: 4, maxY: 23 },
-    `${name}: full foam must crown the rim and meet the amber body`);
-}
+const icon = drawable("ic_pint");
+const iconFoam = bounds(pathForColor(icon, "pint_foam"));
+const iconAmber = bounds(pathForColor(icon, "pint_amber"));
+assert.ok(iconFoam.minX >= 21 && iconFoam.maxX <= 64 && iconFoam.minY >= 13 && iconFoam.maxY <= 99,
+  "The shared icon foam must remain inside the inner glass");
+assert.ok(iconAmber.minX >= 21 && iconAmber.maxX <= 64 && iconAmber.minY >= 21 && iconAmber.maxY <= 99,
+  "The shared icon amber must remain inside the inner glass");
+assert.ok(iconFoam.maxY >= iconAmber.minY,
+  "The shared icon foam must overlap the amber body");
 
 const light = colors();
 const night = colors("values-night");
 assert.equal(light.pint_fill_amber, light.pint_amber, "Light Pints Fill must keep the mug beer color");
 assert.equal(light.pint_fill_foam, light.pint_foam, "Light Pints Fill must keep the mug foam color");
-assert.equal(light.pint_fill_bubble, light.pint_bubble, "Light Pints Fill must keep the mug bubble color");
+assert.equal(light.pint_fill_bubble, "#9A5200", "Light Pints Fill must keep its approved bubble color");
 assert.equal(light.pint_fill_count_shadow, "#00000000", "Light Pints Fill halo must be invisible");
 assert.equal(night.pint_fill_amber, "#A85F00", "Night Pints Fill must use restrained beer");
 assert.equal(night.pint_fill_foam, "#E2D5B8", "Night Pints Fill must use restrained foam");
@@ -130,61 +104,6 @@ assertContrast(night, "amber", 1.7, "Night", "beer body");
 
 const element = (xml, id) => xml.match(new RegExp(`<[^>]+android:id="@\\+id/${id}"[^>]*>`))?.[0];
 const attribute = (xml, id, name) => element(xml, id)?.match(new RegExp(`${name}="([^"]+)"`))?.[1];
-for (const treatment of ["regular", "compact", "adaptive"]) {
-  for (const [alignment, gravity] of [["left", "left|center_vertical"], ["center", "center"], ["right", "right|center_vertical"]]) {
-    const wrapper = resource("layout", `pint_progress_${treatment}_${alignment}_view`);
-    assert.match(wrapper, /android:id="@\+id\/pint_root"/);
-    assert.match(wrapper, new RegExp(`android:gravity="${gravity.replace("|", "\\|")}"`));
-    if (treatment !== "adaptive") {
-      assert.equal(attribute(wrapper, "pint_root", "android:baselineAligned"), "false");
-    }
-    assert.match(wrapper, new RegExp(`layout="@layout/pint_progress_${treatment}_content"`));
-  }
-}
-for (const [treatment, width, height, suffixSize] of [
-  ["regular", "66dp", "89dp", "52sp"],
-  ["compact", "48dp", "65dp", "52sp"],
-]) {
-  const content = resource("layout", `pint_progress_${treatment}_content`);
-  assert.equal(attribute(content, "pint_image", "android:maxWidth"), width);
-  assert.equal(attribute(content, "pint_image", "android:maxHeight"), height);
-  assert.equal(attribute(content, "pint_image", "android:layout_width"), "wrap_content");
-  assert.equal(attribute(content, "pint_image", "android:layout_height"), "wrap_content");
-  assert.equal(attribute(content, "pint_image", "android:adjustViewBounds"), "true");
-  assert.equal(attribute(content, "pint_image", "android:scaleType"), "fitCenter");
-  const textHeight = treatment === "regular" ? "wrap_content" : "match_parent";
-  assert.equal(attribute(content, "pint_count", "android:layout_height"), textHeight);
-  assert.equal(attribute(content, "pint_count_suffix", "android:layout_height"), textHeight);
-  assert.equal(attribute(content, "pint_count", "android:includeFontPadding"), "false");
-  assert.equal(attribute(content, "pint_count_suffix", "android:includeFontPadding"), "false");
-  assert.equal(attribute(content, "pint_count", "android:paddingTop"), undefined);
-  assert.equal(
-    attribute(content, "pint_count", "android:paddingBottom"),
-    treatment === "regular" ? "8dp" : undefined,
-  );
-  assert.equal(attribute(content, "pint_count", "android:paddingStart"), "6dp");
-  assert.equal(attribute(content, "pint_count", "android:paddingEnd"), "2dp");
-  assert.equal(attribute(content, "pint_count", "android:letterSpacing"), undefined);
-  assert.equal(attribute(content, "pint_count_suffix", "android:paddingTop"), undefined);
-  assert.equal(
-    attribute(content, "pint_count_suffix", "android:paddingBottom"),
-    undefined,
-  );
-  assert.equal(attribute(content, "pint_count", "android:translationY"), undefined);
-  assert.equal(attribute(content, "pint_count_suffix", "android:translationY"), undefined);
-  assert.equal(attribute(content, "pint_count_suffix", "android:layout_marginStart"), "2dp");
-  assert.equal(attribute(content, "pint_count_suffix", "android:layout_marginEnd"), "2dp");
-  assert.equal(attribute(content, "pint_count_suffix", "android:textSize"), suffixSize);
-  assert.equal(attribute(content, "pint_count", "android:gravity"), "center_vertical");
-  assert.equal(attribute(content, "pint_count_suffix", "android:text"), "@string/pint_count_suffix");
-  assert.equal(attribute(content, "pint_count", "android:visibility"), "gone");
-  assert.equal(attribute(content, "pint_count_suffix", "android:visibility"), "gone");
-}
-const adaptive = resource("layout", "pint_progress_adaptive_content");
-assert.equal(attribute(adaptive, "pint_image", "android:layout_width"), "wrap_content");
-assert.equal(attribute(adaptive, "pint_image", "android:layout_height"), "match_parent");
-assert.equal(attribute(adaptive, "pint_image", "android:adjustViewBounds"), "true");
-assert.equal(attribute(adaptive, "pint_image", "android:scaleType"), "fitCenter");
 for (const [alignment, gravity] of [
   ["left", "left|center_vertical"],
   ["center", "center"],
@@ -220,16 +139,11 @@ for (const [alignment, gravity] of [
   assert.doesNotMatch(fill, /pint_count_suffix/);
 }
 
-const layoutPolicy = fs.readFileSync(
-  "pint/src/main/kotlin/io/ericchernuka/pintprogress/core/PintFieldLayout.kt",
-  "utf8",
-);
-assert.match(layoutPolicy, /if \(boundariesEnabled\) 6 else 2/);
 const dataType = fs.readFileSync(
   "pint/src/main/kotlin/io/ericchernuka/pintprogress/PintProgressDataType.kt",
   "utf8",
 );
-assert.match(dataType, /UpdateGraphicConfig\(showHeader = style != PintFieldStyle\.FILL\)/);
+assert.match(dataType, /UpdateGraphicConfig\(showHeader = false\)/);
 const remoteViews = fs.readFileSync(
   "pint/src/main/kotlin/io/ericchernuka/pintprogress/PintRemoteViews.kt",
   "utf8",
@@ -321,13 +235,15 @@ for (const [name, amberTop, foamTop, foamBottom] of [
   });
 }
 assert.match(drawable("pint_fill_unavailable"), /android:fillColor="@color\/pint_unavailable_surface"/);
-assert.match(resource("values", "strings"), /name="pint_progress_fill">Pints Fill<.*name="pint_progress">Pint Mug<.*name="pint_progress_text">Pints Count</s);
-assert.match(resource("values", "strings"), /name="pint_count_suffix">\+</);
-assert.deepEqual([...resource("xml", "extension_info").matchAll(/<DataType[^>]*graphical="false"[^>]*typeId="pint-progress-text"/g)].length, 1);
+assert.match(resource("values", "strings"), /name="pint_progress_fill">Pints Fill<.*name="pint_progress_text">Pints Count</s);
+assert.doesNotMatch(resource("values", "strings"), /Pint Mug|name="pint_progress"|name="pint_count_suffix"/);
+const extensionInfo = resource("xml", "extension_info");
+assert.equal([...extensionInfo.matchAll(/<DataType /g)].length, 2);
 assert.match(
-  resource("xml", "extension_info"),
-  /typeId="pint-progress-fill" \/><DataType[^>]*graphical="true"[^>]*typeId="pint-progress" \/><DataType[^>]*graphical="false"[^>]*typeId="pint-progress-text" \/>/,
+  extensionInfo,
+  /typeId="pint-progress-fill" \/><DataType[^>]*graphical="false"[^>]*typeId="pint-progress-text" \/>/,
 );
-assert.match(mappings, /PintAsset\.PINT_50 -> R\.drawable\.pint_50_compact/);
+assert.doesNotMatch(extensionInfo, /typeId="pint-progress"/);
+assert.match(resource("layout", "activity_pint_settings"), /android:src="@drawable\/ic_pint"/);
 
 console.log("Drawable visual contracts passed");
