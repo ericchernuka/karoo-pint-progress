@@ -45,6 +45,9 @@ jobs:
           :pint:assembleDebug
           :pint:assembleRelease
           :pint:jacocoBehaviorTestCoverageVerification
+          :calorie-source:testDebugUnitTest
+          :calorie-source:lintDebug
+          :calorie-source:assembleDebug
           --no-daemon
       - name: Verify APK version metadata
         run: |

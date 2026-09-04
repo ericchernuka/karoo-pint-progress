@@ -14,7 +14,7 @@ derived presentation in `pint/.../core`; keep Android and Karoo classes as thin 
 
 | Task | Command or entry point |
 | --- | --- |
-| Full verification | `./gradlew :lib:testDebugUnitTest :pint:testReleaseUnitTest :pint:lintDebug :pint:assembleDebug :pint:assembleRelease :pint:jacocoBehaviorTestCoverageVerification` |
+| Full verification | `./gradlew :lib:testDebugUnitTest :pint:testReleaseUnitTest :pint:lintDebug :pint:assembleDebug :pint:assembleRelease :pint:jacocoBehaviorTestCoverageVerification :calorie-source:testDebugUnitTest :calorie-source:lintDebug :calorie-source:assembleDebug` |
 | Unit tests | `./gradlew :pint:testDebugUnitTest` |
 | Regenerate mug assets | `node tools/generate-drawables.mjs` |
 | Validate drawable and resource contracts | `node tools/validate-drawables.mjs` |
