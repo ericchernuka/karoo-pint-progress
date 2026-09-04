@@ -1,6 +1,7 @@
 package io.ericchernuka.pintprogress
 
 import io.ericchernuka.pintprogress.core.PintFrame
+import io.ericchernuka.pintprogress.core.PintViewUpdate
 import io.ericchernuka.pintprogress.core.PintProgress
 import io.ericchernuka.pintprogress.core.fillPreviewFrames
 import io.hammerhead.karooext.models.DataPoint
@@ -25,10 +26,65 @@ import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit.MILLISECONDS
+import java.util.concurrent.TimeUnit.SECONDS
+import kotlin.concurrent.thread
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PintDataFieldRuntimeTest {
+    @Test
+    fun `refresh waits for completion and then renders its newest frame`() {
+        val state = GraphicalTransitionState()
+        state.accept(streaming(149.0), 150)
+        val update = state.accept(streaming(150.0), 150) as PintViewUpdate.BeginTransition
+        val transition = state.begin(update.steady)
+        val started = CountDownLatch(1)
+        val finished = CountDownLatch(1)
+        var refreshed: PintViewUpdate? = null
+        lateinit var worker: Thread
+        synchronized(state) {
+            worker = thread {
+                started.countDown()
+                try {
+                    refreshed = state.accept(streaming(158.0), 150)
+                } finally {
+                    finished.countDown()
+                }
+            }
+            assertTrue(started.await(1, SECONDS))
+            assertFalse(finished.await(100, MILLISECONDS))
+            assertEquals(update.steady, state.complete(transition))
+        }
+        assertTrue(finished.await(1, SECONDS))
+        worker.join(1_000)
+        assertFalse(worker.isAlive)
+        assertEquals(PintViewUpdate.Render(PintFrame.Steady(PintProgress(1, 1))), refreshed)
+    }
+
+    @Test
+    fun `transition completion keeps refresh in either operation order`() {
+        for (refreshFirst in listOf(true, false)) {
+            val state = GraphicalTransitionState()
+            state.accept(streaming(149.0), 150)
+            val update = state.accept(streaming(150.0), 150) as PintViewUpdate.BeginTransition
+            val transition = state.begin(update.steady)
+            val newest = PintFrame.Steady(PintProgress(1, 1))
+
+            if (refreshFirst) {
+                assertEquals(null, state.accept(streaming(158.0), 150))
+                assertEquals(newest, state.complete(transition))
+            } else {
+                assertEquals(update.steady, state.complete(transition))
+                assertEquals(PintViewUpdate.Render(newest), state.accept(streaming(158.0), 150))
+            }
+            assertEquals(null, state.accept(streaming(158.0), 150))
+        }
+    }
+
     @Test
     fun `style and preview state select each cancellation route`() {
         assertEquals(

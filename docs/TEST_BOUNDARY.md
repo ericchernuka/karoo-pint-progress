@@ -43,6 +43,7 @@ device-verified, while the embedded runtime scheduling policy has focused JVM co
   finite callback Flow. JVM tests cover deterministic Flow backpressure, one-second pacing, numeric
   and graphical routing, preview order, reducer-plan delays, direct target changes,
   unavailable-progress recovery, conflated multi-pint jumps, pending-transition cancellation,
+  atomic refresh-before-completion and completion-before-refresh state operations,
   terminal callbacks, synchronous terminal callbacks, and idempotent cleanup. Coroutine state
   machines contain generated normal-completion instructions that prevent this adapter from joining
   the core ratio. These tests verify callback order and waits, not Binder or `RemoteViews` delivery.
