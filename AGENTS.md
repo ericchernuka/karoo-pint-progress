@@ -15,6 +15,7 @@ derived presentation in `pint/.../core`; keep Android and Karoo classes as thin 
 | Task | Command or entry point |
 | --- | --- |
 | Full verification | `./gradlew :lib:testDebugUnitTest :pint:testReleaseUnitTest :pint:lintDebug :pint:assembleDebug :pint:assembleRelease :pint:jacocoBehaviorTestCoverageVerification :calorie-source:testDebugUnitTest :calorie-source:lintDebug :calorie-source:assembleDebug` |
+| Release checker tests | `python3 -m unittest discover -s tools -p 'test_verify_release_*.py'` |
 | Unit tests | `./gradlew :pint:testDebugUnitTest` |
 | Regenerate mug assets | `node tools/generate-drawables.mjs` |
 | Validate drawable and resource contracts | `node tools/validate-drawables.mjs` |
@@ -81,7 +82,7 @@ This is a single-context repository. See [`docs/agents/domain.md`](docs/agents/d
 
 1. Run drawable and resource validation when generated assets, layouts, strings, extension metadata,
    or generated mappings change.
-2. Run the full verification command and `git diff --check`.
+2. Run the full verification command, release checker tests, and `git diff --check`.
 3. Run the applicable Karoo device matrix before release.
 4. Confirm no secrets, signing files, permissions, or unreviewed dependencies entered the diff.
 5. Treat debug APKs as development artifacts only. Follow `docs/RELEASE.md` for distribution.
