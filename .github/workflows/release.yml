@@ -3,27 +3,14 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      mode:
-        type: choice
-        options: [prepare, publish]
+      version:
+        description: Release version (for example 1.2.0 or v1.2.0)
         required: true
-      commit:
-        description: Exact candidate commit (40 lowercase hex)
-        required: true
-      version_name:
-        description: Candidate version name (release tag is v plus this value)
-        required: true
-      version_code:
-        description: Candidate version code, greater than the previous release
-        required: true
-      prepare_run_id:
-        description: Successful preparation run ID (publish only)
-      prepare_attempt:
-        description: Preparation run attempt (publish only)
-      artifact_id:
-        description: Exact preparation artifact ID (publish only)
-      approval_json:
-        description: Complete approval JSON from the release evidence template (publish only)
+        type: string
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 defaults:
   run:
@@ -33,32 +20,36 @@ permissions:
   contents: read
 
 env:
-  CANDIDATE_COMMIT: ${{ inputs.commit }}
-  VERSION_NAME: ${{ inputs.version_name }}
-  VERSION_CODE: ${{ inputs.version_code }}
+  RELEASE_VERSION: ${{ inputs.version }}
   PINT_SIGNER_SHA256: ${{ vars.PINT_SIGNER_SHA256 }}
   PYTHONDONTWRITEBYTECODE: "1"
 
 jobs:
   prepare:
-    if: inputs.mode == 'prepare'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: write
     env:
-      PREPARE_RUN_ID: ${{ github.run_id }}
-      PREPARE_ATTEMPT: ${{ github.run_attempt }}
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Validate candidate inputs
+      - name: Validate version and signer
+        run: python3 tools/verify-release-inputs.py
+      - name: Check release does not exist
         run: |
-          [[ "$CANDIDATE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
-          test "$CANDIDATE_COMMIT" = "$GITHUB_SHA"
-          [[ "$VERSION_NAME" =~ ^[0-9A-Za-z][0-9A-Za-z.+-]{0,63}$ ]]
-          [[ "$VERSION_CODE" =~ ^[1-9][0-9]{0,9}$ ]]
-          test "$VERSION_CODE" -le 2100000000
-          [[ "$PINT_SIGNER_SHA256" =~ ^[0-9a-fA-F]{64}$ ]]
+          gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq '.[].tag_name' > "$RUNNER_TEMP/tags"
+          if grep -Fxq "v$VERSION_NAME" "$RUNNER_TEMP/tags"; then
+            echo "Release v$VERSION_NAME already exists. Test and publish its draft, or choose a new version."
+            exit 1
+          fi
+          gh api --paginate "repos/$GITHUB_REPOSITORY/tags?per_page=100" --jq '.[].name' > "$RUNNER_TEMP/git-tags"
+          if grep -Fxq "v$VERSION_NAME" "$RUNNER_TEMP/git-tags"; then
+            echo "Tag v$VERSION_NAME already exists. Choose a new version."
+            exit 1
+          fi
       - uses: gradle/actions/wrapper-validation@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
       - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
@@ -106,81 +97,47 @@ jobs:
           :calorie-source:lintDebug
           :calorie-source:assembleDebug
           --no-daemon
-      - name: Record signed candidate identity
+      - name: Verify signed APK and upgrade version
         run: |
           mkdir "$RUNNER_TEMP/candidate"
           cp pint/build/outputs/apk/release/pint-release.apk "$RUNNER_TEMP/candidate/"
           APK="$RUNNER_TEMP/candidate/pint-release.apk"
           "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose --print-certs "$APK" > "$RUNNER_TEMP/signer.txt"
           python3 tools/verify-release-signer.py "$RUNNER_TEMP/signer.txt" "$PINT_SIGNER_SHA256"
-          export APK_PACKAGE="$(apkanalyzer manifest application-id "$APK")"
-          export APK_VERSION_NAME="$(apkanalyzer manifest version-name "$APK")"
-          export APK_VERSION_CODE="$(apkanalyzer manifest version-code "$APK")"
-          export APK_SHA256="$(sha256sum "$APK" | cut -d ' ' -f 1)"
-          python3 tools/verify-release-candidate.py record "$RUNNER_TEMP/candidate"
+          test "$(apkanalyzer manifest application-id "$APK")" = io.ericchernuka.pintprogress
+          test "$(apkanalyzer manifest version-name "$APK")" = "$VERSION_NAME"
+          test "$(apkanalyzer manifest version-code "$APK")" = "$VERSION_CODE"
+          gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq '.[] | select(.draft == false) | .tag_name' > "$RUNNER_TEMP/published-tags"
+          if test -s "$RUNNER_TEMP/published-tags"; then
+            mkdir "$RUNNER_TEMP/previous"
+            gh release download "$(head -n 1 "$RUNNER_TEMP/published-tags")" --pattern '*.apk' --dir "$RUNNER_TEMP/previous"
+            for previous in "$RUNNER_TEMP/previous/"*.apk; do
+              previous_code="$(apkanalyzer manifest version-code "$previous")"
+              if test "$VERSION_CODE" -le "$previous_code"; then
+                echo "Choose a higher version: generated code $VERSION_CODE must exceed previous APK code $previous_code."
+                exit 1
+              fi
+            done
+          fi
           (cd "$RUNNER_TEMP/candidate" && sha256sum pint-release.apk > pint-release.apk.sha256)
-      - name: Store candidate for device verification
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: pint-candidate-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/candidate/
-          if-no-files-found: error
-          retention-days: 30
-
-  publish:
-    if: inputs.mode == 'publish'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: write
-      actions: read
-    env:
-      GH_TOKEN: ${{ github.token }}
-      PREPARE_RUN_ID: ${{ inputs.prepare_run_id }}
-      PREPARE_ATTEMPT: ${{ inputs.prepare_attempt }}
-      ARTIFACT_ID: ${{ inputs.artifact_id }}
-      APPROVAL_JSON: ${{ inputs.approval_json }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ github.event.repository.default_branch }}
-          persist-credentials: false
-      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
-        with:
-          distribution: temurin
-          java-version: "17"
-      - uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
-      - run: sdkmanager "build-tools;34.0.0"
-      - name: Download exact preparation artifact
+          {
+            echo "Commit: $GITHUB_SHA"
+            echo "Version: $VERSION_NAME ($VERSION_CODE)"
+            echo "Signer SHA-256: $PINT_SIGNER_SHA256"
+            echo "Build: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            cat "$RUNNER_TEMP/candidate/pint-release.apk.sha256"
+            echo
+            echo 'Download and test the attached APK. Record device results below before clicking Publish release.'
+            echo 'Keep these assets and the target commit unchanged after testing. Publishing is maintainer approval.'
+            echo
+            cat docs/RELEASE_EVIDENCE_TEMPLATE.md
+          } > "$RUNNER_TEMP/release-notes.md"
+      - name: Create draft for testing
         run: |
-          [[ "$CANDIDATE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
-          [[ "$VERSION_NAME" =~ ^[0-9A-Za-z][0-9A-Za-z.+-]{0,63}$ ]]
-          for value in "$PREPARE_RUN_ID" "$PREPARE_ATTEMPT" "$ARTIFACT_ID"; do
-            [[ "$value" =~ ^[1-9][0-9]*$ ]]
-          done
-          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$PREPARE_RUN_ID/attempts/$PREPARE_ATTEMPT" > "$RUNNER_TEMP/run.json"
-          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$PREPARE_RUN_ID/attempts/$PREPARE_ATTEMPT/jobs?per_page=100" > "$RUNNER_TEMP/jobs.json"
-          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID" > "$RUNNER_TEMP/artifact.json"
-          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID/zip" > "$RUNNER_TEMP/artifact.zip"
-          python3 tools/verify-release-candidate.py unpack "$RUNNER_TEMP"
-      - name: Verify candidate and approval
-        run: |
-          APK="$RUNNER_TEMP/candidate/pint-release.apk"
-          (cd "$RUNNER_TEMP/candidate" && sha256sum --check pint-release.apk.sha256)
-          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose --print-certs "$APK" > "$RUNNER_TEMP/signer.txt"
-          python3 tools/verify-release-signer.py "$RUNNER_TEMP/signer.txt" "$PINT_SIGNER_SHA256"
-          export APK_PACKAGE="$(apkanalyzer manifest application-id "$APK")"
-          export APK_VERSION_NAME="$(apkanalyzer manifest version-name "$APK")"
-          export APK_VERSION_CODE="$(apkanalyzer manifest version-code "$APK")"
-          export APK_SHA256="$(sha256sum "$APK" | cut -d ' ' -f 1)"
-          test "$(gh api "repos/$GITHUB_REPOSITORY/commits/tags/v$VERSION_NAME" --jq .sha)" = "$CANDIDATE_COMMIT"
-          python3 tools/verify-release-candidate.py verify "$RUNNER_TEMP"
-      - name: Publish approved bytes
-        run: >-
-          gh release create "v$VERSION_NAME"
-          "$RUNNER_TEMP/candidate/pint-release.apk"
-          "$RUNNER_TEMP/candidate/pint-release.apk.sha256"
-          "$RUNNER_TEMP/candidate/candidate.json"
-          "$RUNNER_TEMP/approval.json"
-          "$RUNNER_TEMP/evidence.md"
-          --verify-tag --generate-notes --notes-file "$RUNNER_TEMP/evidence.md" --latest
+          url="$(gh release create "v$VERSION_NAME" \
+            "$RUNNER_TEMP/candidate/pint-release.apk" \
+            "$RUNNER_TEMP/candidate/pint-release.apk.sha256" \
+            --draft --target "$GITHUB_SHA" --title "v$VERSION_NAME" \
+            --notes-file "$RUNNER_TEMP/release-notes.md")"
+          echo "## Test and publish" >> "$GITHUB_STEP_SUMMARY"
+          echo "Open the [draft release]($url), test its APK, complete the checklist, then click **Publish release**." >> "$GITHUB_STEP_SUMMARY"

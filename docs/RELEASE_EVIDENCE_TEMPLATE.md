@@ -1,145 +1,43 @@
-# Release evidence record
+## Release checks
 
-Copy this file for one release candidate. Replace every placeholder with evidence from the
-candidate. Keep failed and waived rows in the completed record. Do not put private keys, passwords,
-tokens, keystores, or other signing secrets in this file. For a pre-release candidate, paste the
-completed record into the pull request description or a dedicated PR comment. Upload supporting
-photos, recordings, and logs as PR attachments and link them from the record. Do not commit the
-completed record or its attachments unless a maintainer explicitly requests repository storage.
+The workflow records the commit, version, signer, build, and checksum above. Test the attached APK.
+Mark a box only after the check passes. For a failure or waiver, leave it unchecked and record the
+result, reason, and approver below. Publishing this draft is maintainer approval.
 
-## Result definitions
+Tester / date / Karoo model / software version: _fill in_
 
-- `PASS`: The check completed and the expected result is supported by the linked or attached evidence.
-- `FAIL`: The check completed and the expected result was not met.
-- `WAIVED`: An approver explicitly accepted that the check was not run or did not pass. Record the
-  reason and approver.
+- [ ] Review the security checklist in `docs/SECURITY.md`.
+- [ ] Confirm the attached APK checksum and installation over the previous signed version.
 
-## Candidate identity
+### Device checks
 
-| Field | Value |
-| --- | --- |
-| Commit SHA (exact) | `<40-character commit SHA>` |
-| Clean-tree confirmation | `<clean-tree command and output or stable evidence link>` |
-| Version name | `<version name>` |
-| `versionCode` | `<integer versionCode>` |
-| APK filename | `<exact APK filename>` |
-| APK SHA-256 | `<64-character APK SHA-256>` |
-| Signing certificate SHA-256 fingerprint | `<public certificate SHA-256 fingerprint only>` |
-| CI URL | `<permalink to the successful CI run>` |
-| Test date | `<YYYY-MM-DD>` |
-| Tester | `<name or handle>` |
-| Karoo model | `<Karoo model>` |
-| Karoo software version | `<Karoo software version>` |
+The device matrix in `docs/KAROO_DATA_FIELD_CONTRACT.md` defines these checks. Debug diagnostic
+rows use a debug build; record the corresponding visible behavior against the signed APK separately.
 
-## Automated gate
+- [ ] Preview and in-ride modes
+- [ ] Pints Fill count remains readable in large, medium, short, narrow, and small tiles, boundaries off and on
+- [ ] Left, center, and right alignment
+- [ ] Boundaries off and on
+- [ ] Completed counts `0`, `1`, `99`, and `100` remain visible over Pints Fill
+- [ ] Light and dark system themes
+- [ ] Unavailable calories, normal fill, 80% foam, full foam, and drain
+- [ ] Count preview sequence; live `0.00`, `0.10`, `0.90`, and `1.00`; and a three-digit total in narrow and roomy tiles
+- [ ] Pints Fill picker preview in named narrow layout: 50%/`0`, 80%/`0`, full foam/`1`, drain/`1`
+- [ ] Pints Fill picker preview in named roomy layout: 50%/`0`, 80%/`0`, full foam/`1`, drain/`1`
+- [ ] Numeric page-editor host placeholder: record the observed value with exact device and KOS evidence
+- [ ] Numeric preview extension messages: `0.5`, `0.9`, `1`, `1.1` at one Hz
+- [ ] Pints Fill preview detach **debug diagnostic**: `cancellation label=fill-preview`
+- [ ] Numeric preview detach **debug diagnostic**: `cancellation label=numeric-preview`
+- [ ] Pints Fill preview detach **signed candidate**: no later frame and clean re-entry
+- [ ] Numeric preview detach **signed candidate**: no later frame and clean re-entry
+- [ ] Default, minimum, maximum, and mid-ride calories-per-beer changes
+- [ ] Install over the previous signed build without uninstalling
+- [ ] Existing Pint Mug tile no longer resolves and can be replaced manually with Pints Fill or Pints Count
 
-| Check | Result (`PASS`, `FAIL`, or `WAIVED`) | Evidence | Notes |
-| --- | --- | --- | --- |
-| Drawable generation (`node tools/generate-drawables.mjs`) | `<PASS, FAIL, or WAIVED>` | `<command output or stable link>` | `<notes>` |
-| Drawable validation (`node tools/validate-drawables.mjs`) | `<PASS, FAIL, or WAIVED>` | `<command output or stable link>` | `<notes>` |
-| Full Gradle gate from `AGENTS.md` | `<PASS, FAIL, or WAIVED>` | `<CI job or command output>` | `<notes>` |
-| Patch hygiene (`git diff --check`) | `<PASS, FAIL, or WAIVED>` | `<command output or stable link>` | `<notes>` |
-| Security checklist from `docs/SECURITY.md` | `<PASS, FAIL, or WAIVED>` | `<checklist review or stable link>` | `<notes>` |
+### Failures, waivers, and evidence
 
-## Karoo device matrix
+Record results and links here. State “None” if there are no failures or waivers.
 
-Run every row against the candidate. The normative source is [the Required device matrix](KAROO_DATA_FIELD_CONTRACT.md#required-device-matrix).
+### Approval
 
-The cancellation rows marked **debug diagnostic** use a debug APK and are not release-candidate
-evidence. Record the matching visible behavior separately against the signed candidate.
-
-| Device check | Result (`PASS`, `FAIL`, or `WAIVED`) | Evidence | Notes |
-| --- | --- | --- | --- |
-| Preview and in-ride modes | `<PASS, FAIL, or WAIVED>` | `<photo, recording, or test record>` | `<notes>` |
-| Pints Fill count remains readable in large, medium, short, narrow, and small tiles, boundaries off and on | `<PASS, FAIL, or WAIVED>` | `<unobscured photo, recording, ViewConfig values, or test record>` | `<count fit notes>` |
-| Left, center, and right alignment | `<PASS, FAIL, or WAIVED>` | `<photo, recording, or test record>` | `<notes>` |
-| Boundaries off and on | `<PASS, FAIL, or WAIVED>` | `<photo, recording, or test record>` | `<notes>` |
-| Completed counts `0`, `1`, `99`, and `100` remain visible over Pints Fill | `<PASS, FAIL, or WAIVED>` | `<photo, recording, or test record>` | `<notes>` |
-| Light and dark system themes | `<PASS, FAIL, or WAIVED>` | `<photo, recording, or test record>` | `<notes>` |
-| Unavailable calories, normal fill, 80% foam, full foam, and drain | `<PASS, FAIL, or WAIVED>` | `<photo, recording, or test record>` | `<notes>` |
-| Count preview sequence; live `0.00`, `0.10`, `0.90`, and `1.00`; and a three-digit total in narrow and roomy tiles | `<PASS, FAIL, or WAIVED>` | `<photo, recording, or test record>` | `<notes>` |
-| Pints Fill picker preview in named narrow layout: 50%/`0`, 80%/`0`, full foam/`1`, drain/`1` | `<PASS, FAIL, or WAIVED>` | `<recording plus ViewConfig values>` | `<notes>` |
-| Pints Fill picker preview in named roomy layout: 50%/`0`, 80%/`0`, full foam/`1`, drain/`1` | `<PASS, FAIL, or WAIVED>` | `<recording plus ViewConfig values>` | `<notes>` |
-| Numeric page-editor host placeholder: record the observed value with exact device and KOS evidence | `<PASS, FAIL, or WAIVED>` | `<recording or photo plus device/KOS evidence>` | `<host-owned value; not extension output>` |
-| Numeric preview extension messages: `0.5`, `0.9`, `1`, `1.1` at one Hz | `<PASS, FAIL, or WAIVED>` | `<recording or log evidence>` | `<emitted-message evidence only; separate from host placeholder row>` |
-| Pints Fill preview detach **debug diagnostic**: `cancellation label=fill-preview` | `<PASS, FAIL, or WAIVED>` | `<debug logcat>` | `<direct callback evidence>` |
-| Numeric preview detach **debug diagnostic**: `cancellation label=numeric-preview` | `<PASS, FAIL, or WAIVED>` | `<debug logcat>` | `<direct callback evidence>` |
-| Pints Fill preview detach **signed candidate**: no later frame and clean re-entry | `<PASS, FAIL, or WAIVED>` | `<recording>` | `<visible post-detach and re-entry observation>` |
-| Numeric preview detach **signed candidate**: no later frame and clean re-entry | `<PASS, FAIL, or WAIVED>` | `<recording>` | `<visible post-detach and re-entry observation>` |
-| Default, minimum, maximum, and mid-ride calories-per-beer changes | `<PASS, FAIL, or WAIVED>` | `<photo, recording, or test record>` | `<notes>` |
-| Install over the previous signed build without uninstalling | `<PASS, FAIL, or WAIVED>` | `<install output or test record>` | `<notes>` |
-| Existing Pint Mug tile no longer resolves and can be replaced manually with Pints Fill or Pints Count | `<PASS, FAIL, or WAIVED>` | `<recording or photo>` | `<expected breaking change>` |
-
-## Upgrade evidence
-
-| Field | Value |
-| --- | --- |
-| Previous installed version | `<package, version name, and versionCode>` |
-| Install-over result | `<PASS, FAIL, or WAIVED, and evidence link>` |
-| Package name | `<io.ericchernuka.pintprogress>` |
-| Version comparison | `<previous versionCode> -> <candidate versionCode>` |
-| Signing identity match | `<PASS, FAIL, or WAIVED; compare public certificate fingerprints>` |
-
-## Failures and waivers
-
-| Item | Result | Reason, impact, and follow-up | Approver |
-| --- | --- | --- | --- |
-| `<failed or waived check, or None>` | `<FAIL or WAIVED>` | `<reason and follow-up, or None>` | `<name or handle, or N/A>` |
-
-## Known limitations
-
-`<Known limitations for this candidate, or None>`
-
-## Release decision
-
-| Field | Value |
-| --- | --- |
-| Decision | `<APPROVED, NOT APPROVED, or APPROVED WITH WAIVERS>` |
-| Approver | `<name or handle>` |
-| Decision date | `<YYYY-MM-DD>` |
-| Decision notes | `<notes>` |
-
-## Publication JSON
-
-Supply this JSON as `approval_json` to the manual publish mode. Replace placeholders from the
-exact downloaded candidate and GitHub artifact API. Copy all fields from `candidate.json` into
-`identity`. The preparation run attempt and artifact archive digest are part of approval identity.
-Never use a publication run ID here. Keep this JSON with the full evidence record above.
-
-```json
-{
-  "identity": {
-    "commit": "<40 lowercase hex>",
-    "package": "io.ericchernuka.pintprogress",
-    "version_name": "<version>",
-    "version_code": 123,
-    "apk_sha256": "<64 lowercase hex>",
-    "signer_sha256": "<64 lowercase hex>",
-    "run_id": 123,
-    "run_attempt": 1
-  },
-  "artifact_id": 123,
-  "artifact_sha256": "<64 lowercase hex archive digest without sha256 prefix>",
-  "decision": "APPROVED",
-  "approver": "<maintainer>",
-  "evidence": "https://<full completed evidence record>",
-  "checks": [
-    {
-      "name": "<exact first-column text of a check row, including Markdown>",
-      "result": "PASS",
-      "evidence": "<evidence reference>"
-    }
-  ]
-}
-```
-
-Include exactly one `checks` entry for every row in Automated gate and Karoo device matrix.
-The single row above shows the shape; it is not a complete approval. Names must retain the exact
-first-column text from this template, including Markdown code marks and emphasis. A `WAIVED` row
-also needs nonempty `reason` and `approver` fields. Keep its evidence reference to the waiver record.
-
-`APPROVED` permits only `PASS` rows. `APPROVED WITH WAIVERS` requires at least one explicit waiver
-and permits only `PASS` or `WAIVED` rows. Any `FAIL`, pending, missing, or duplicate row blocks
-publication. Preserve failed attempts in the full evidence history; a later waiver must identify the
-failed result and why it is accepted. The JSON asserts the final disposition of each required row.
-The parser cannot independently prove the device evidence or the approver's identity.
+Approver / date: _fill in before publishing_
