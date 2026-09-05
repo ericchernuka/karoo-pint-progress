@@ -9,14 +9,16 @@ class CalorieOutputStateTest {
         val selected = CalorieOutputState().select(CaloriePreset.NINETY_FIVE_PERCENT.calories)
         val silent = selected.silence()
 
+        assertEquals(true, selected.isEmitting)
         assertEquals(false, silent.isEmitting)
         assertEquals(171.0, silent.resume().targetCalories, 0.0)
         assertEquals(true, silent.resume().isEmitting)
     }
 
     @Test
-    fun `initial output is 95 percent`() {
+    fun `initial output is paused at 95 percent`() {
         assertEquals(171.0, CalorieOutputState().targetCalories, 0.0)
+        assertEquals(false, CalorieOutputState().isEmitting)
     }
 
     @Test

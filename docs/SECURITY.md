@@ -26,7 +26,11 @@ Do not add these without explicit maintainer approval and a documented threat re
 3. Confirm `gradle/verification-metadata.xml` changes match the intended dependency graph.
 4. Search the repository and diff for credentials, signing files, unexpected URLs, and permissions.
 5. Run caller-policy tests and the full build.
-6. Confirm CI actions remain pinned to immutable commit SHAs with read-only repository permissions.
+6. Confirm CI actions remain pinned to immutable commit SHAs. Keep verification permissions
+   read-only; limit release write permission to the publication job.
+7. For release changes, review artifact provenance and checksum checks, the independently approved
+   signer, and approval validation. Run the release checker tests listed in `AGENTS.md` and follow
+   the remote validation and evidence requirements in [RELEASE.md](RELEASE.md).
 
 Useful checks:
 

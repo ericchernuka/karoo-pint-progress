@@ -98,3 +98,48 @@ evidence. Record the matching visible behavior separately against the signed can
 | Approver | `<name or handle>` |
 | Decision date | `<YYYY-MM-DD>` |
 | Decision notes | `<notes>` |
+
+## Publication JSON
+
+Supply this JSON as `approval_json` to the manual publish mode. Replace placeholders from the
+exact downloaded candidate and GitHub artifact API. Copy all fields from `candidate.json` into
+`identity`. The preparation run attempt and artifact archive digest are part of approval identity.
+Never use a publication run ID here. Keep this JSON with the full evidence record above.
+
+```json
+{
+  "identity": {
+    "commit": "<40 lowercase hex>",
+    "package": "io.ericchernuka.pintprogress",
+    "version_name": "<version>",
+    "version_code": 123,
+    "apk_sha256": "<64 lowercase hex>",
+    "signer_sha256": "<64 lowercase hex>",
+    "run_id": 123,
+    "run_attempt": 1
+  },
+  "artifact_id": 123,
+  "artifact_sha256": "<64 lowercase hex archive digest without sha256 prefix>",
+  "decision": "APPROVED",
+  "approver": "<maintainer>",
+  "evidence": "https://<full completed evidence record>",
+  "checks": [
+    {
+      "name": "<exact first-column text of a check row, including Markdown>",
+      "result": "PASS",
+      "evidence": "<evidence reference>"
+    }
+  ]
+}
+```
+
+Include exactly one `checks` entry for every row in Automated gate and Karoo device matrix.
+The single row above shows the shape; it is not a complete approval. Names must retain the exact
+first-column text from this template, including Markdown code marks and emphasis. A `WAIVED` row
+also needs nonempty `reason` and `approver` fields. Keep its evidence reference to the waiver record.
+
+`APPROVED` permits only `PASS` rows. `APPROVED WITH WAIVERS` requires at least one explicit waiver
+and permits only `PASS` or `WAIVED` rows. Any `FAIL`, pending, missing, or duplicate row blocks
+publication. Preserve failed attempts in the full evidence history; a later waiver must identify the
+failed result and why it is accepted. The JSON asserts the final disposition of each required row.
+The parser cannot independently prove the device evidence or the approver's identity.

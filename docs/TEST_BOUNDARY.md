@@ -13,8 +13,11 @@
 ./gradlew :lib:dokkaGeneratePublicationHtml
 python3 tools/verify-dokka-output.py
 
+# Release identity and approval checks
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools -p "test_verify_release_*.py"
+
 # Full repository gate
-./gradlew :lib:testDebugUnitTest :pint:testReleaseUnitTest :pint:lintDebug :pint:assembleDebug :pint:assembleRelease :pint:jacocoBehaviorTestCoverageVerification
+./gradlew :lib:testDebugUnitTest :pint:testReleaseUnitTest :pint:lintDebug :pint:assembleDebug :pint:assembleRelease :pint:jacocoBehaviorTestCoverageVerification :calorie-source:testDebugUnitTest :calorie-source:lintDebug :calorie-source:assembleDebug
 
 # Generated drawable and static-resource contracts
 node tools/generate-drawables.mjs
@@ -43,6 +46,7 @@ device-verified, while the embedded runtime scheduling policy has focused JVM co
   finite callback Flow. JVM tests cover deterministic Flow backpressure, one-second pacing, numeric
   and graphical routing, preview order, reducer-plan delays, direct target changes,
   unavailable-progress recovery, conflated multi-pint jumps, pending-transition cancellation,
+  atomic refresh-before-completion and completion-before-refresh state operations,
   terminal callbacks, synchronous terminal callbacks, and idempotent cleanup. Coroutine state
   machines contain generated normal-completion instructions that prevent this adapter from joining
   the core ratio. These tests verify callback order and waits, not Binder or `RemoteViews` delivery.

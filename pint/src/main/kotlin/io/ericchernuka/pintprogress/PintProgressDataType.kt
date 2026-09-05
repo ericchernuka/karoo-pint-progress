@@ -22,6 +22,7 @@ import io.hammerhead.karooext.models.StreamState
 import io.hammerhead.karooext.models.UpdateGraphicConfig
 import io.hammerhead.karooext.models.UpdateNumericConfig
 import io.hammerhead.karooext.models.ViewConfig
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -37,7 +38,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicReference
 
 class PintProgressDataType internal constructor(
     private val karooSystem: KarooSystemService,
@@ -133,11 +133,12 @@ internal fun Emitter<*>.launchCancellable(
     label: String,
     block: suspend CoroutineScope.() -> Unit,
 ) {
-    val job = CoroutineScope(Dispatchers.Default).launch(block = block)
+    val job = CoroutineScope(Dispatchers.Default).launch(start = CoroutineStart.LAZY, block = block)
     setCancellable {
         job.cancel()
         if (BuildConfig.DEBUG) Log.d("PintProgressField", "cancellation label=$label")
     }
+    job.start()
 }
 
 internal enum class PintFieldStyle(
@@ -183,8 +184,7 @@ internal class PintDataFieldRuntime(
         caloriesPerBeer: Flow<Int>,
         emit: suspend (PintFrame) -> Unit,
     ) {
-        val reducer = PintViewReducer()
-        val activeTransition = AtomicReference<ActiveGraphicalTransition?>(null)
+        val transitions = GraphicalTransitionState()
         var lastEmissionMillis: Long? = null
 
         suspend fun emitAfter(delayMillis: Long, frame: () -> PintFrame) {
@@ -198,40 +198,23 @@ internal class PintDataFieldRuntime(
             .combine(caloriesPerBeer) { state, target -> state to target }
             .conflate()
             .mapNotNull { (state, target) ->
-                val update = reducer.accept(state, target, activeTransition.get()?.completed)
-                    ?: return@mapNotNull null
-                if (update is PintViewUpdate.RefreshTransition) {
-                    val transition = activeTransition.get()
-                    if (transition?.completed == update.steady.progress.completed) {
-                        transition.steady.set(update.steady)
-                        null
-                    } else {
-                        PintViewUpdate.Render(update.steady)
-                    }
-                } else {
-                    update
-                }
+                transitions.accept(state, target)
             }
             .collectLatest { update ->
                 when (update) {
                     is PintViewUpdate.Render -> emitAfter(0) { update.frame }
 
                     is PintViewUpdate.BeginTransition -> {
-                        val transition = ActiveGraphicalTransition(
-                            update.steady.progress.completed,
-                            AtomicReference(update.steady),
-                        )
-                        activeTransition.set(transition)
+                        val transition = transitions.begin(update.steady)
                         try {
                             update.transientFrames.forEach { timedFrame ->
                                 emitAfter(timedFrame.delayMillis) { timedFrame.frame }
                             }
                             emitAfter(update.steadyDelayMillis) {
-                                activeTransition.compareAndSet(transition, null)
-                                transition.steady.get()
+                                transitions.complete(transition)
                             }
                         } finally {
-                            activeTransition.compareAndSet(transition, null)
+                            transitions.clear(transition)
                         }
                     }
 
@@ -260,10 +243,36 @@ internal class PintDataFieldRuntime(
     }
 }
 
-private data class ActiveGraphicalTransition(
-    val completed: Int,
-    val steady: AtomicReference<PintFrame.Steady>,
-)
+internal class GraphicalTransitionState {
+    private val reducer = PintViewReducer()
+    private var active: Transition? = null
+
+    @Synchronized
+    fun accept(state: StreamState, target: Int): PintViewUpdate? {
+        val update = reducer.accept(state, target, active?.steady?.progress?.completed)
+        if (update is PintViewUpdate.RefreshTransition) {
+            requireNotNull(active).steady = update.steady
+            return null
+        }
+        return update
+    }
+
+    @Synchronized
+    fun begin(steady: PintFrame.Steady): Transition = Transition(steady).also { active = it }
+
+    @Synchronized
+    fun complete(transition: Transition): PintFrame.Steady {
+        clear(transition)
+        return transition.steady
+    }
+
+    @Synchronized
+    fun clear(transition: Transition) {
+        if (active === transition) active = null
+    }
+
+    class Transition internal constructor(internal var steady: PintFrame.Steady)
+}
 
 internal fun KarooSystemService.streamDataFlow(dataTypeId: String): Flow<StreamState> =
     streamDataFlow(
