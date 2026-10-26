@@ -31,8 +31,8 @@ node tools/validate-drawables.mjs
 - calorie validation, configurable-target normalization, slider mapping, 5% bucketing, and completed-beer counting;
 - caller-package authorization for the Karoo Binder boundary;
 - first-attach, reset, skipped-threshold, full, bubbles, drain, and steady-state transitions;
-- stream-state conversion, visible-state coalescing, timed-frame plans, one-Hz pacing, and preview
-  behavior;
+- stream-state conversion, visible-state coalescing, timed-frame plans, one-Hz pacing shared by
+  the fill and count fields, and preview behavior;
 - same-pint refreshes before and after a completion transition lands, and interruption by a target
   change, unavailable progress, or a different pint;
 - fill drawable selection, exact completed counts, unavailable text, Pints Fill width and height

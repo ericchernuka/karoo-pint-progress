@@ -2,6 +2,7 @@ package io.ericchernuka.pintprogress
 
 import android.os.SystemClock
 import android.util.Log
+import io.ericchernuka.pintprogress.core.OneHzPacer
 import io.ericchernuka.pintprogress.core.PintFrame
 import io.ericchernuka.pintprogress.core.PintFrameScheduler
 import io.ericchernuka.pintprogress.core.VIEW_UPDATE_INTERVAL_MILLIS
@@ -53,7 +54,7 @@ internal class PintDataFieldRuntime(
         dataTypeId: String,
         emit: suspend (StreamState) -> Unit,
     ) {
-        var lastEmissionMillis: Long? = null
+        val pacer = OneHzPacer()
         calorieStates
             .combine(caloriesPerBeer) { state, target ->
                 numericStateFrom(state, target, dataTypeId)
@@ -61,9 +62,9 @@ internal class PintDataFieldRuntime(
             .distinctUntilChanged()
             .conflate()
             .collect { state ->
-                pace(lastEmissionMillis)?.let { delay(it) }
+                delay(pacer.delayMillis(nowMillis()))
                 emit(state)
-                lastEmissionMillis = nowMillis()
+                pacer.emitted(nowMillis())
             }
     }
 
@@ -97,10 +98,6 @@ internal class PintDataFieldRuntime(
                 delay(VIEW_UPDATE_INTERVAL_MILLIS)
             }
         }
-    }
-
-    private fun pace(lastEmissionMillis: Long?): Long? = lastEmissionMillis?.let { last ->
-        (VIEW_UPDATE_INTERVAL_MILLIS - (nowMillis() - last)).takeIf { it > 0 }
     }
 }
 

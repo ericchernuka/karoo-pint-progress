@@ -154,6 +154,15 @@ class CorePolicyBehaviorTest {
         }
         assertEquals(steady(0, 10), PintFrameScheduler().drain(calories(75.0), nowMillis = 0).map { it.second })
 
+        // The pacer waits only until one second after the last emission, or until a later due time
+        val pacer = OneHzPacer()
+        assertEquals(0L, pacer.delayMillis(nowMillis = 500))
+        assertEquals(200L, pacer.delayMillis(nowMillis = 500, dueMillis = 700))
+        pacer.emitted(1_000)
+        assertEquals(600L, pacer.delayMillis(nowMillis = 1_400))
+        assertEquals(800L, pacer.delayMillis(nowMillis = 1_400, dueMillis = 2_200))
+        assertEquals(0L, pacer.delayMillis(nowMillis = 2_000))
+        assertEquals(0L, pacer.delayMillis(nowMillis = 2_500, dueMillis = 1_500))
         // The completion transition paces each frame one second after the previous emission
         assertEquals(
             listOf(

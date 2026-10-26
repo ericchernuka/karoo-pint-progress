@@ -30,7 +30,8 @@ formatting. Both paths cancel their work on detach.
 | --- | --- |
 | Calorie target bounds and slider mapping | `core/BeerCaloriesPolicy.kt` |
 | Calories to completed pints and 5% bucket | `core/PintProgressReducer.kt` |
-| Stream-state coalescing, completion transition, and one-Hz pacing | `core/PintFrameScheduler.kt` |
+| Stream-state coalescing and completion transition | `core/PintFrameScheduler.kt` |
+| One-Hz update cap for both fields | `core/OneHzPacer.kt` |
 | Frame to fill asset and count, preview frames | `core/PintFieldDisplay.kt` |
 | Fill asset enum | generated `core/PintAsset.kt` |
 | Calorie stream to decimal pint total | `core/PintTextStreamState.kt` |

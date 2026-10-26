@@ -2,8 +2,6 @@ package io.ericchernuka.pintprogress.core
 
 import io.hammerhead.karooext.models.StreamState
 
-const val VIEW_UPDATE_INTERVAL_MILLIS = 1_000L
-
 /**
  * Owns every decision about which graphical frame is shown and when: baselines, target changes,
  * the completion transition, same-pint refreshes, duplicate suppression, and the one-Hz cap.
@@ -14,7 +12,7 @@ class PintFrameScheduler {
     private var previousCaloriesPerBeer: Int? = null
     private var pending: List<TimedFrame> = emptyList()
     private var anchorMillis = 0L
-    private var lastEmissionMillis: Long? = null
+    private val pacer = OneHzPacer()
 
     fun accept(state: StreamState, caloriesPerBeer: Int, nowMillis: Long) {
         val normalizedTarget = BeerCaloriesPolicy.normalize(caloriesPerBeer)
@@ -46,8 +44,7 @@ class PintFrameScheduler {
     /** Milliseconds until the next frame is due, or null when nothing is pending */
     fun delayMillis(nowMillis: Long): Long? {
         val next = pending.firstOrNull() ?: return null
-        val pacedMillis = lastEmissionMillis?.plus(VIEW_UPDATE_INTERVAL_MILLIS) ?: Long.MIN_VALUE
-        return (maxOf(anchorMillis + next.delayMillis, pacedMillis) - nowMillis).coerceAtLeast(0)
+        return pacer.delayMillis(nowMillis, dueMillis = anchorMillis + next.delayMillis)
     }
 
     /** Removes the next frame once [delayMillis] has elapsed and records it as emitted */
@@ -55,7 +52,7 @@ class PintFrameScheduler {
         val next = pending.first()
         pending = pending.drop(1)
         anchorMillis = nowMillis
-        lastEmissionMillis = nowMillis
+        pacer.emitted(nowMillis)
         return next.frame
     }
 }
