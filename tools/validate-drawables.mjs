@@ -139,30 +139,22 @@ for (const [alignment, gravity] of [
   assert.doesNotMatch(fill, /pint_count_suffix/);
 }
 
-const dataType = fs.readFileSync(
-  "pint/src/main/kotlin/io/ericchernuka/pintprogress/PintProgressDataType.kt",
+const fillField = fs.readFileSync(
+  "pint/src/main/kotlin/io/ericchernuka/pintprogress/PintsFillDataType.kt",
   "utf8",
 );
-assert.match(dataType, /UpdateGraphicConfig\(showHeader = false\)/);
-const remoteViews = fs.readFileSync(
-  "pint/src/main/kotlin/io/ericchernuka/pintprogress/PintRemoteViews.kt",
-  "utf8",
-);
+assert.match(fillField, /UpdateGraphicConfig\(showHeader = false\)/);
 for (const [alignment, resourceName] of [
   ["LEFT", "left"],
   ["CENTER", "center"],
   ["RIGHT", "right"],
 ]) {
   assert.match(
-    remoteViews,
+    fillField,
     new RegExp(`ViewConfig\\.Alignment\\.${alignment} -> R\\.layout\\.pint_progress_fill_${resourceName}_view`),
   );
 }
-
-const renderFillStart = remoteViews.indexOf("fun renderFill(");
-const renderFillEnd = remoteViews.indexOf("\n\n}", renderFillStart);
-const renderFill = remoteViews.slice(renderFillStart, renderFillEnd);
-assert.doesNotMatch(renderFill, /setViewPadding/, "Pints Fill must render edge to edge");
+assert.doesNotMatch(fillField, /setViewPadding/, "Pints Fill must render edge to edge");
 
 const mappings = fs.readFileSync("pint/src/main/kotlin/io/ericchernuka/pintprogress/PintAssetDrawables.kt", "utf8");
 for (let bucket = 0; bucket < 20; bucket += 1) {
