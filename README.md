@@ -12,7 +12,7 @@ with Pints Fill or Pints Count.
 
 One pint corresponds to **150 kcal** by default, approximately a 12 fl oz / 355 ml 5% ABV beer.
 The "pint" name is branding, not a volume measurement. Pints Fill changes in 5% steps, adds a
-deeper foam cap from 80%, shows the completed-pint count over the beer texture, and briefly shows a
+deeper foam cap from 80%, shows the completed-pint count over the beer, and briefly shows a
 full-foam and draining transition when a pint completes.
 
 ### On-device preview

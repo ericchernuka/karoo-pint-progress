@@ -25,12 +25,6 @@ const contrast = (left, right) => {
   const [bright, dark] = [luminance(left), luminance(right)].sort((a, b) => b - a);
   return (bright + 0.05) / (dark + 0.05);
 };
-const composite = (foreground, background, alpha) => `#${[1, 3, 5].map((offset) => {
-  const front = Number.parseInt(foreground.slice(offset, offset + 2), 16);
-  const back = Number.parseInt(background.slice(offset, offset + 2), 16);
-  return Math.round(front * alpha + back * (1 - alpha)).toString(16).padStart(2, "0");
-}).join("")}`;
-
 const attributesForColor = (xml, colorName) =>
   [...xml.matchAll(/<path\s+([\s\S]*?)\s*\/>/g)]
     .map(([, attributes]) => attributes)
@@ -38,9 +32,6 @@ const attributesForColor = (xml, colorName) =>
 const pathsForColor = (xml, colorName) =>
   attributesForColor(xml, colorName)
     .map((attributes) => attributes.match(/android:pathData="([^"]+)"/)?.[1]);
-const alphasForColor = (xml, colorName) =>
-  attributesForColor(xml, colorName)
-    .map((attributes) => Number(attributes.match(/android:fillAlpha="([^"]+)"/)?.[1] ?? "1"));
 const pathForColor = (xml, colorName) => {
   const path = pathsForColor(xml, colorName)[0];
   assert.ok(path, `Expected a ${colorName} path`);
@@ -60,11 +51,6 @@ const bounds = (pathData) => {
     maxY: Math.max(...y),
   };
 };
-const verticalCapDepth = (pathData) => {
-  const match = pathData.match(/^M[^,]+,([^ ]+) C[^ ]+ [^ ]+ [^,]+,([^ ]+)/);
-  assert.ok(match, "Expected a rounded vertical path");
-  return Number(match[2]) - Number(match[1]);
-};
 
 const icon = drawable("ic_pint");
 const iconFoam = bounds(pathForColor(icon, "pint_foam"));
@@ -80,18 +66,9 @@ const light = colors();
 const night = colors("values-night");
 assert.equal(light.pint_fill_amber, light.pint_amber, "Light Pints Fill must keep the mug beer color");
 assert.equal(light.pint_fill_foam, light.pint_foam, "Light Pints Fill must keep the mug foam color");
-assert.equal(light.pint_fill_bubble, "#9A5200", "Light Pints Fill must keep its approved bubble color");
 assert.equal(light.pint_fill_count_shadow, "#00000000", "Light Pints Fill halo must be invisible");
 assert.equal(night.pint_fill_amber, "#A85F00", "Night Pints Fill must use restrained beer");
 assert.equal(night.pint_fill_foam, "#E2D5B8", "Night Pints Fill must use restrained foam");
-assert.ok(night.pint_fill_bubble, "Night Pints Fill must define its own bubble color");
-assert.notEqual(night.pint_fill_bubble, night.pint_foreground, "Night Pints Fill bubbles must not blend into the count");
-for (const alpha of new Set(alphasForColor(drawable("pint_fill_full_foam"), "pint_fill_bubble"))) {
-  assert.ok(
-    contrast(composite(night.pint_fill_bubble, night.pint_fill_amber, alpha), night.pint_fill_amber) >= 1.4,
-    `Night Pints Fill bubbles at ${alpha} alpha must remain distinct from the beer body`,
-  );
-}
 assert.equal(night.pint_fill_count_shadow, night.pint_surface, "Night Pints Fill halo must use the dark surface");
 const assertContrast = (palette, against, minimum, mode, surface) => assert.ok(
   contrast(palette.pint_foam, palette[`pint_${against}`]) >= minimum,
@@ -116,7 +93,7 @@ for (const [alignment, gravity] of [
   assert.equal(attribute(fill, "pint_fill_image", "android:layout_width"), "match_parent");
   assert.equal(attribute(fill, "pint_fill_image", "android:layout_height"), "match_parent");
   assert.equal(attribute(fill, "pint_fill_image", "android:scaleType"), "fitXY");
-  assert.equal(attribute(fill, "pint_fill_image", "android:scaleX"), alignment === "left" ? "-1" : undefined);
+  assert.equal(attribute(fill, "pint_fill_image", "android:scaleX"), undefined);
   assert.ok(
     fill.indexOf("@+id/pint_fill_image") < fill.indexOf("@+id/pint_fill_count"),
     `${alignment} Pints Fill count must render above every fill state`,
@@ -183,43 +160,20 @@ for (let bucket = 0; bucket < 20; bucket += 1) {
     assert.equal(foam.maxY - foam.minY, bucket >= 16 ? 9 : 5);
   }
 }
-const assertSideTexture = (name, paths) => {
-  for (const path of paths) {
-    const pathBounds = bounds(path);
-    assert.ok(
-      pathBounds.maxX <= 25 || pathBounds.minX >= 75,
-      `${name}: beer texture must leave the central half clear`,
-    );
-    assert.ok(
-      pathBounds.minX >= 0 && pathBounds.maxX <= 100 &&
-        pathBounds.minY >= 0 && pathBounds.maxY <= 100,
-      `${name}: beer texture must stay inside the field viewport`,
-    );
-  }
-};
-for (const [name, expectedBubbles, expectedFoamPockets] of [
-  ["pint_fill_50", 7, 0],
-  ["pint_fill_80", 8, 3],
-  ["pint_fill_95", 8, 3],
-  ["pint_fill_full_foam", 8, 3],
-  ["pint_fill_draining", 7, 0],
-]) {
+// fitXY stretches the 100x100 art to the field, so only full-width bands may appear
+for (const name of [...Array.from({ length: 20 }, (_, bucket) => `pint_fill_${String(bucket * 5).padStart(2, "0")}`),
+  "pint_fill_full_foam", "pint_fill_draining"]) {
   const xml = drawable(name);
-  const bubbles = pathsForColor(xml, "pint_fill_bubble");
-  const highlights = pathsForColor(xml, "pint_beer_highlight");
-  const amber = pathsForColor(xml, "pint_fill_amber");
-  assert.match(pathForColor(xml, "pint_fill_foam"), /C/, `${name}: foam boundary must be irregular`);
-  assert.equal(bubbles.length, expectedBubbles, `${name}: stable body bubble field`);
-  assert.equal(highlights.length, 2, `${name}: two restrained side highlights`);
-  assert.equal(amber.length - 1, expectedFoamPockets, `${name}: foam pocket count`);
-  assertSideTexture(name, [...bubbles, ...highlights, ...amber.slice(1)]);
-  highlights.forEach((path) => {
-    assert.match(path, /C/, `${name}: highlights must have rounded ends`);
-    assert.ok(verticalCapDepth(path) >= 5, `${name}: highlight end caps must stay soft after fitXY`);
-  });
+  const fills = [...xml.matchAll(/android:fillColor="@color\/([^"]+)"/g)].map(([, color]) => color);
+  assert.deepEqual(
+    [...new Set(fills)],
+    name === "pint_fill_00" ? ["pint_surface"] : ["pint_surface", "pint_fill_amber", "pint_fill_foam"],
+    `${name}: only flat surface, beer, and foam bands`,
+  );
+  assert.equal(fills.length, new Set(fills).size, `${name}: one path per band`);
+  assert.doesNotMatch(xml, /fillAlpha/, `${name}: no translucent texture`);
 }
-assert.equal(pathsForColor(drawable("pint_fill_00"), "pint_fill_bubble").length, 0);
-assert.equal(pathsForColor(drawable("pint_fill_00"), "pint_beer_highlight").length, 0);
+assert.match(pathForColor(drawable("pint_fill_50"), "pint_fill_foam"), /C/, "Foam boundary must stay irregular");
 for (const [name, amberTop, foamTop, foamBottom] of [
   ["pint_fill_full_foam", 0, 0, 11],
   ["pint_fill_draining", 45, 43, 48],

@@ -50,8 +50,6 @@ Pints Fill requests `showHeader = false` and renders one fresh `RemoteViews` for
 - The count is vertically centered and uses Karoo's physical left, center, or right alignment.
   Karoo's `textSize` is the upper bound. Width, height, and font scale can reduce the count size so
   large values remain visible.
-- The left layout mirrors only the beer artwork. This keeps highlights away from the left-aligned
-  count without mirroring the text.
 - Nonzero fill has a foam cap. The cap becomes deeper from 80%. Full foam and draining use the same
   shared transition states as the reducer.
 - One observed increase of exactly one completed pint shows full foam for one second and draining
