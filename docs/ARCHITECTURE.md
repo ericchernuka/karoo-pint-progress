@@ -10,19 +10,19 @@
 ## Runtime flow
 
 ```text
-Karoo calorie stream ----+--> PintViewReducer --> RenderPlan --> fillDisplayFor
-                         |                                         |
-private calorie setting -+                                         v
-                         |                               PintRemoteViews --> ViewEmitter
+Karoo calorie stream ----+--> PintFrameScheduler --> PintFrame --> fillDisplayFor --> RemoteViews --> ViewEmitter
                          |
-                         +--> numericStateFrom ---------------------------> StreamEmitter
+private calorie setting -+
+                         |
+                         +--> numericStateFrom -----------------------------------------------> StreamEmitter
 ```
 
-`PintProgressExtension` owns the Karoo service connection and exposes two `PintProgressDataType`
-instances: the graphical fill field and the native count field. They share the calorie source,
-lifecycle, one-Hz update cap, and global calorie target. The fill path uses the reducer, scheduler,
-and generated field-fill assets. The count path publishes a numeric stream and lets Karoo own its
-viewport and formatting. Both paths cancel their work on detach.
+`PintProgressExtension` owns the Karoo service connection and exposes one data type per field
+variation: `PintsFillDataType` for the graphical fill field and `PintsCountDataType` for the native
+count field. They share the calorie source, lifecycle, one-Hz update cap, and global calorie target.
+The fill path asks `PintFrameScheduler` which frame to show and when, waits, and renders generated
+field-fill assets. The count path publishes a numeric stream and lets Karoo own its viewport and
+formatting. Both paths cancel their work on detach.
 
 ## Ownership map
 
@@ -30,13 +30,15 @@ viewport and formatting. Both paths cancel their work on detach.
 | --- | --- |
 | Calorie target bounds and slider mapping | `core/BeerCaloriesPolicy.kt` |
 | Calories to completed pints and 5% bucket | `core/PintProgressReducer.kt` |
-| Stream-state coalescing and animation plan | `core/PintViewReducer.kt` |
-| Frame to fill asset and count | generated `core/PintAsset.kt` |
+| Stream-state coalescing, completion transition, and one-Hz pacing | `core/PintFrameScheduler.kt` |
+| Frame to fill asset and count, preview frames | `core/PintFieldDisplay.kt` |
+| Fill asset enum | generated `core/PintAsset.kt` |
 | Calorie stream to decimal pint total | `core/PintTextStreamState.kt` |
 | Viewport conversion and fill text fitting | `core/PintFieldSizing.kt` |
-| Karoo alignment layout selection | `PintRemoteViews.kt`, static `res/layout/pint_progress_fill_*_view.xml` |
-| Android `RemoteViews` serialization | `PintRemoteViews.kt` |
-| One-Hz pacing and Karoo subscription | `PintProgressDataType.kt` |
+| Karoo alignment layout selection | `PintsFillDataType.kt`, static `res/layout/pint_progress_fill_*_view.xml` |
+| Android `RemoteViews` serialization | `PintsFillDataType.kt` |
+| Native count stream | `PintsCountDataType.kt` |
+| Runtime wiring and Karoo subscription | `PintDataFieldRuntime.kt` |
 | Private preference adapter and UI | `BeerCaloriesStore.kt`, `PintSettingsActivity.kt` |
 | Caller authorization | `core/KarooCallerPolicy.kt`, `PintProgressExtension.kt` |
 | Shared icon and fill assets | `tools/generate-drawables.mjs` |

@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit.SECONDS
 class PintCancellationReleaseTest {
     @Test
     fun `preview cancellation callback cancels numeric and graphical jobs`() = runBlocking {
-        for (style in PintFieldStyle.entries) {
-            val label = style.cancellationLabel(preview = true)
+        for (variation in PintFieldVariation.entries) {
+            val label = variation.cancellationLabel(preview = true)
             val emitter = CancellableEmitter()
             val started = CountDownLatch(1)
             val cancelled = CountDownLatch(1)

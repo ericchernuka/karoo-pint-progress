@@ -31,7 +31,10 @@ node tools/validate-drawables.mjs
 - calorie validation, configurable-target normalization, slider mapping, 5% bucketing, and completed-beer counting;
 - caller-package authorization for the Karoo Binder boundary;
 - first-attach, reset, skipped-threshold, full, bubbles, drain, and steady-state transitions;
-- stream-state conversion, visible-state coalescing, timed-frame plans, and preview behavior;
+- stream-state conversion, visible-state coalescing, timed-frame plans, one-Hz pacing, and preview
+  behavior;
+- same-pint refreshes before and after a completion transition lands, and interruption by a target
+  change, unavailable progress, or a different pint;
 - fill drawable selection, exact completed counts, unavailable text, Pints Fill width and height
   fitting, and deterministic picker previews;
 - count-field 0.1-pint flooring, preview messages, native stream-state propagation, and custom data-point identity.
@@ -40,17 +43,18 @@ The following files are outside the core JaCoCo ratio. Android and Karoo adapter
 device-verified, while the embedded runtime scheduling policy has focused JVM coverage:
 
 - `PintProgressExtension.kt` creates and binds the official `KarooSystemService` from an Android `Service`.
-- `PintProgressDataType.kt` wires `SystemClock.elapsedRealtime()` and coroutine `delay` into the
-  pure `PintDataFieldRuntime` coordinator, keeps the initial numeric and graphic configuration,
-  bridges coordinator outputs to the Karoo emitters, and adapts the official Binder consumer into a
-  finite callback Flow. JVM tests cover deterministic Flow backpressure, one-second pacing, numeric
-  and graphical routing, preview order, reducer-plan delays, direct target changes,
-  unavailable-progress recovery, conflated multi-pint jumps, pending-transition cancellation,
-  atomic refresh-before-completion and completion-before-refresh state operations,
-  terminal callbacks, synchronous terminal callbacks, and idempotent cleanup. Coroutine state
+- `PintDataFieldRuntime.kt`, `PintsFillDataType.kt`, and `PintsCountDataType.kt` wire
+  `SystemClock.elapsedRealtime()` and coroutine `delay` into the `PintDataFieldRuntime`
+  coordinator, keep the initial numeric and graphic configuration, bridge coordinator outputs to
+  the Karoo emitters, and adapt the official Binder consumer into a finite callback Flow. The
+  graphical coordinator touches `PintFrameScheduler` only inside `collectLatest`, which starts each
+  block after the previous one ends, so scheduler state needs no locking. JVM tests cover
+  deterministic Flow backpressure, one-second pacing, numeric and graphical routing, preview order,
+  transition delays, direct target changes, unavailable-progress recovery, conflated multi-pint
+  jumps, pending-transition cancellation, same-pint refreshes, terminal callbacks, synchronous terminal callbacks, and idempotent cleanup. Coroutine state
   machines contain generated normal-completion instructions that prevent this adapter from joining
   the core ratio. These tests verify callback order and waits, not Binder or `RemoteViews` delivery.
-- `PintRemoteViews.kt` serializes the covered field-fill asset and completed count into Android
+- `PintsFillDataType.kt` serializes the covered field-fill asset and completed count into Android
   `RemoteViews`, maps assets to compile-time `R.drawable` IDs, and applies the three static physical
   alignment layouts. The resource validator checks edge-to-edge fill rendering, initial text state,
   field labels, extension metadata, generated mappings, and the shared icon. Core tests cover fill

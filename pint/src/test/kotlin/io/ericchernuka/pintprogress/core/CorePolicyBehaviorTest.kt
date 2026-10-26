@@ -112,19 +112,19 @@ class CorePolicyBehaviorTest {
         listOf(
             listOf(
                 idle to unavailable,
-                unavailableState to null,
-                searching to null,
-                calories(-1.0) to null,
+                unavailableState to none,
+                searching to none,
+                calories(-1.0) to none,
             ),
             listOf(
                 calories(0.0) to steady(0, 0),
-                calories(3.0) to null,
+                calories(3.0) to none,
                 calories(8.0) to steady(0, 1),
             ),
             listOf(
                 calories(149.0) to steady(0, 19),
                 calories(150.0) to animation(1),
-                calories(151.0) to null,
+                calories(151.0) to none,
                 calories(299.0) to steady(1, 19),
             ),
             listOf(
@@ -135,32 +135,87 @@ class CorePolicyBehaviorTest {
                 calories(150.0) to steady(1, 0),
             ),
         ).forEach { history ->
-            val reducer = PintViewReducer()
-            history.forEach { (state, expected) -> assertEquals(expected, reducer.accept(state)) }
+            val scheduler = PintFrameScheduler()
+            history.forEachIndexed { index, (state, expected) ->
+                assertEquals(expected, scheduler.drain(state, nowMillis = index * 10_000L).map { it.second })
+            }
         }
-        val reducer = PintViewReducer()
-        assertEquals(steady(0, 19), reducer.accept(calories(149.0)))
-        assertEquals(steady(1, 17), reducer.accept(calories(149.0), 80))
-        assertEquals(animation(2), reducer.accept(calories(160.0), 80))
+        val scheduler = PintFrameScheduler()
+        assertEquals(steady(0, 19), scheduler.drain(calories(149.0), nowMillis = 0).map { it.second })
+        assertEquals(steady(1, 17), scheduler.drain(calories(149.0), 80, 10_000).map { it.second })
+        assertEquals(animation(2), scheduler.drain(calories(160.0), 80, 20_000).map { it.second })
 
-        val activeReducer = PintViewReducer()
-        assertEquals(steady(0, 19), activeReducer.accept(calories(149.0)))
-        assertEquals(animation(1), activeReducer.accept(calories(150.0)))
-        assertEquals(
-            PintViewUpdate.RefreshTransition(
-                steady = PintFrame.Steady(PintProgress(1, 1)),
-            ),
-            activeReducer.accept(calories(158.0), activeTransitionCompleted = 1),
-        )
-
-        val bucketReducer = PintViewReducer()
-        assertEquals(steady(0, 0), bucketReducer.accept(calories(1.0)))
-        assertEquals(steady(0, 0), bucketReducer.accept(calories(1.0), 400))
-        assertEquals(steady(0, 1), bucketReducer.accept(calories(20.0), 400))
+        val bucketScheduler = PintFrameScheduler()
+        assertEquals(steady(0, 0), bucketScheduler.drain(calories(1.0), nowMillis = 0).map { it.second })
+        assertEquals(steady(0, 0), bucketScheduler.drain(calories(1.0), 400, 10_000).map { it.second })
+        assertEquals(steady(0, 1), bucketScheduler.drain(calories(20.0), 400, 20_000).map { it.second })
         listOf(idle, unavailableState, searching).forEach {
-            assertEquals(unavailable, PintViewReducer().accept(it))
+            assertEquals(unavailable, PintFrameScheduler().drain(it, nowMillis = 0).map { it.second })
         }
-        assertEquals(steady(0, 10), PintViewReducer().accept(calories(75.0)))
+        assertEquals(steady(0, 10), PintFrameScheduler().drain(calories(75.0), nowMillis = 0).map { it.second })
+
+        // The completion transition paces each frame one second after the previous emission
+        assertEquals(
+            listOf(
+                0L to PintFrame.FullBubbles(1),
+                1_000L to PintFrame.Draining(1),
+                2_000L to PintFrame.Steady(PintProgress(1, 0)),
+            ),
+            PintFrameScheduler().apply { drain(calories(149.0), nowMillis = -10_000) }
+                .drain(calories(150.0), nowMillis = 0),
+        )
+        // A quick update waits for the one-Hz cap, and a newer state replaces it before it is shown
+        val pacedScheduler = PintFrameScheduler()
+        pacedScheduler.drain(calories(0.0), nowMillis = 0)
+        pacedScheduler.accept(unavailableState, BeerCaloriesPolicy.DEFAULT, nowMillis = 100)
+        assertEquals(900L, pacedScheduler.delayMillis(100))
+        assertEquals(
+            listOf(1_000L to PintFrame.Steady(PintProgress(0, 1))),
+            pacedScheduler.drain(calories(8.0), nowMillis = 200),
+        )
+        fun midTransition(): PintFrameScheduler = PintFrameScheduler().apply {
+            drain(calories(149.0), nowMillis = 0)
+            accept(calories(150.0), BeerCaloriesPolicy.DEFAULT, nowMillis = 10_000)
+            assertEquals(0L, delayMillis(10_000))
+            assertEquals(PintFrame.FullBubbles(1), take(10_000))
+        }
+        // A same-pint update refreshes where the transition lands without restarting it
+        val refreshed = midTransition()
+        assertEquals(
+            listOf(
+                11_000L to PintFrame.Draining(1),
+                12_000L to PintFrame.Steady(PintProgress(1, 1)),
+            ),
+            refreshed.drain(calories(158.0), nowMillis = 10_500),
+        )
+        assertEquals(emptyList<Pair<Long, PintFrame>>(), refreshed.drain(calories(158.0), nowMillis = 12_500))
+        // The plan's step delays are separate from pacing, even though both are one second today
+        assertEquals(
+            listOf(
+                TimedFrame(0, PintFrame.FullBubbles(1)),
+                TimedFrame(PintProgressReducer.ANIMATION_STEP_MILLIS, PintFrame.Draining(1)),
+                TimedFrame(PintProgressReducer.ANIMATION_STEP_MILLIS, PintFrame.Steady(PintProgress(1, 0))),
+            ),
+            PintProgressReducer.plan(PintProgress(0, 19), PintProgress(1, 0)),
+        )
+        // A same-pint update after the transition lands renders on the next paced second
+        val landed = midTransition()
+        assertEquals(
+            listOf(11_000L to PintFrame.Draining(1), 12_000L to PintFrame.Steady(PintProgress(1, 0))),
+            landed.drain(calories(150.0), nowMillis = 10_500),
+        )
+        assertEquals(
+            listOf(13_000L to PintFrame.Steady(PintProgress(1, 1))),
+            landed.drain(calories(158.0), nowMillis = 12_500),
+        )
+        // A target change, unavailable progress, or a different pint interrupts the transition
+        listOf(
+            Triple(calories(158.0), 300, PintFrame.Steady(PintProgress(0, 10))),
+            Triple(unavailableState, BeerCaloriesPolicy.DEFAULT, PintFrame.Unavailable),
+            Triple(calories(450.0), BeerCaloriesPolicy.DEFAULT, PintFrame.Steady(PintProgress(3, 0))),
+        ).forEach { (state, target, expected) ->
+            assertEquals(listOf(11_000L to expected), midTransition().drain(state, target, 10_500))
+        }
         assertEquals(480 to 200, size(480 to 200, 1f))
         assertEquals(481 to 201, size(961 to 401, 2f))
         assertEquals(120 to 200, size(0 to 400, 2f))
@@ -218,18 +273,28 @@ class CorePolicyBehaviorTest {
         ),
     )
 
-    private fun steady(completed: Int, bucket: Int) = render(
-        PintFrame.Steady(PintProgress(completed, bucket)),
+    /** Accepts [state] and takes every frame it schedules, each paired with the time it is due */
+    private fun PintFrameScheduler.drain(
+        state: StreamState,
+        caloriesPerBeer: Int = BeerCaloriesPolicy.DEFAULT,
+        nowMillis: Long,
+    ): List<Pair<Long, PintFrame>> {
+        accept(state, caloriesPerBeer, nowMillis)
+        var now = nowMillis
+        return buildList {
+            while (true) {
+                now += delayMillis(now) ?: break
+                add(now to take(now))
+            }
+        }
+    }
+
+    private fun steady(completed: Int, bucket: Int) = listOf(PintFrame.Steady(PintProgress(completed, bucket)))
+    private fun animation(completed: Int) = listOf(
+        PintFrame.FullBubbles(completed),
+        PintFrame.Draining(completed),
+        PintFrame.Steady(PintProgress(completed, 0)),
     )
-    private fun animation(completed: Int) = PintViewUpdate.BeginTransition(
-        transientFrames = listOf(
-            TimedFrame(0, PintFrame.FullBubbles(completed)),
-            TimedFrame(PintProgressReducer.ANIMATION_STEP_MILLIS, PintFrame.Draining(completed)),
-        ),
-        steadyDelayMillis = PintProgressReducer.ANIMATION_STEP_MILLIS,
-        steady = PintFrame.Steady(PintProgress(completed, 0)),
-    )
-    private fun render(frame: PintFrame) = PintViewUpdate.Render(frame)
     private fun calories(value: Double): StreamState = StreamState.Streaming(DataPoint(
         dataTypeId = "TYPE_CALORIES_ID",
         values = mapOf("FIELD_CALORIES_ID" to value),
@@ -245,6 +310,7 @@ class CorePolicyBehaviorTest {
         val idle = StreamState.Idle
         val unavailableState = StreamState.NotAvailable
         val searching = StreamState.Searching
-        val unavailable = PintViewUpdate.Render(PintFrame.Unavailable)
+        val unavailable = listOf(PintFrame.Unavailable)
+        val none = emptyList<PintFrame>()
     }
 }
