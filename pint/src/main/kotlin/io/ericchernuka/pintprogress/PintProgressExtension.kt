@@ -9,9 +9,10 @@ class PintProgressExtension : KarooExtension(EXTENSION_ID, BuildConfig.VERSION_N
     private val beerCalories by lazy { BeerCaloriesStore(this).values }
 
     override val types by lazy {
-        PintFieldStyle.entries.map { style ->
-            PintProgressDataType(karooSystem, beerCalories, extension, style)
-        }
+        listOf(
+            PintsFillDataType(karooSystem, beerCalories, extension),
+            PintsCountDataType(karooSystem, beerCalories, extension),
+        )
     }
 
     override fun onCreate() {
